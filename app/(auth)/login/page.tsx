@@ -1,179 +1,156 @@
 "use client"
 
 import Link from "next/link"
-import { GraduationCap, Eye, EyeOff } from "lucide-react"
+import { GraduationCap, Eye, EyeOff, ArrowRight } from "lucide-react"
 import { useState } from "react"
 
 export default function LoginPage() {
-  const [showPassword, setShowPassword] = useState(false)
+  const [showPw, setShowPw] = useState(false)
+  const [role, setRole] = useState<"student" | "tutor">("student")
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center px-4"
-      style={{ backgroundColor: "#0F172A" }}
-    >
+    <div style={{
+      minHeight: "100vh", backgroundColor: "#0f172a",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      padding: "24px", position: "relative",
+    }}>
       {/* Background glow */}
-      <div
-        className="fixed top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full opacity-5 blur-3xl pointer-events-none"
-        style={{ backgroundColor: "#3B82F6" }}
-      />
+      <div style={{
+        position: "fixed", top: "20%", left: "50%", transform: "translateX(-50%)",
+        width: 700, height: 400, borderRadius: "50%", pointerEvents: "none",
+        background: "radial-gradient(ellipse, rgba(59,130,246,0.12) 0%, transparent 70%)",
+      }} />
 
-      <div className="w-full max-w-md relative z-10">
-        {/* Logo */}
-        <div className="flex flex-col items-center mb-8">
-          <Link href="/" className="flex items-center gap-2.5 mb-6">
-            <div
-              className="flex items-center justify-center rounded-xl"
-              style={{ width: 44, height: 44, backgroundColor: "#3B82F6" }}
-            >
+      <div style={{ width: "100%", maxWidth: 440, position: "relative" }}>
+
+        {/* Logo & heading */}
+        <div style={{ textAlign: "center", marginBottom: 32 }}>
+          <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: 10, textDecoration: "none", marginBottom: 28 }}>
+            <div style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: "#3b82f6", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <GraduationCap size={24} color="#fff" />
             </div>
-            <span className="font-bold text-xl text-white">LearnFlow</span>
+            <span style={{ fontWeight: 800, fontSize: 20, color: "#f8fafc" }}>LearnFlow</span>
           </Link>
-          <h1 className="text-2xl font-bold text-white">Welcome back</h1>
-          <p className="text-sm mt-1" style={{ color: "#94A3B8" }}>
-            Sign in to continue your learning journey
-          </p>
+          <h1 style={{ fontSize: 28, fontWeight: 800, color: "#f8fafc", marginBottom: 8, letterSpacing: "-0.02em" }}>Welcome back</h1>
+          <p style={{ color: "#94a3b8", fontSize: 15 }}>Sign in to continue your learning journey</p>
         </div>
 
         {/* Card */}
-        <div
-          className="rounded-2xl p-8"
-          style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
-        >
-          <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
+        <div style={{ backgroundColor: "#1e293b", border: "1px solid #334155", borderRadius: 24, padding: "36px 32px" }}>
+
+          {/* Role toggle */}
+          <div style={{ display: "flex", backgroundColor: "#0f172a", borderRadius: 12, padding: 4, marginBottom: 28, gap: 4 }}>
+            {(["student", "tutor"] as const).map(r => (
+              <button
+                key={r}
+                onClick={() => setRole(r)}
+                style={{
+                  flex: 1, padding: "9px 0", borderRadius: 9, fontSize: 14, fontWeight: 600,
+                  border: "none", cursor: "pointer", transition: "all 0.15s",
+                  backgroundColor: role === r ? "#3b82f6" : "transparent",
+                  color: role === r ? "#fff" : "#64748b",
+                }}
+              >
+                {r === "student" ? "Student" : "Instructor"}
+              </button>
+            ))}
+          </div>
+
+          <form onSubmit={e => e.preventDefault()} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
             {/* Email */}
             <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium mb-1.5"
-                style={{ color: "#CBD5E1" }}
-              >
+              <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#cbd5e1", marginBottom: 7 }}>
                 Email address
               </label>
               <input
-                id="email"
                 type="email"
-                autoComplete="email"
                 placeholder="you@example.com"
-                className="w-full px-4 py-2.5 text-sm rounded-lg outline-none transition-all duration-200"
                 style={{
-                  backgroundColor: "#334155",
-                  color: "#F8FAFC",
-                  border: "1px solid #475569",
+                  width: "100%", padding: "11px 14px", borderRadius: 10,
+                  backgroundColor: "#0f172a", border: "1px solid #334155",
+                  color: "#f8fafc", fontSize: 14, outline: "none",
+                  boxSizing: "border-box",
                 }}
-                onFocus={(e) => (e.target.style.borderColor = "#3B82F6")}
-                onBlur={(e) => (e.target.style.borderColor = "#475569")}
+                onFocus={e => (e.target.style.borderColor = "#3b82f6")}
+                onBlur={e => (e.target.style.borderColor = "#334155")}
               />
             </div>
 
             {/* Password */}
             <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-medium"
-                  style={{ color: "#CBD5E1" }}
-                >
-                  Password
-                </label>
-                <Link
-                  href="/forgot-password"
-                  className="text-xs transition-colors"
-                  style={{ color: "#3B82F6" }}
-                >
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 7 }}>
+                <label style={{ fontSize: 13, fontWeight: 600, color: "#cbd5e1" }}>Password</label>
+                <Link href="/forgot-password" style={{ fontSize: 13, color: "#3b82f6", textDecoration: "none" }}>
                   Forgot password?
                 </Link>
               </div>
-              <div className="relative">
+              <div style={{ position: "relative" }}>
                 <input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  autoComplete="current-password"
+                  type={showPw ? "text" : "password"}
                   placeholder="••••••••"
-                  className="w-full px-4 py-2.5 pr-10 text-sm rounded-lg outline-none transition-all duration-200"
                   style={{
-                    backgroundColor: "#334155",
-                    color: "#F8FAFC",
-                    border: "1px solid #475569",
+                    width: "100%", padding: "11px 44px 11px 14px", borderRadius: 10,
+                    backgroundColor: "#0f172a", border: "1px solid #334155",
+                    color: "#f8fafc", fontSize: 14, outline: "none",
+                    boxSizing: "border-box",
                   }}
-                  onFocus={(e) => (e.target.style.borderColor = "#3B82F6")}
-                  onBlur={(e) => (e.target.style.borderColor = "#475569")}
+                  onFocus={e => (e.target.style.borderColor = "#3b82f6")}
+                  onBlur={e => (e.target.style.borderColor = "#334155")}
                 />
                 <button
                   type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2"
-                  style={{ color: "#64748B" }}
+                  onClick={() => setShowPw(!showPw)}
+                  style={{
+                    position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)",
+                    background: "none", border: "none", cursor: "pointer", color: "#64748b", padding: 0,
+                  }}
                 >
-                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  {showPw ? <EyeOff size={17} /> : <Eye size={17} />}
                 </button>
-              </div>
-            </div>
-
-            {/* Role selector */}
-            <div>
-              <label className="block text-sm font-medium mb-1.5" style={{ color: "#CBD5E1" }}>
-                Sign in as
-              </label>
-              <div className="grid grid-cols-2 gap-3">
-                {["Student", "Instructor"].map((role) => (
-                  <label
-                    key={role}
-                    className="flex items-center justify-center gap-2 py-2.5 rounded-lg cursor-pointer text-sm font-medium transition-all duration-150"
-                    style={{
-                      backgroundColor: role === "Student" ? "#3B82F620" : "#334155",
-                      border: `1px solid ${role === "Student" ? "#3B82F6" : "#475569"}`,
-                      color: role === "Student" ? "#60A5FA" : "#94A3B8",
-                    }}
-                  >
-                    <input type="radio" name="role" value={role} className="sr-only" defaultChecked={role === "Student"} />
-                    {role}
-                  </label>
-                ))}
               </div>
             </div>
 
             {/* Submit */}
             <button
               type="submit"
-              className="w-full py-3 rounded-xl text-sm font-semibold text-white transition-opacity duration-150 hover:opacity-90 mt-2"
-              style={{ backgroundColor: "#3B82F6" }}
+              style={{
+                width: "100%", padding: "13px", borderRadius: 11, border: "none",
+                backgroundColor: "#3b82f6", color: "#fff", fontSize: 15, fontWeight: 700,
+                cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                boxShadow: "0 4px 20px rgba(59,130,246,0.35)",
+              }}
             >
-              Sign in
+              Sign in <ArrowRight size={17} />
             </button>
           </form>
 
           {/* Divider */}
-          <div className="flex items-center gap-3 my-6">
-            <div className="flex-1 h-px" style={{ backgroundColor: "#334155" }} />
-            <span className="text-xs" style={{ color: "#64748B" }}>or continue with</span>
-            <div className="flex-1 h-px" style={{ backgroundColor: "#334155" }} />
+          <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "24px 0" }}>
+            <div style={{ flex: 1, height: 1, backgroundColor: "#334155" }} />
+            <span style={{ color: "#475569", fontSize: 13 }}>or continue with</span>
+            <div style={{ flex: 1, height: 1, backgroundColor: "#334155" }} />
           </div>
 
           {/* OAuth */}
-          <div className="grid grid-cols-2 gap-3">
-            {["Google", "GitHub"].map((provider) => (
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            {["Google", "GitHub"].map(p => (
               <button
-                key={provider}
-                className="py-2.5 rounded-lg text-sm font-medium transition-colors duration-150"
+                key={p}
                 style={{
-                  backgroundColor: "#334155",
-                  color: "#CBD5E1",
-                  border: "1px solid #475569",
+                  padding: "11px", borderRadius: 10, border: "1px solid #334155",
+                  backgroundColor: "#0f172a", color: "#cbd5e1", fontSize: 14, fontWeight: 600,
+                  cursor: "pointer",
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#475569")}
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#334155")}
               >
-                {provider}
+                {p}
               </button>
             ))}
           </div>
         </div>
 
-        <p className="text-center text-sm mt-6" style={{ color: "#64748B" }}>
+        <p style={{ textAlign: "center", marginTop: 24, fontSize: 14, color: "#64748b" }}>
           Don&apos;t have an account?{" "}
-          <Link href="/register" style={{ color: "#3B82F6" }} className="font-medium hover:underline">
+          <Link href="/register" style={{ color: "#3b82f6", fontWeight: 600, textDecoration: "none" }}>
             Sign up free
           </Link>
         </p>
