@@ -1,12 +1,15 @@
 "use client"
 
 import Link from "next/link"
-import { GraduationCap, Eye, EyeOff, BookOpen, Users } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { GraduationCap, Eye, EyeOff, BookOpen, Users, ArrowRight } from "lucide-react"
 import { useState } from "react"
 
 export default function RegisterPage() {
+  const router = useRouter()
   const [showPassword, setShowPassword] = useState(false)
   const [role, setRole] = useState<"student" | "tutor">("student")
+  const [loading, setLoading] = useState(false)
 
   return (
     <div
@@ -73,7 +76,16 @@ export default function RegisterPage() {
           className="rounded-2xl p-8"
           style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
         >
-          <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
+          <form
+            className="space-y-5"
+            onSubmit={(e) => {
+              e.preventDefault()
+              setLoading(true)
+              setTimeout(() => {
+                router.push(role === "student" ? "/student/dashboard" : "/tutor/dashboard")
+              }, 800)
+            }}
+          >
             {/* Name row */}
             <div className="grid grid-cols-2 gap-3">
               {["First name", "Last name"].map((label) => (
@@ -151,11 +163,20 @@ export default function RegisterPage() {
 
             <button
               type="submit"
-              className="w-full py-3 rounded-xl text-sm font-semibold text-white transition-opacity duration-150 hover:opacity-90"
-              style={{ backgroundColor: "#3B82F6" }}
+              disabled={loading}
+              className="w-full py-3 rounded-xl text-sm font-semibold text-white flex items-center justify-center gap-2"
+              style={{ backgroundColor: "#3B82F6", opacity: loading ? 0.85 : 1, cursor: loading ? "not-allowed" : "pointer" }}
             >
-              Create account
+              {loading ? (
+                <>
+                  <span style={{ width: 15, height: 15, border: "2px solid rgba(255,255,255,0.4)", borderTopColor: "#fff", borderRadius: "50%", display: "inline-block", animation: "spin 0.7s linear infinite" }} />
+                  Creating account…
+                </>
+              ) : (
+                <>Create account <ArrowRight size={15} /></>
+              )}
             </button>
+            <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
           </form>
 
           <div className="flex items-center gap-3 my-6">
