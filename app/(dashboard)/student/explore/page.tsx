@@ -3,8 +3,10 @@
 import { useState } from "react"
 import Link from "next/link"
 import { DashboardLayout } from "@/components/layout/DashboardLayout"
+import { CourseThumbnail } from "@/components/CourseThumbnail"
 import { COURSES, STUDENT_PROFILE } from "@/lib/data/courses"
 import type { CourseCategory, CourseLevel } from "@/lib/data/courses"
+import { usePurchases } from "@/lib/hooks/usePurchases"
 import {
   Search, Star, Clock, Users, Filter, X, ChevronRight, TrendingUp, Zap,
 } from "lucide-react"
@@ -30,10 +32,11 @@ const levelColors: Record<CourseLevel, string> = {
 }
 
 const levels: CourseLevel[] = ["Beginner", "Intermediate", "Advanced"]
-const enrolledIds = new Set(COURSES.filter((c) => c.progress !== undefined).map((c) => c.id))
 
 export default function ExplorePage() {
   const p = STUDENT_PROFILE
+  const { isPurchased } = usePurchases()
+  const enrolledIds = new Set(COURSES.filter((c) => c.progress !== undefined || isPurchased(c.id)).map((c) => c.id))
   const [query, setQuery] = useState("")
   const [category, setCategory] = useState<CourseCategory | "all">("all")
   const [selectedLevels, setSelectedLevels] = useState<Set<CourseLevel>>(new Set())
@@ -152,12 +155,7 @@ export default function ExplorePage() {
                   onMouseEnter={(e) => (e.currentTarget.style.borderColor = `${course.thumbnailColor}60`)}
                   onMouseLeave={(e) => (e.currentTarget.style.borderColor = "#334155")}
                 >
-                  <div
-                    className="flex items-center justify-center h-28 text-5xl"
-                    style={{ backgroundColor: `${course.thumbnailColor}12` }}
-                  >
-                    {course.thumbnail}
-                  </div>
+                  <CourseThumbnail course={course} locked={course.price !== "Free" && !enrolledIds.has(course.id)} />
                   <div className="p-4">
                     <div className="flex items-center justify-between mb-1.5">
                       <span
@@ -340,12 +338,7 @@ export default function ExplorePage() {
                   onMouseEnter={(e) => (e.currentTarget.style.borderColor = `${course.thumbnailColor}50`)}
                   onMouseLeave={(e) => (e.currentTarget.style.borderColor = "#334155")}
                 >
-                  <div
-                    className="flex items-center justify-center h-28 text-5xl"
-                    style={{ backgroundColor: `${course.thumbnailColor}10` }}
-                  >
-                    {course.thumbnail}
-                  </div>
+                  <CourseThumbnail course={course} locked={course.price !== "Free" && !enrolledIds.has(course.id)} />
                   <div className="p-4 flex flex-col flex-1">
                     <div className="flex items-center gap-2 mb-2 flex-wrap">
                       <span

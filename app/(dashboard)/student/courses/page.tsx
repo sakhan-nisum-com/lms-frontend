@@ -3,7 +3,12 @@
 import { useState } from "react"
 import Link from "next/link"
 import { DashboardLayout } from "@/components/layout/DashboardLayout"
+import { CourseThumbnail } from "@/components/CourseThumbnail"
 import { COURSES, STUDENT_PROFILE } from "@/lib/data/courses"
+import type { CourseCategory } from "@/lib/data/courses"
+import { usePurchases } from "@/lib/hooks/usePurchases"
+import { useAllProgress } from "@/lib/hooks/useProgress"
+import { getCourseProgress } from "@/lib/courseProgress"
 import {
   BookOpen, Play, CheckCircle2, Clock, Star, Filter,
   LayoutGrid, List, ChevronRight, AlertCircle, Lock,
@@ -11,7 +16,16 @@ import {
 
 type Tab = "all" | "in-progress" | "completed" | "not-started"
 
-const enrolled = COURSES.filter((c) => c.progress !== undefined)
+const categoryIcons: Record<CourseCategory, string> = {
+  Engineering: "💻",
+  "Data Science": "📊",
+  Design: "🎨",
+  Business: "📈",
+  Security: "🔒",
+  Compliance: "📋",
+  Leadership: "🎯",
+  Product: "📱",
+}
 
 function CourseStatusBadge({ progress, isMandatory }: { progress: number; isMandatory?: boolean }) {
   if (progress === 100)
@@ -28,10 +42,26 @@ const levelColors: Record<string, string> = {
 }
 
 export default function MyCoursesPage() {
+  const { isPurchased } = usePurchases()
+  const allProgress = useAllProgress()
   const [tab, setTab] = useState<Tab>("all")
+  const [category, setCategory] = useState<CourseCategory | "all">("all")
   const [view, setView] = useState<"grid" | "list">("grid")
 
-  const filtered = enrolled.filter((c) => {
+  // Statically-seeded enrollments plus anything bought through checkout, with
+  // `progress` overridden to reflect lessons actually marked complete in the
+  // player (not just the frozen mock value) — this is what unlocks the
+  // "Completed" status and certificate once every lesson is watched.
+  const enrolled = COURSES
+    .filter((c) => c.progress !== undefined || isPurchased(c.id))
+    .map((c) => ({ ...c, progress: getCourseProgress(c, allProgress).progressPct }))
+
+  // Only offer categories the learner actually has courses in.
+  const categories = Array.from(new Set(enrolled.map((c) => c.category))) as CourseCategory[]
+
+  const byCategory = category === "all" ? enrolled : enrolled.filter((c) => c.category === category)
+
+  const filtered = byCategory.filter((c) => {
     if (tab === "all") return true
     if (tab === "in-progress") return c.progress! > 0 && c.progress! < 100
     if (tab === "completed") return c.progress === 100
@@ -40,10 +70,10 @@ export default function MyCoursesPage() {
   })
 
   const counts = {
-    all: enrolled.length,
-    "in-progress": enrolled.filter((c) => c.progress! > 0 && c.progress! < 100).length,
-    completed: enrolled.filter((c) => c.progress === 100).length,
-    "not-started": enrolled.filter((c) => c.progress === 0).length,
+    all: byCategory.length,
+    "in-progress": byCategory.filter((c) => c.progress! > 0 && c.progress! < 100).length,
+    completed: byCategory.filter((c) => c.progress === 100).length,
+    "not-started": byCategory.filter((c) => c.progress === 0).length,
   }
 
   const p = STUDENT_PROFILE
@@ -88,6 +118,40 @@ export default function MyCoursesPage() {
             </div>
           ))}
         </div>
+
+        {/* Category filter */}
+        {categories.length > 1 && (
+          <div className="flex items-center gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
+            <span className="flex items-center gap-1.5 text-xs font-semibold flex-shrink-0" style={{ color: "#64748B" }}>
+              <Filter size={13} /> Category
+            </span>
+            <button
+              onClick={() => setCategory("all")}
+              className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex-shrink-0"
+              style={{
+                backgroundColor: category === "all" ? "#3B82F6" : "#1E293B",
+                color: category === "all" ? "#fff" : "#94A3B8",
+                border: `1px solid ${category === "all" ? "#3B82F6" : "#334155"}`,
+              }}
+            >
+              All
+            </button>
+            {categories.map((c) => (
+              <button
+                key={c}
+                onClick={() => setCategory(c)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex-shrink-0"
+                style={{
+                  backgroundColor: category === c ? "#3B82F6" : "#1E293B",
+                  color: category === c ? "#fff" : "#94A3B8",
+                  border: `1px solid ${category === c ? "#3B82F6" : "#334155"}`,
+                }}
+              >
+                <span>{categoryIcons[c]}</span> {c}
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* Tabs + View toggle */}
         <div className="flex items-center justify-between flex-wrap gap-3">
@@ -145,25 +209,16 @@ export default function MyCoursesPage() {
         ) : view === "grid" ? (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {filtered.map((course) => {
-              const totalLessons = course.sections.reduce((s, sec) => s + sec.lessons.length, 0)
-              const completedLessons = course.sections.reduce(
-                (s, sec) => s + sec.lessons.filter((l) => l.completed).length,
-                0
-              )
+              const { totalLessons, completedLessons } = getCourseProgress(course, allProgress)
               const isDone = course.progress === 100
+              const resumeHref = course.nextLessonId || course.sections[0]?.lessons[0]?.id
               return (
                 <div
                   key={course.id}
                   className="rounded-2xl overflow-hidden flex flex-col transition-all duration-150"
                   style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
                 >
-                  {/* Thumbnail */}
-                  <div
-                    className="flex items-center justify-center h-32 text-5xl"
-                    style={{ backgroundColor: `${course.thumbnailColor}10` }}
-                  >
-                    {course.thumbnail}
-                  </div>
+                  <CourseThumbnail course={course} heightClass="h-32" />
 
                   <div className="p-4 flex flex-col flex-1">
                     <div className="flex items-start gap-2 mb-2 flex-wrap">
@@ -220,7 +275,7 @@ export default function MyCoursesPage() {
                       </Link>
                       {!isDone && (
                         <Link
-                          href={`/student/courses/${course.id}/learn/${course.nextLessonId}`}
+                          href={`/student/courses/${course.id}/learn/${resumeHref}`}
                           className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold"
                           style={{ backgroundColor: "#3B82F6", color: "#fff" }}
                         >
@@ -229,7 +284,7 @@ export default function MyCoursesPage() {
                       )}
                       {isDone && (
                         <Link
-                          href="/student/certificates"
+                          href={`/student/certificates?course=${course.id}`}
                           className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold"
                           style={{ backgroundColor: "#10B98120", color: "#10B981" }}
                         >
@@ -247,6 +302,7 @@ export default function MyCoursesPage() {
           <div className="space-y-3">
             {filtered.map((course) => {
               const isDone = course.progress === 100
+              const resumeHref = course.nextLessonId || course.sections[0]?.lessons[0]?.id
               return (
                 <div
                   key={course.id}
@@ -297,11 +353,20 @@ export default function MyCoursesPage() {
                     </Link>
                     {!isDone && (
                       <Link
-                        href={`/student/courses/${course.id}/learn/${course.nextLessonId}`}
+                        href={`/student/courses/${course.id}/learn/${resumeHref}`}
                         className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold"
                         style={{ backgroundColor: "#3B82F6", color: "#fff" }}
                       >
                         <Play size={12} fill="#fff" /> Resume
+                      </Link>
+                    )}
+                    {isDone && (
+                      <Link
+                        href={`/student/certificates?course=${course.id}`}
+                        className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold"
+                        style={{ backgroundColor: "#10B98120", color: "#10B981" }}
+                      >
+                        <CheckCircle2 size={12} /> Certificate
                       </Link>
                     )}
                     <Link

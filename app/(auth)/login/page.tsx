@@ -1,12 +1,26 @@
 "use client"
 
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { GraduationCap, Eye, EyeOff, ArrowRight } from "lucide-react"
 import { useState } from "react"
 
 export default function LoginPage() {
+  const router = useRouter()
   const [showPw, setShowPw] = useState(false)
   const [role, setRole] = useState<"student" | "tutor">("student")
+  const [loading, setLoading] = useState(false)
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    // Simulate auth — redirect based on role
+    setTimeout(() => {
+      router.push(role === "student" ? "/student/dashboard" : "/tutor/dashboard")
+    }, 800)
+  }
 
   return (
     <div style={{
@@ -18,7 +32,7 @@ export default function LoginPage() {
       <div style={{
         position: "fixed", top: "20%", left: "50%", transform: "translateX(-50%)",
         width: 700, height: 400, borderRadius: "50%", pointerEvents: "none",
-        background: "radial-gradient(ellipse, rgba(59,130,246,0.12) 0%, transparent 70%)",
+        background: "radial-gradient(ellipse, rgba(59,130,246,0.14) 0%, transparent 70%)",
       }} />
 
       <div style={{ width: "100%", maxWidth: 440, position: "relative" }}>
@@ -40,7 +54,7 @@ export default function LoginPage() {
 
           {/* Role toggle */}
           <div style={{ display: "flex", backgroundColor: "#0f172a", borderRadius: 12, padding: 4, marginBottom: 28, gap: 4 }}>
-            {(["student", "tutor"] as const).map(r => (
+            {(["student", "tutor"] as const).map((r) => (
               <button
                 key={r}
                 onClick={() => setRole(r)}
@@ -56,7 +70,7 @@ export default function LoginPage() {
             ))}
           </div>
 
-          <form onSubmit={e => e.preventDefault()} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+          <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
             {/* Email */}
             <div>
               <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#cbd5e1", marginBottom: 7 }}>
@@ -65,14 +79,16 @@ export default function LoginPage() {
               <input
                 type="email"
                 placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
                 style={{
                   width: "100%", padding: "11px 14px", borderRadius: 10,
                   backgroundColor: "#0f172a", border: "1px solid #334155",
-                  color: "#f8fafc", fontSize: 14, outline: "none",
-                  boxSizing: "border-box",
+                  color: "#f8fafc", fontSize: 14, outline: "none", boxSizing: "border-box",
                 }}
-                onFocus={e => (e.target.style.borderColor = "#3b82f6")}
-                onBlur={e => (e.target.style.borderColor = "#334155")}
+                onFocus={(e) => (e.target.style.borderColor = "#3b82f6")}
+                onBlur={(e) => (e.target.style.borderColor = "#334155")}
               />
             </div>
 
@@ -88,22 +104,21 @@ export default function LoginPage() {
                 <input
                   type={showPw ? "text" : "password"}
                   placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
                   style={{
                     width: "100%", padding: "11px 44px 11px 14px", borderRadius: 10,
                     backgroundColor: "#0f172a", border: "1px solid #334155",
-                    color: "#f8fafc", fontSize: 14, outline: "none",
-                    boxSizing: "border-box",
+                    color: "#f8fafc", fontSize: 14, outline: "none", boxSizing: "border-box",
                   }}
-                  onFocus={e => (e.target.style.borderColor = "#3b82f6")}
-                  onBlur={e => (e.target.style.borderColor = "#334155")}
+                  onFocus={(e) => (e.target.style.borderColor = "#3b82f6")}
+                  onBlur={(e) => (e.target.style.borderColor = "#334155")}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPw(!showPw)}
-                  style={{
-                    position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)",
-                    background: "none", border: "none", cursor: "pointer", color: "#64748b", padding: 0,
-                  }}
+                  style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "#64748b", padding: 0 }}
                 >
                   {showPw ? <EyeOff size={17} /> : <Eye size={17} />}
                 </button>
@@ -113,14 +128,24 @@ export default function LoginPage() {
             {/* Submit */}
             <button
               type="submit"
+              disabled={loading}
               style={{
                 width: "100%", padding: "13px", borderRadius: 11, border: "none",
-                backgroundColor: "#3b82f6", color: "#fff", fontSize: 15, fontWeight: 700,
-                cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                backgroundColor: loading ? "#2563eb" : "#3b82f6", color: "#fff",
+                fontSize: 15, fontWeight: 700, cursor: loading ? "not-allowed" : "pointer",
+                display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
                 boxShadow: "0 4px 20px rgba(59,130,246,0.35)",
+                opacity: loading ? 0.85 : 1,
               }}
             >
-              Sign in <ArrowRight size={17} />
+              {loading ? (
+                <>
+                  <span style={{ width: 16, height: 16, border: "2px solid rgba(255,255,255,0.4)", borderTopColor: "#fff", borderRadius: "50%", display: "inline-block", animation: "spin 0.7s linear infinite" }} />
+                  Signing in…
+                </>
+              ) : (
+                <>Sign in <ArrowRight size={17} /></>
+              )}
             </button>
           </form>
 
@@ -133,14 +158,17 @@ export default function LoginPage() {
 
           {/* OAuth */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-            {["Google", "GitHub"].map(p => (
+            {["Google", "Microsoft"].map((p) => (
               <button
                 key={p}
+                onClick={() => router.push("/student/dashboard")}
                 style={{
                   padding: "11px", borderRadius: 10, border: "1px solid #334155",
                   backgroundColor: "#0f172a", color: "#cbd5e1", fontSize: 14, fontWeight: 600,
-                  cursor: "pointer",
+                  cursor: "pointer", transition: "border-color 0.15s",
                 }}
+                onMouseEnter={(e) => (e.currentTarget.style.borderColor = "#475569")}
+                onMouseLeave={(e) => (e.currentTarget.style.borderColor = "#334155")}
               >
                 {p}
               </button>
@@ -154,6 +182,27 @@ export default function LoginPage() {
             Sign up free
           </Link>
         </p>
+
+        {/* Quick demo links */}
+        <div style={{ textAlign: "center", marginTop: 16 }}>
+          <p style={{ fontSize: 12, color: "#475569", marginBottom: 8 }}>Quick demo access:</p>
+          <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
+            <Link
+              href="/student/dashboard"
+              style={{ fontSize: 12, color: "#3b82f6", textDecoration: "none", padding: "5px 12px", borderRadius: 8, border: "1px solid #3b82f630", backgroundColor: "#3b82f610" }}
+            >
+              → Student Dashboard
+            </Link>
+            <Link
+              href="/tutor/dashboard"
+              style={{ fontSize: 12, color: "#8B5CF6", textDecoration: "none", padding: "5px 12px", borderRadius: 8, border: "1px solid #8B5CF630", backgroundColor: "#8B5CF610" }}
+            >
+              → Tutor Dashboard
+            </Link>
+          </div>
+        </div>
+
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     </div>
   )

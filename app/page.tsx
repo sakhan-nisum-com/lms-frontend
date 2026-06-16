@@ -1,346 +1,515 @@
+"use client"
+
 import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { useEffect, useRef, useState } from "react"
+import { CourseThumbnail } from "@/components/CourseThumbnail"
+import { COURSES } from "@/lib/data/courses"
+import type { Course, CourseCategory } from "@/lib/data/courses"
+import { usePurchases } from "@/lib/hooks/usePurchases"
 import {
   GraduationCap,
-  BookOpen,
-  Users,
-  BarChart3,
-  Shield,
-  Zap,
+  Search,
+  ChevronDown,
+  Star,
   ArrowRight,
   CheckCircle2,
-  Play,
-  Star,
+  Menu,
+  X,
 } from "lucide-react"
 
-const features = [
-  {
-    icon: BookOpen,
-    title: "Rich Course Library",
-    desc: "Structured courses with video, quizzes, and hands-on labs across every domain.",
-    color: "#3B82F6",
-  },
-  {
-    icon: BarChart3,
-    title: "Progress Analytics",
-    desc: "Real-time dashboards for completion rates, quiz scores, and engagement.",
-    color: "#10B981",
-  },
-  {
-    icon: Users,
-    title: "Cohort Learning",
-    desc: "Create learning groups, assign curricula, and track team-wide progress.",
-    color: "#8B5CF6",
-  },
-  {
-    icon: Shield,
-    title: "Enterprise Ready",
-    desc: "SSO, RBAC, compliance reporting, and audit logs built in from day one.",
-    color: "#F59E0B",
-  },
-  {
-    icon: Zap,
-    title: "AI Learning Paths",
-    desc: "Adaptive paths that adjust to each learner's pace, strengths, and goals.",
-    color: "#EC4899",
-  },
-  {
-    icon: GraduationCap,
-    title: "Certifications",
-    desc: "Issue verifiable certificates recognized by leading institutions.",
-    color: "#06B6D4",
-  },
+const CATEGORIES: { label: string; value: CourseCategory; icon: string }[] = [
+  { label: "Engineering", value: "Engineering", icon: "💻" },
+  { label: "Data Science", value: "Data Science", icon: "📊" },
+  { label: "Design", value: "Design", icon: "🎨" },
+  { label: "Business", value: "Business", icon: "📈" },
+  { label: "Security", value: "Security", icon: "🔒" },
+  { label: "Compliance", value: "Compliance", icon: "📋" },
+  { label: "Leadership", value: "Leadership", icon: "🎯" },
+  { label: "Product", value: "Product", icon: "📱" },
 ]
 
-const stats = [
-  { value: "50K+", label: "Active Learners" },
-  { value: "1,200+", label: "Courses" },
-  { value: "98%", label: "Satisfaction" },
-  { value: "200+", label: "Enterprises" },
-]
+const SUGGESTED_SEARCHES = ["Python", "AWS Certification", "UX Design", "SQL", "Leadership", "Cybersecurity"]
 
-const plans = [
-  {
-    name: "Academic",
-    price: "Free",
-    period: "",
-    desc: "For students and independent learners",
-    features: ["200+ free courses", "Progress tracking", "Community forums", "Basic certificates"],
-    cta: "Get Started Free",
-    href: "/register",
-    hot: false,
-  },
-  {
-    name: "Pro",
-    price: "$29",
-    period: "/mo",
-    desc: "For professionals leveling up",
-    features: ["Full course library", "AI learning paths", "Priority support", "Verified certificates", "Offline access"],
-    cta: "Start Free Trial",
-    href: "/register",
-    hot: true,
-  },
-  {
-    name: "Enterprise",
-    price: "Custom",
-    period: "",
-    desc: "For teams and organizations",
-    features: ["Everything in Pro", "SSO & SCIM", "Admin dashboard", "Compliance reports", "Dedicated CSM"],
-    cta: "Contact Sales",
-    href: "/contact",
-    hot: false,
-  },
-]
+const topCourses = [...COURSES].sort((a, b) => b.studentsCount - a.studentsCount).slice(0, 8)
+const topRated = [...COURSES].sort((a, b) => b.rating - a.rating).slice(0, 8)
+const engineeringCourses = COURSES.filter((c) => c.category === "Engineering")
+const dataScienceCourses = COURSES.filter((c) => c.category === "Data Science")
 
 export default function HomePage() {
+  const router = useRouter()
+  const [search, setSearch] = useState("")
+  const [catOpen, setCatOpen] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
+  const [searchOpen, setSearchOpen] = useState<"header" | "hero" | null>(null)
+  const catRef = useRef<HTMLDivElement>(null)
+  const headerSearchRef = useRef<HTMLFormElement>(null)
+  const heroSearchRef = useRef<HTMLFormElement>(null)
+
+  useEffect(() => {
+    function handler(e: MouseEvent) {
+      if (catRef.current && !catRef.current.contains(e.target as Node)) setCatOpen(false)
+      const target = e.target as Node
+      const insideHeader = headerSearchRef.current?.contains(target)
+      const insideHero = heroSearchRef.current?.contains(target)
+      if (!insideHeader && !insideHero) setSearchOpen(null)
+    }
+    document.addEventListener("mousedown", handler)
+    return () => document.removeEventListener("mousedown", handler)
+  }, [])
+
+  const submitSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    router.push("/student/explore")
+  }
+
+  const query = search.trim().toLowerCase()
+  const searchResults = query
+    ? COURSES.filter((c) =>
+        c.title.toLowerCase().includes(query) ||
+        c.instructor.toLowerCase().includes(query) ||
+        c.category.toLowerCase().includes(query) ||
+        c.tags.some((t) => t.toLowerCase().includes(query))
+      ).slice(0, 6)
+    : []
+
   return (
     <div style={{ backgroundColor: "#0f172a", color: "#f8fafc", minHeight: "100vh" }}>
 
-      {/* ── NAV ── */}
+      {/* ── HEADER ── */}
       <header
         style={{
           position: "fixed", top: 0, left: 0, right: 0, zIndex: 50,
-          backgroundColor: "rgba(15,23,42,0.85)",
+          backgroundColor: "#0f172a",
           borderBottom: "1px solid #1e293b",
-          backdropFilter: "blur(12px)",
         }}
       >
-        <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
-            <div style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: "#3b82f6", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <GraduationCap size={20} color="#fff" />
+        <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 24px", height: 64, display: "flex", alignItems: "center", gap: 20 }}>
+
+          {/* Logo */}
+          <Link href="/" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none", flexShrink: 0 }}>
+            <div style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: "#3b82f6", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <GraduationCap size={18} color="#fff" />
             </div>
-            <span style={{ fontWeight: 700, fontSize: 18, color: "#f8fafc" }}>LearnFlow</span>
+            <span style={{ fontWeight: 800, fontSize: 18, color: "#f8fafc" }}>LearnFlow</span>
           </Link>
 
-          <nav style={{ display: "flex", alignItems: "center", gap: 32 }}>
-            {["Features", "Pricing", "About"].map(l => (
-              <Link key={l} href={`#${l.toLowerCase()}`} style={{ color: "#94a3b8", fontSize: 14, fontWeight: 500, textDecoration: "none" }}>{l}</Link>
-            ))}
-          </nav>
-
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <Link href="/login" style={{ color: "#94a3b8", fontSize: 14, fontWeight: 500, textDecoration: "none", padding: "8px 16px" }}>Sign in</Link>
-            <Link href="/register" style={{
-              backgroundColor: "#3b82f6", color: "#fff", fontSize: 14, fontWeight: 600,
-              padding: "8px 18px", borderRadius: 8, textDecoration: "none",
-            }}>
-              Get Started
-            </Link>
+          {/* Categories dropdown */}
+          <div ref={catRef} className="hidden md:block" style={{ position: "relative", flexShrink: 0 }}>
+            <button
+              onClick={() => setCatOpen(!catOpen)}
+              style={{
+                display: "flex", alignItems: "center", gap: 4, fontSize: 14, fontWeight: 600,
+                color: "#e2e8f0", background: "none", border: "none", cursor: "pointer", padding: "8px 4px",
+              }}
+            >
+              Categories <ChevronDown size={14} style={{ transform: catOpen ? "rotate(180deg)" : "none", transition: "transform 0.15s" }} />
+            </button>
+            {catOpen && (
+              <div
+                style={{
+                  position: "absolute", top: 44, left: 0, width: 380, borderRadius: 12,
+                  backgroundColor: "#1e293b", border: "1px solid #334155", boxShadow: "0 12px 32px rgba(0,0,0,0.4)",
+                  padding: 8, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2, zIndex: 60,
+                }}
+              >
+                {CATEGORIES.map((c) => (
+                  <Link
+                    key={c.value}
+                    href="/student/explore"
+                    onClick={() => setCatOpen(false)}
+                    style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 12px", borderRadius: 8, color: "#cbd5e1", fontSize: 13, textDecoration: "none" }}
+                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#334155")}
+                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+                  >
+                    <span style={{ fontSize: 16 }}>{c.icon}</span> {c.label}
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
+
+          {/* Search bar */}
+          <form ref={headerSearchRef} onSubmit={submitSearch} className="hidden sm:flex" style={{ flex: 1, maxWidth: 560, position: "relative" }}>
+            <Search size={15} style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "#64748b" }} />
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              onFocus={() => setSearchOpen("header")}
+              type="text"
+              placeholder="Search for anything"
+              style={{
+                width: "100%", padding: "10px 14px 10px 38px", borderRadius: 100,
+                backgroundColor: "#1e293b", border: "1px solid #334155", color: "#f8fafc", fontSize: 14, outline: "none",
+              }}
+            />
+            {searchOpen === "header" && query && (
+              <SearchDropdown results={searchResults} query={search} onSelect={() => setSearchOpen(null)} />
+            )}
+          </form>
+
+          {/* Right nav */}
+          <nav style={{ display: "flex", alignItems: "center", gap: 18, marginLeft: "auto", flexShrink: 0 }}>
+            <Link href="#business" className="hidden lg:inline" style={{ color: "#cbd5e1", fontSize: 13.5, fontWeight: 600, textDecoration: "none" }}>
+              LearnFlow Business
+            </Link>
+            <Link href="/instructor/register" className="hidden lg:inline" style={{ color: "#cbd5e1", fontSize: 13.5, fontWeight: 600, textDecoration: "none" }}>
+              Teach on LearnFlow
+            </Link>
+            <Link href="/login" className="hidden sm:inline" style={{ color: "#cbd5e1", fontSize: 13.5, fontWeight: 600, textDecoration: "none" }}>
+              Log in
+            </Link>
+            <Link href="/register" style={{
+              backgroundColor: "transparent", color: "#f8fafc", fontSize: 13.5, fontWeight: 700,
+              padding: "8px 16px", borderRadius: 8, textDecoration: "none", border: "1px solid #475569",
+            }}>
+              Sign up
+            </Link>
+            <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden" style={{ background: "none", border: "none", color: "#e2e8f0", cursor: "pointer" }}>
+              {mobileOpen ? <X size={22} /> : <Menu size={22} />}
+            </button>
+          </nav>
         </div>
+
+        {/* Mobile menu */}
+        {mobileOpen && (
+          <div className="md:hidden" style={{ borderTop: "1px solid #1e293b", padding: "12px 24px", display: "flex", flexDirection: "column", gap: 14 }}>
+            <Link href="/student/explore" onClick={() => setMobileOpen(false)} style={{ color: "#cbd5e1", fontSize: 14, fontWeight: 600, textDecoration: "none" }}>Categories</Link>
+            <Link href="#business" onClick={() => setMobileOpen(false)} style={{ color: "#cbd5e1", fontSize: 14, fontWeight: 600, textDecoration: "none" }}>LearnFlow Business</Link>
+            <Link href="/instructor/register" onClick={() => setMobileOpen(false)} style={{ color: "#cbd5e1", fontSize: 14, fontWeight: 600, textDecoration: "none" }}>Teach on LearnFlow</Link>
+            <Link href="/login" onClick={() => setMobileOpen(false)} style={{ color: "#cbd5e1", fontSize: 14, fontWeight: 600, textDecoration: "none" }}>Log in</Link>
+          </div>
+        )}
       </header>
 
-      {/* ── HERO ── */}
-      <section style={{ paddingTop: 160, paddingBottom: 100, textAlign: "center", position: "relative", overflow: "hidden" }}>
-        {/* Glow blobs */}
-        <div style={{
-          position: "absolute", top: 40, left: "50%", transform: "translateX(-50%)",
-          width: 900, height: 500, borderRadius: "50%",
-          background: "radial-gradient(ellipse, rgba(59,130,246,0.18) 0%, transparent 70%)",
-          pointerEvents: "none",
-        }} />
-        <div style={{
-          position: "absolute", top: 200, left: "10%",
-          width: 300, height: 300, borderRadius: "50%",
-          background: "radial-gradient(ellipse, rgba(139,92,246,0.12) 0%, transparent 70%)",
-          pointerEvents: "none",
-        }} />
+      <main style={{ paddingTop: 64 }}>
 
-        <div style={{ maxWidth: 800, margin: "0 auto", padding: "0 24px", position: "relative" }}>
-          {/* Badge */}
-          <div style={{
-            display: "inline-flex", alignItems: "center", gap: 8,
-            backgroundColor: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.25)",
-            borderRadius: 100, padding: "6px 16px", marginBottom: 28,
-          }}>
-            <Star size={13} color="#60a5fa" fill="#60a5fa" />
-            <span style={{ color: "#60a5fa", fontSize: 13, fontWeight: 600 }}>Trusted by 50,000+ learners worldwide</span>
-          </div>
-
-          <h1 style={{
-            fontSize: "clamp(40px, 6vw, 72px)", fontWeight: 800, lineHeight: 1.1,
-            letterSpacing: "-0.03em", color: "#f8fafc", marginBottom: 24,
-          }}>
-            The Modern LMS for{" "}
-            <span style={{
-              background: "linear-gradient(135deg, #3b82f6 0%, #60a5fa 50%, #a5f3fc 100%)",
-              WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
-            }}>
-              Every Learner
-            </span>
-          </h1>
-
-          <p style={{ fontSize: 18, color: "#94a3b8", lineHeight: 1.7, marginBottom: 40, maxWidth: 580, margin: "0 auto 40px" }}>
-            Structured learning paths, AI-powered recommendations, and real-time analytics — built for enterprises and universities alike.
-          </p>
-
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 16, flexWrap: "wrap" }}>
-            <Link href="/register" style={{
-              display: "inline-flex", alignItems: "center", gap: 8,
-              backgroundColor: "#3b82f6", color: "#fff", fontWeight: 700,
-              fontSize: 15, padding: "14px 28px", borderRadius: 12, textDecoration: "none",
-              boxShadow: "0 0 0 1px rgba(59,130,246,0.5), 0 8px 32px rgba(59,130,246,0.35)",
-            }}>
-              Start Learning Free <ArrowRight size={17} />
-            </Link>
-            <button style={{
-              display: "inline-flex", alignItems: "center", gap: 8,
-              backgroundColor: "#1e293b", color: "#cbd5e1", fontWeight: 600,
-              fontSize: 15, padding: "14px 28px", borderRadius: 12, border: "1px solid #334155",
-              cursor: "pointer",
-            }}>
-              <Play size={15} fill="#3b82f6" color="#3b82f6" /> Watch demo
-            </button>
-          </div>
-
-          {/* Stats */}
-          <div style={{ display: "flex", justifyContent: "center", gap: 48, marginTop: 72, flexWrap: "wrap" }}>
-            {stats.map(({ value, label }) => (
-              <div key={label}>
-                <div style={{ fontSize: 32, fontWeight: 800, color: "#f8fafc" }}>{value}</div>
-                <div style={{ fontSize: 13, color: "#64748b", marginTop: 4 }}>{label}</div>
-              </div>
-            ))}
+        {/* ── PROMO STRIP ── */}
+        <div style={{ backgroundColor: "#3b82f6" }}>
+          <div style={{ maxWidth: 1280, margin: "0 auto", padding: "8px 24px", display: "flex", alignItems: "center", justifyContent: "center", gap: 10, flexWrap: "wrap" }}>
+            <span style={{ fontSize: 13, fontWeight: 700, color: "#fff" }}>🎉 New learner offer — courses from $9.99</span>
+            <Link href="/register" style={{ fontSize: 13, fontWeight: 700, color: "#0f172a", textDecoration: "underline" }}>Claim offer →</Link>
           </div>
         </div>
-      </section>
 
-      {/* ── FEATURES ── */}
-      <section id="features" style={{ padding: "96px 24px" }}>
-        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-          <div style={{ textAlign: "center", marginBottom: 64 }}>
-            <h2 style={{ fontSize: 40, fontWeight: 800, color: "#f8fafc", letterSpacing: "-0.02em" }}>
-              Everything you need to grow
-            </h2>
-            <p style={{ color: "#94a3b8", fontSize: 17, marginTop: 12 }}>
-              A complete toolkit for learners, instructors, and admins.
+        {/* ── HERO ── */}
+        <section style={{ padding: "64px 24px 32px", textAlign: "center" }}>
+          <div style={{ maxWidth: 760, margin: "0 auto" }}>
+            <h1 style={{ fontSize: "clamp(34px, 5vw, 56px)", fontWeight: 800, lineHeight: 1.1, letterSpacing: "-0.02em", color: "#f8fafc", marginBottom: 18 }}>
+              Learn without limits
+            </h1>
+            <p style={{ fontSize: 17, color: "#94a3b8", lineHeight: 1.6, marginBottom: 32 }}>
+              Explore {COURSES.length}+ courses taught by real-world experts across engineering, data, design, business, and more.
             </p>
-          </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 20 }}>
-            {features.map(({ icon: Icon, title, desc, color }) => (
-              <div
-                key={title}
+            <form ref={heroSearchRef} onSubmit={submitSearch} style={{ position: "relative", maxWidth: 540, margin: "0 auto 20px" }}>
+              <Search size={18} style={{ position: "absolute", left: 18, top: "50%", transform: "translateY(-50%)", color: "#64748b" }} />
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                onFocus={() => setSearchOpen("hero")}
+                type="text"
+                placeholder="What do you want to learn?"
                 style={{
-                  backgroundColor: "#1e293b", border: "1px solid #334155",
-                  borderRadius: 20, padding: "28px 28px 32px",
+                  width: "100%", padding: "16px 16px 16px 48px", borderRadius: 100,
+                  backgroundColor: "#1e293b", border: "1px solid #334155", color: "#f8fafc", fontSize: 15, outline: "none",
                 }}
-              >
-                <div style={{
-                  width: 48, height: 48, borderRadius: 14, marginBottom: 20,
-                  backgroundColor: `${color}18`,
-                  display: "flex", alignItems: "center", justifyContent: "center",
+              />
+              <button type="submit" style={{
+                position: "absolute", right: 6, top: "50%", transform: "translateY(-50%)",
+                backgroundColor: "#3b82f6", color: "#fff", fontWeight: 700, fontSize: 13.5,
+                padding: "10px 20px", borderRadius: 100, border: "none", cursor: "pointer",
+              }}>
+                Search
+              </button>
+              {searchOpen === "hero" && query && (
+                <SearchDropdown results={searchResults} query={search} onSelect={() => setSearchOpen(null)} />
+              )}
+            </form>
+
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, flexWrap: "wrap" }}>
+              {SUGGESTED_SEARCHES.map((s) => (
+                <Link key={s} href="/student/explore" style={{
+                  fontSize: 12.5, color: "#94a3b8", border: "1px solid #334155", borderRadius: 100,
+                  padding: "5px 12px", textDecoration: "none",
                 }}>
-                  <Icon size={22} color={color} />
-                </div>
-                <h3 style={{ fontSize: 16, fontWeight: 700, color: "#f8fafc", marginBottom: 10 }}>{title}</h3>
-                <p style={{ fontSize: 14, color: "#94a3b8", lineHeight: 1.65 }}>{desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── PRICING ── */}
-      <section id="pricing" style={{ padding: "96px 24px", backgroundColor: "#0d1424" }}>
-        <div style={{ maxWidth: 1000, margin: "0 auto" }}>
-          <div style={{ textAlign: "center", marginBottom: 64 }}>
-            <h2 style={{ fontSize: 40, fontWeight: 800, color: "#f8fafc", letterSpacing: "-0.02em" }}>
-              Simple, transparent pricing
-            </h2>
-            <p style={{ color: "#94a3b8", fontSize: 17, marginTop: 12 }}>Start free. Scale as you grow.</p>
-          </div>
-
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 20 }}>
-            {plans.map((plan) => (
-              <div
-                key={plan.name}
-                style={{
-                  backgroundColor: plan.hot ? "#112240" : "#1e293b",
-                  border: `1px solid ${plan.hot ? "#3b82f6" : "#334155"}`,
-                  borderRadius: 24, padding: "32px 28px",
-                  boxShadow: plan.hot ? "0 0 60px rgba(59,130,246,0.15)" : "none",
-                  position: "relative", display: "flex", flexDirection: "column",
-                }}
-              >
-                {plan.hot && (
-                  <div style={{
-                    position: "absolute", top: -13, left: "50%", transform: "translateX(-50%)",
-                    backgroundColor: "#3b82f6", color: "#fff", fontSize: 12,
-                    fontWeight: 700, padding: "4px 16px", borderRadius: 100,
-                    letterSpacing: "0.02em",
-                  }}>
-                    MOST POPULAR
-                  </div>
-                )}
-
-                <div style={{ marginBottom: 28 }}>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: "#64748b", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 12 }}>
-                    {plan.name}
-                  </div>
-                  <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: 8 }}>
-                    <span style={{ fontSize: 44, fontWeight: 800, color: "#f8fafc", lineHeight: 1 }}>{plan.price}</span>
-                    {plan.period && <span style={{ color: "#64748b", fontSize: 16 }}>{plan.period}</span>}
-                  </div>
-                  <p style={{ fontSize: 14, color: "#64748b" }}>{plan.desc}</p>
-                </div>
-
-                <ul style={{ listStyle: "none", padding: 0, margin: "0 0 32px", flex: 1 }}>
-                  {plan.features.map(f => (
-                    <li key={f} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12, fontSize: 14, color: "#cbd5e1" }}>
-                      <CheckCircle2 size={16} color="#3b82f6" style={{ flexShrink: 0 }} />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-
-                <Link href={plan.href} style={{
-                  display: "block", textAlign: "center", padding: "12px",
-                  borderRadius: 12, fontSize: 14, fontWeight: 700,
-                  textDecoration: "none", color: "#fff",
-                  backgroundColor: plan.hot ? "#3b82f6" : "#334155",
-                }}>
-                  {plan.cta}
+                  {s}
                 </Link>
-              </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── TRUST BAR ── */}
+        <div style={{ borderTop: "1px solid #1e293b", borderBottom: "1px solid #1e293b", padding: "16px 24px" }}>
+          <p style={{ textAlign: "center", fontSize: 13, color: "#64748b" }}>
+            Trusted by <strong style={{ color: "#cbd5e1" }}>50,000+</strong> learners ·{" "}
+            <strong style={{ color: "#cbd5e1" }}>{COURSES.length}+</strong> courses ·{" "}
+            <strong style={{ color: "#cbd5e1" }}>98%</strong> satisfaction ·{" "}
+            <strong style={{ color: "#cbd5e1" }}>200+</strong> enterprises
+          </p>
+        </div>
+
+        {/* ── CATEGORY STRIP ── */}
+        <div style={{ maxWidth: 1280, margin: "0 auto", padding: "24px 24px 0" }}>
+          <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
+            {CATEGORIES.map((c) => (
+              <Link
+                key={c.value}
+                href="/student/explore"
+                className="flex items-center gap-1.5 flex-shrink-0"
+                style={{
+                  fontSize: 13.5, fontWeight: 600, color: "#cbd5e1", backgroundColor: "#1e293b",
+                  border: "1px solid #334155", borderRadius: 100, padding: "8px 16px", textDecoration: "none",
+                }}
+              >
+                <span style={{ fontSize: 14 }}>{c.icon}</span> {c.label}
+              </Link>
             ))}
           </div>
         </div>
-      </section>
 
-      {/* ── CTA ── */}
-      <section style={{ padding: "96px 24px" }}>
-        <div style={{ maxWidth: 700, margin: "0 auto", textAlign: "center", position: "relative" }}>
+        {/* ── COURSE ROWS ── */}
+        <CourseRow title="Top courses right now" courses={topCourses} />
+        <CourseRow title="Highest rated by learners" courses={topRated} />
+        <CourseRow title="Top courses in Engineering" courses={engineeringCourses} />
+        <CourseRow title="Top courses in Data Science" courses={dataScienceCourses} />
+
+        {/* ── BUSINESS PITCH ── */}
+        <section id="business" style={{ padding: "80px 24px", backgroundColor: "#0d1424" }}>
+          <div style={{ maxWidth: 1100, margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48, alignItems: "center" }} className="grid-cols-1 lg:grid-cols-2">
+            <div>
+              <span style={{ fontSize: 12.5, fontWeight: 700, color: "#60a5fa", letterSpacing: "0.06em", textTransform: "uppercase" }}>LearnFlow Business</span>
+              <h2 style={{ fontSize: 36, fontWeight: 800, color: "#f8fafc", letterSpacing: "-0.02em", margin: "12px 0 16px" }}>
+                Learning that gets your whole team ahead
+              </h2>
+              <p style={{ color: "#94a3b8", fontSize: 15.5, lineHeight: 1.7, marginBottom: 28 }}>
+                Give your organization unlimited access to our top-rated courses, real-time engagement analytics, and a dedicated customer success manager.
+              </p>
+              <ul style={{ listStyle: "none", padding: 0, margin: "0 0 32px" }}>
+                {[
+                  "Curated learning paths for every team",
+                  "Real-time engagement & completion analytics",
+                  "SSO, RBAC, and compliance reporting",
+                  "Dedicated customer success manager",
+                ].map((f) => (
+                  <li key={f} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14, fontSize: 14.5, color: "#cbd5e1" }}>
+                    <CheckCircle2 size={17} color="#3b82f6" style={{ flexShrink: 0 }} /> {f}
+                  </li>
+                ))}
+              </ul>
+              <Link href="/register" style={{
+                display: "inline-flex", alignItems: "center", gap: 8,
+                backgroundColor: "#3b82f6", color: "#fff", fontWeight: 700,
+                fontSize: 14.5, padding: "13px 26px", borderRadius: 10, textDecoration: "none",
+              }}>
+                Get LearnFlow Business <ArrowRight size={16} />
+              </Link>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+              {topRated.slice(0, 4).map((c) => (
+                <div key={c.id} style={{ backgroundColor: "#1e293b", border: "1px solid #334155", borderRadius: 16, padding: 20, textAlign: "center" }}>
+                  <div style={{ fontSize: 32, marginBottom: 8 }}>{c.thumbnail}</div>
+                  <p style={{ fontSize: 12.5, fontWeight: 700, color: "#f8fafc", lineHeight: 1.4 }}>{c.title}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── BECOME AN INSTRUCTOR ── */}
+        <section id="teach" style={{ padding: "80px 24px" }}>
           <div style={{
-            backgroundColor: "#1e293b", border: "1px solid #334155",
-            borderRadius: 28, padding: "72px 48px", overflow: "hidden", position: "relative",
+            maxWidth: 1000, margin: "0 auto", borderRadius: 28, padding: "64px 48px",
+            backgroundColor: "#1e293b", border: "1px solid #334155", textAlign: "center", position: "relative", overflow: "hidden",
           }}>
             <div style={{
               position: "absolute", inset: 0, pointerEvents: "none",
               background: "radial-gradient(ellipse at 50% 0%, rgba(59,130,246,0.15) 0%, transparent 65%)",
             }} />
-            <h2 style={{ fontSize: 40, fontWeight: 800, color: "#f8fafc", letterSpacing: "-0.02em", marginBottom: 16, position: "relative" }}>
-              Ready to start learning?
+            <h2 style={{ fontSize: 36, fontWeight: 800, color: "#f8fafc", letterSpacing: "-0.02em", marginBottom: 16, position: "relative" }}>
+              Turn what you know into an opportunity
             </h2>
-            <p style={{ color: "#94a3b8", fontSize: 17, marginBottom: 36, position: "relative" }}>
-              Join thousands of learners and teams already growing with LearnFlow.
+            <p style={{ color: "#94a3b8", fontSize: 16, marginBottom: 40, maxWidth: 540, margin: "0 auto 40px", position: "relative" }}>
+              Become an instructor and reach millions of learners — no matter your experience level.
             </p>
-            <Link href="/register" style={{
+            <div style={{ display: "flex", justifyContent: "center", gap: 40, marginBottom: 40, flexWrap: "wrap", position: "relative" }}>
+              {[
+                { title: "Teach your way", desc: "Publish the course you want, your way." },
+                { title: "Inspire learners", desc: "Help people learn new skills and grow." },
+                { title: "Get rewarded", desc: "Earn money for each paid enrollment." },
+              ].map((s) => (
+                <div key={s.title} style={{ maxWidth: 200 }}>
+                  <p style={{ fontSize: 14.5, fontWeight: 700, color: "#f8fafc", marginBottom: 6 }}>{s.title}</p>
+                  <p style={{ fontSize: 13, color: "#64748b", lineHeight: 1.5 }}>{s.desc}</p>
+                </div>
+              ))}
+            </div>
+            <Link href="/instructor/register" style={{
               display: "inline-flex", alignItems: "center", gap: 8,
               backgroundColor: "#3b82f6", color: "#fff", fontWeight: 700,
               fontSize: 15, padding: "14px 32px", borderRadius: 12, textDecoration: "none",
               boxShadow: "0 8px 32px rgba(59,130,246,0.35)", position: "relative",
             }}>
-              Create your free account <ArrowRight size={17} />
+              Start teaching today <ArrowRight size={17} />
             </Link>
           </div>
-        </div>
-      </section>
+        </section>
+      </main>
 
       {/* ── FOOTER ── */}
-      <footer style={{ borderTop: "1px solid #1e293b", padding: "32px 24px", textAlign: "center", color: "#475569", fontSize: 14 }}>
-        © 2025 LearnFlow · Built for learners, by learners
+      <footer style={{ borderTop: "1px solid #1e293b", padding: "56px 24px 24px" }}>
+        <div style={{ maxWidth: 1280, margin: "0 auto" }}>
+          <div className="grid grid-cols-2 md:grid-cols-4" style={{ gap: 32, marginBottom: 40 }}>
+            {[
+              { heading: "LearnFlow Business", links: [{ label: "Get LearnFlow Business", href: "#business" }, { label: "Teach on LearnFlow", href: "/instructor/register" }, { label: "Get the app", href: "#" }] },
+              { heading: "About", links: [{ label: "About us", href: "#" }, { label: "Careers", href: "#" }, { label: "Blog", href: "#" }, { label: "Investors", href: "#" }] },
+              { heading: "Support", links: [{ label: "Contact us", href: "#" }, { label: "Help and support", href: "#" }, { label: "Affiliate", href: "#" }, { label: "Cookie settings", href: "#" }] },
+              { heading: "Legal", links: [{ label: "Terms", href: "#" }, { label: "Privacy policy", href: "#" }, { label: "Sitemap", href: "#" }, { label: "Accessibility statement", href: "#" }] },
+            ].map((col) => (
+              <div key={col.heading}>
+                <p style={{ fontSize: 13, fontWeight: 700, color: "#f8fafc", marginBottom: 14 }}>{col.heading}</p>
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  {col.links.map((l) => (
+                    <Link key={l.label} href={l.href} style={{ fontSize: 13, color: "#64748b", textDecoration: "none" }}>
+                      {l.label}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+          <div style={{ borderTop: "1px solid #1e293b", paddingTop: 20, display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <GraduationCap size={18} color="#475569" />
+              <span style={{ fontSize: 13, color: "#475569" }}>© 2026 LearnFlow, Inc.</span>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 16, fontSize: 13, color: "#64748b" }}>
+              <span>🌐 English</span>
+              <span>$ USD</span>
+            </div>
+          </div>
+        </div>
       </footer>
     </div>
+  )
+}
+
+function Stars({ rating }: { rating: number }) {
+  const full = Math.round(rating)
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 1 }}>
+      {Array.from({ length: 5 }).map((_, i) => (
+        <Star key={i} size={11} fill={i < full ? "#F59E0B" : "none"} style={{ color: "#F59E0B" }} />
+      ))}
+    </div>
+  )
+}
+
+function CourseCard({ course }: { course: Course }) {
+  const isPaid = typeof course.price === "number"
+  const original = isPaid ? Math.round((course.price as number) * 1.8) : null
+  const { isPurchased } = usePurchases()
+  const owned = course.progress !== undefined || isPurchased(course.id)
+
+  return (
+    <Link
+      href={`/student/courses/${course.id}`}
+      className="flex-shrink-0 flex flex-col transition-all duration-150"
+      style={{ width: 230, borderRadius: 14, overflow: "hidden", backgroundColor: "#1E293B", border: "1px solid #334155" }}
+      onMouseEnter={(e) => (e.currentTarget.style.borderColor = `${course.thumbnailColor}60`)}
+      onMouseLeave={(e) => (e.currentTarget.style.borderColor = "#334155")}
+    >
+      <CourseThumbnail
+        course={course}
+        heightClass="h-[120px]"
+        locked={isPaid && !owned}
+        topLeftBadge={course.rating >= 4.8 ? (
+          <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 6px", borderRadius: 4, backgroundColor: "#FBBF24", color: "#1F2937" }}>
+            Bestseller
+          </span>
+        ) : undefined}
+      />
+      <div className="p-3 flex flex-col flex-1">
+        <h3 className="text-sm font-bold text-white mb-1 line-clamp-2 leading-snug">{course.title}</h3>
+        <p className="text-xs mb-2 truncate" style={{ color: "#64748B" }}>{course.instructor}</p>
+        <div className="flex items-center gap-1 mb-2">
+          <span className="text-xs font-bold" style={{ color: "#F59E0B" }}>{course.rating}</span>
+          <Stars rating={course.rating} />
+          <span className="text-xs" style={{ color: "#64748B" }}>({course.reviewCount.toLocaleString()})</span>
+        </div>
+        <div className="flex items-center gap-2 mt-auto">
+          <span className="text-sm font-bold" style={{ color: course.price === "Free" ? "#10B981" : "#F8FAFC" }}>
+            {course.price === "Free" ? "Free" : `$${course.price}`}
+          </span>
+          {original && <span className="text-xs line-through" style={{ color: "#475569" }}>${original}</span>}
+        </div>
+      </div>
+    </Link>
+  )
+}
+
+function SearchDropdown({ results, query, onSelect }: { results: Course[]; query: string; onSelect: () => void }) {
+  return (
+    <div
+      style={{
+        position: "absolute", left: 0, right: 0, top: "calc(100% + 8px)", borderRadius: 14,
+        backgroundColor: "#1e293b", border: "1px solid #334155", boxShadow: "0 16px 40px rgba(0,0,0,0.45)",
+        overflow: "hidden", zIndex: 70, textAlign: "left",
+      }}
+    >
+      {results.length === 0 ? (
+        <p style={{ padding: "20px 16px", fontSize: 13, color: "#64748b", textAlign: "center" }}>
+          No courses found for &ldquo;{query}&rdquo;
+        </p>
+      ) : (
+        <>
+          {results.map((c) => (
+            <Link
+              key={c.id}
+              href={`/student/courses/${c.id}`}
+              onClick={onSelect}
+              className="flex items-center gap-3"
+              style={{ padding: "10px 14px", borderBottom: "1px solid #33415560", textDecoration: "none" }}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#334155")}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+            >
+              <span style={{ fontSize: 20, flexShrink: 0 }}>{c.thumbnail}</span>
+              <span style={{ flex: 1, minWidth: 0 }}>
+                <span style={{ display: "block", fontSize: 13.5, fontWeight: 600, color: "#f8fafc", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                  {c.title}
+                </span>
+                <span style={{ display: "block", fontSize: 12, color: "#64748b" }}>{c.instructor} · {c.category}</span>
+              </span>
+              <span style={{ fontSize: 12.5, fontWeight: 700, color: c.price === "Free" ? "#10B981" : "#f8fafc", flexShrink: 0 }}>
+                {c.price === "Free" ? "Free" : `$${c.price}`}
+              </span>
+            </Link>
+          ))}
+          <Link
+            href="/student/explore"
+            onClick={onSelect}
+            className="block text-center"
+            style={{ padding: "10px", fontSize: 12.5, fontWeight: 700, color: "#3b82f6", textDecoration: "none" }}
+          >
+            See all results in catalog →
+          </Link>
+        </>
+      )}
+    </div>
+  )
+}
+
+function CourseRow({ title, courses }: { title: string; courses: Course[] }) {
+  if (courses.length === 0) return null
+  return (
+    <section style={{ maxWidth: 1280, margin: "0 auto", padding: "32px 24px 8px" }}>
+      <h2 className="text-xl font-bold text-white mb-4">{title}</h2>
+      <div className="flex gap-4 overflow-x-auto pb-2" style={{ scrollbarWidth: "none" }}>
+        {courses.map((c) => (
+          <CourseCard key={c.id} course={c} />
+        ))}
+      </div>
+    </section>
   )
 }
