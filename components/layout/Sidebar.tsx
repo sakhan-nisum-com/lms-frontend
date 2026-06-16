@@ -6,7 +6,7 @@ import {
   LayoutDashboard, BookOpen, Compass, Map, ClipboardList, Brain,
   BarChart3, Award, MessageSquare, Users, Calendar, UserCircle,
   Settings, LogOut, ChevronLeft, ChevronRight, GraduationCap,
-  Radio, Video, Wrench, GraduationCap as Training,
+  Radio, Video, Wrench, GraduationCap as Training, CalendarCheck,
 } from "lucide-react"
 import { useState } from "react"
 
@@ -37,6 +37,8 @@ const studentGroups: NavGroup[] = [
     label: "MY LEARNING",
     items: [
       { label: "My Courses", href: "/student/courses", icon: BookOpen },
+      { label: "My Trainings", href: "/student/my-trainings", icon: Training },
+      { label: "My Workshops", href: "/student/my-workshops", icon: CalendarCheck },
       { label: "Learning Paths", href: "/student/learning-paths", icon: Map },
       { label: "Explore Catalog", href: "/student/explore", icon: Compass },
     ],
@@ -134,7 +136,8 @@ export function Sidebar({ role }: SidebarProps) {
       }}
     >
       {/* Logo */}
-      <div
+      <Link
+        href="/"
         className="flex items-center gap-3 px-4 py-5 flex-shrink-0"
         style={{ borderBottom: "1px solid #334155" }}
       >
@@ -147,7 +150,7 @@ export function Sidebar({ role }: SidebarProps) {
         {!collapsed && (
           <span className="font-bold text-base tracking-tight text-white">LearnFlow</span>
         )}
-      </div>
+      </Link>
 
       {/* Role badge */}
       {!collapsed && (

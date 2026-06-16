@@ -4,6 +4,8 @@ import { useState, use } from "react"
 import Link from "next/link"
 import { COURSES, STUDENT_PROFILE } from "@/lib/data/courses"
 import { useProgress } from "@/lib/hooks/useProgress"
+import { usePurchases } from "@/lib/hooks/usePurchases"
+import { CourseThumbnail } from "@/components/CourseThumbnail"
 import {
   ChevronLeft, ChevronRight, CheckCircle2, Lock, Play,
   HelpCircle, FileText, PenLine, Wifi, Video,
@@ -30,6 +32,45 @@ export default function LessonPlayerPage({
   const { id, lessonId } = use(params)
   const course = COURSES.find((c) => c.id === id) ?? COURSES[0]
   const { completedIds, markComplete, isComplete } = useProgress(id)
+  const { isPurchased } = usePurchases()
+
+  const [playing, setPlaying] = useState(false)
+  const [notesOpen, setNotesOpen] = useState(false)
+  const [noteText, setNoteText] = useState("")
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+
+  const owned = course.progress !== undefined || isPurchased(course.id)
+
+  if (!owned) {
+    return (
+      <div className="flex h-screen items-center justify-center p-6" style={{ backgroundColor: "#0F172A" }}>
+        <div className="rounded-2xl p-8 text-center" style={{ maxWidth: 420, backgroundColor: "#1E293B", border: "1px solid #334155" }}>
+          <CourseThumbnail course={course} heightClass="h-32 mb-5" roundedClass="rounded-xl" />
+          <div className="mx-auto mb-4 flex items-center justify-center w-14 h-14 rounded-full" style={{ backgroundColor: "#3B82F620" }}>
+            <Lock size={24} style={{ color: "#60A5FA" }} />
+          </div>
+          <h1 className="text-lg font-bold text-white mb-2">Purchase this course to start watching</h1>
+          <p className="text-sm mb-6" style={{ color: "#94A3B8" }}><strong className="text-white">{course.title}</strong> isn&apos;t in your library yet. Buy it once and watch every lesson, anytime.</p>
+          <div className="flex items-center justify-center gap-3 flex-wrap">
+            <Link
+              href={course.price === "Free" ? `/student/courses/${course.id}` : `/student/courses/${course.id}/checkout`}
+              className="px-5 py-3 rounded-xl text-sm font-bold"
+              style={{ backgroundColor: "#3B82F6", color: "#fff" }}
+            >
+              {course.price === "Free" ? "Enroll for Free" : `Buy Now — $${course.price}`}
+            </Link>
+            <Link
+              href={`/student/courses/${course.id}`}
+              className="px-5 py-3 rounded-xl text-sm font-semibold"
+              style={{ backgroundColor: "#334155", color: "#CBD5E1" }}
+            >
+              Back to course
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   const allLessons = course.sections.flatMap((s) =>
     s.lessons.map((l) => ({ ...l, sectionTitle: s.title, sectionId: s.id }))
@@ -38,11 +79,6 @@ export default function LessonPlayerPage({
   const currentLesson = allLessons[currentIndex] ?? allLessons[0]
   const prevLesson = currentIndex > 0 ? allLessons[currentIndex - 1] : null
   const nextLesson = currentIndex < allLessons.length - 1 ? allLessons[currentIndex + 1] : null
-
-  const [playing, setPlaying] = useState(false)
-  const [notesOpen, setNotesOpen] = useState(false)
-  const [noteText, setNoteText] = useState("")
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
   // A lesson is done if the static data says so OR the user just marked it
   const isDone = (lId: string, staticDone: boolean) => staticDone || isComplete(lId)

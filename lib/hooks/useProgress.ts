@@ -44,3 +44,16 @@ export function useProgress(courseId: string) {
 
   return { completedIds, markComplete, isComplete }
 }
+
+// Returns the full progress store (every course's completed lesson IDs) — for
+// views that need completion status across many courses at once (My Courses,
+// Certificates) without calling useProgress() once per course.
+export function useAllProgress(): ProgressStore {
+  const [store, setStore] = useState<ProgressStore>({})
+
+  useEffect(() => {
+    setStore(load())
+  }, [])
+
+  return store
+}

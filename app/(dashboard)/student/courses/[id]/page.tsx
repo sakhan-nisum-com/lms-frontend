@@ -2,9 +2,12 @@
 
 import { useState, use } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { DashboardLayout } from "@/components/layout/DashboardLayout"
+import { CourseThumbnail } from "@/components/CourseThumbnail"
 import { COURSES, DISCUSSIONS, STUDENT_PROFILE } from "@/lib/data/courses"
 import { useProgress } from "@/lib/hooks/useProgress"
+import { usePurchases } from "@/lib/hooks/usePurchases"
 import {
   Play, Clock, Star, Users, BookOpen, CheckCircle2, Lock,
   ChevronDown, ChevronRight, Award, MessageSquare, FileText,
@@ -45,7 +48,9 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
   const { id } = use(params)
   const course = COURSES.find((c) => c.id === id) ?? COURSES[0]
   const p = STUDENT_PROFILE
+  const router = useRouter()
   const { isComplete } = useProgress(id)
+  const { isPurchased, purchase } = usePurchases()
   const [tab, setTab] = useState<Tab>("overview")
   const [openSections, setOpenSections] = useState<Set<string>>(new Set(["s1", "s2"]))
 
@@ -68,8 +73,19 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
   const totalDuration = course.totalDuration
   const courseDiscussions = DISCUSSIONS.filter((d) => d.courseId === course.id)
 
-  const isEnrolled = course.progress !== undefined
+  const isEnrolled = course.progress !== undefined || isPurchased(course.id)
   const isCourseComplete = progressPct === 100
+  const firstLessonId = course.sections[0]?.lessons[0]?.id
+  const continueHref = `/student/courses/${course.id}/learn/${course.nextLessonId || firstLessonId}`
+
+  const handleEnroll = () => {
+    if (course.price === "Free") {
+      purchase(course.id)
+      router.push(continueHref)
+    } else {
+      router.push(`/student/courses/${course.id}/checkout`)
+    }
+  }
 
   return (
     <DashboardLayout role="student" userName={p.name}>
@@ -151,12 +167,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
               className="lg:w-72 rounded-xl p-5 flex-shrink-0"
               style={{ backgroundColor: "#0F172A", border: "1px solid #334155" }}
             >
-              <div
-                className="flex items-center justify-center h-28 rounded-lg text-6xl mb-4"
-                style={{ backgroundColor: `${course.thumbnailColor}10` }}
-              >
-                {course.thumbnail}
-              </div>
+              <CourseThumbnail course={course} heightClass="h-28 mb-4" roundedClass="rounded-lg" locked={course.price !== "Free" && !isEnrolled} />
 
               {isEnrolled ? (
                 <>
@@ -182,11 +193,11 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
                     </Link>
                   ) : (
                     <Link
-                      href={`/student/courses/${course.id}/learn/${course.nextLessonId}`}
+                      href={continueHref}
                       className="block w-full text-center py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2"
                       style={{ backgroundColor: "#3B82F6", color: "#fff" }}
                     >
-                      <Play size={16} fill="#fff" /> Continue Learning
+                      <Play size={16} fill="#fff" /> {completedLessons === 0 ? "Start Learning" : "Continue Learning"}
                     </Link>
                   )}
                   {course.grade !== undefined && (
@@ -201,10 +212,11 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
                     {course.price === "Free" ? "Free" : `$${course.price}`}
                   </div>
                   <button
+                    onClick={handleEnroll}
                     className="block w-full text-center py-3 rounded-xl text-sm font-bold mb-2"
                     style={{ backgroundColor: "#3B82F6", color: "#fff" }}
                   >
-                    Enroll Now
+                    {course.price === "Free" ? "Enroll for Free" : "Enroll Now"}
                   </button>
                   <p className="text-xs text-center" style={{ color: "#64748B" }}>30-day money-back guarantee</p>
                 </>
@@ -401,7 +413,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
                               <div className="flex-shrink-0 w-5 flex items-center justify-center">
                                 {lessonDone ? (
                                   <CheckCircle2 size={14} style={{ color: "#10B981" }} />
-                                ) : lesson.locked ? (
+                                ) : lesson.locked || !isEnrolled ? (
                                   <Lock size={13} style={{ color: "#475569" }} />
                                 ) : (
                                   lessonTypeIcon(lesson.type)
@@ -410,7 +422,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
                               <span
                                 className="flex-1 text-sm"
                                 style={{
-                                  color: lesson.locked ? "#475569" : lessonDone ? "#64748B" : "#CBD5E1",
+                                  color: lesson.locked || !isEnrolled ? "#475569" : lessonDone ? "#64748B" : "#CBD5E1",
                                   textDecoration: lessonDone ? "line-through" : "none",
                                 }}
                               >
@@ -419,7 +431,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
                               <span className="text-xs flex-shrink-0" style={{ color: "#475569" }}>
                                 {lesson.duration}
                               </span>
-                              {!lesson.locked && (
+                              {!lesson.locked && isEnrolled && (
                                 <Link
                                   href={`/student/courses/${course.id}/learn/${lesson.id}`}
                                   className="text-xs px-2 py-0.5 rounded-lg flex-shrink-0"
