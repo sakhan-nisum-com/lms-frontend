@@ -7,54 +7,55 @@ import {
   Shield,
   Zap,
   ArrowRight,
-  Star,
   CheckCircle2,
+  Play,
+  Star,
 } from "lucide-react"
 
 const features = [
   {
     icon: BookOpen,
     title: "Rich Course Library",
-    description:
-      "Access hundreds of structured courses with video, quizzes, and hands-on projects across every domain.",
+    desc: "Structured courses with video, quizzes, and hands-on labs across every domain.",
+    color: "#3B82F6",
   },
   {
     icon: BarChart3,
     title: "Progress Analytics",
-    description:
-      "Real-time dashboards track completion rates, quiz scores, and time-on-task for every learner.",
+    desc: "Real-time dashboards for completion rates, quiz scores, and engagement.",
+    color: "#10B981",
   },
   {
     icon: Users,
-    title: "Team & Cohort Learning",
-    description:
-      "Create learning groups, assign curricula, and monitor team-wide progress in one place.",
+    title: "Cohort Learning",
+    desc: "Create learning groups, assign curricula, and track team-wide progress.",
+    color: "#8B5CF6",
   },
   {
     icon: Shield,
     title: "Enterprise Ready",
-    description:
-      "SSO, role-based access, compliance reporting, and audit logs built in from day one.",
+    desc: "SSO, RBAC, compliance reporting, and audit logs built in from day one.",
+    color: "#F59E0B",
   },
   {
     icon: Zap,
-    title: "AI-Powered Paths",
-    description:
-      "Adaptive learning paths that adjust to each learner's pace, strengths, and career goals.",
+    title: "AI Learning Paths",
+    desc: "Adaptive paths that adjust to each learner's pace, strengths, and goals.",
+    color: "#EC4899",
   },
   {
     icon: GraduationCap,
     title: "Certifications",
-    description:
-      "Issue verifiable certificates on course completion, recognized by leading institutions.",
+    desc: "Issue verifiable certificates recognized by leading institutions.",
+    color: "#06B6D4",
   },
 ]
 
 const stats = [
   { value: "50K+", label: "Active Learners" },
   { value: "1,200+", label: "Courses" },
-  { value: "98%", label: "Satisfaction Rate" },
-  { value: "200+", label: "Enterprise Clients" },
+  { value: "98%", label: "Satisfaction" },
+  { value: "200+", label: "Enterprises" },
 ]
 
 const plans = [
@@ -62,243 +63,243 @@ const plans = [
     name: "Academic",
     price: "Free",
     period: "",
-    description: "For students and independent learners",
-    features: [
-      "Access 200+ free courses",
-      "Progress tracking",
-      "Community forums",
-      "Basic certificates",
-    ],
+    desc: "For students and independent learners",
+    features: ["200+ free courses", "Progress tracking", "Community forums", "Basic certificates"],
     cta: "Get Started Free",
     href: "/register",
-    highlighted: false,
+    hot: false,
   },
   {
     name: "Pro",
     price: "$29",
-    period: "/month",
-    description: "For professionals leveling up",
-    features: [
-      "Full course library",
-      "AI learning paths",
-      "Priority support",
-      "Verified certificates",
-      "Offline downloads",
-    ],
+    period: "/mo",
+    desc: "For professionals leveling up",
+    features: ["Full course library", "AI learning paths", "Priority support", "Verified certificates", "Offline access"],
     cta: "Start Free Trial",
     href: "/register",
-    highlighted: true,
+    hot: true,
   },
   {
     name: "Enterprise",
     price: "Custom",
     period: "",
-    description: "For teams and organizations",
-    features: [
-      "Everything in Pro",
-      "SSO & SCIM",
-      "Admin dashboard",
-      "Compliance reports",
-      "Dedicated CSM",
-    ],
+    desc: "For teams and organizations",
+    features: ["Everything in Pro", "SSO & SCIM", "Admin dashboard", "Compliance reports", "Dedicated CSM"],
     cta: "Contact Sales",
     href: "/contact",
-    highlighted: false,
+    hot: false,
   },
 ]
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen" style={{ backgroundColor: "#0F172A", color: "#F8FAFC" }}>
-      {/* Navbar */}
-      <nav
-        className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-12 py-4"
+    <div style={{ backgroundColor: "#0f172a", color: "#f8fafc", minHeight: "100vh" }}>
+
+      {/* ── NAV ── */}
+      <header
         style={{
-          backgroundColor: "#0F172A",
-          borderBottom: "1px solid #1E293B",
+          position: "fixed", top: 0, left: 0, right: 0, zIndex: 50,
+          backgroundColor: "rgba(15,23,42,0.85)",
+          borderBottom: "1px solid #1e293b",
+          backdropFilter: "blur(12px)",
         }}
       >
-        <div className="flex items-center gap-2.5">
-          <div
-            className="flex items-center justify-center rounded-lg"
-            style={{ width: 36, height: 36, backgroundColor: "#3B82F6" }}
-          >
-            <GraduationCap size={20} color="#fff" />
-          </div>
-          <span className="font-bold text-lg text-white">LearnFlow</span>
-        </div>
-
-        <div className="hidden md:flex items-center gap-8 text-sm font-medium" style={{ color: "#94A3B8" }}>
-          <Link href="#features" className="hover:text-white transition-colors">Features</Link>
-          <Link href="#pricing" className="hover:text-white transition-colors">Pricing</Link>
-          <Link href="#about" className="hover:text-white transition-colors">About</Link>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <Link
-            href="/login"
-            className="px-4 py-2 text-sm font-medium rounded-lg transition-colors duration-150 hover:text-white"
-            style={{ color: "#94A3B8" }}
-          >
-            Sign in
-          </Link>
-          <Link
-            href="/register"
-            className="px-4 py-2 text-sm font-semibold rounded-lg transition-colors duration-150 text-white hover:opacity-90"
-            style={{ backgroundColor: "#3B82F6" }}
-          >
-            Get Started
-          </Link>
-        </div>
-      </nav>
-
-      {/* Hero */}
-      <section className="relative flex flex-col items-center text-center pt-40 pb-24 px-6 overflow-hidden">
-        <div
-          className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] rounded-full opacity-10 blur-3xl pointer-events-none"
-          style={{ backgroundColor: "#3B82F6" }}
-        />
-
-        <div
-          className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold mb-6"
-          style={{ backgroundColor: "#1D4ED820", color: "#60A5FA", border: "1px solid #3B82F630" }}
-        >
-          <Star size={12} />
-          Trusted by 50,000+ learners worldwide
-        </div>
-
-        <h1 className="text-5xl md:text-7xl font-bold leading-tight tracking-tight text-white max-w-4xl">
-          Learn Without{" "}
-          <span
-            style={{
-              background: "linear-gradient(135deg, #3B82F6, #60A5FA, #93C5FD)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-            }}
-          >
-            Limits
-          </span>
-        </h1>
-
-        <p className="mt-6 text-lg md:text-xl max-w-2xl leading-relaxed" style={{ color: "#94A3B8" }}>
-          The modern LMS built for enterprises and universities alike. Structured
-          learning paths, AI-powered recommendations, and real-time analytics — all in one platform.
-        </p>
-
-        <div className="flex flex-col sm:flex-row items-center gap-4 mt-10">
-          <Link
-            href="/register"
-            className="flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold text-white transition-all duration-200 hover:opacity-90"
-            style={{ backgroundColor: "#3B82F6", boxShadow: "0 0 24px #3B82F640" }}
-          >
-            Start Learning Free
-            <ArrowRight size={16} />
-          </Link>
-          <Link
-            href="/login"
-            className="px-6 py-3 rounded-xl text-sm font-medium transition-colors duration-150 hover:border-slate-500"
-            style={{
-              backgroundColor: "#1E293B",
-              color: "#CBD5E1",
-              border: "1px solid #334155",
-            }}
-          >
-            Sign in to your account
-          </Link>
-        </div>
-
-        <div className="flex flex-wrap justify-center gap-10 mt-20">
-          {stats.map(({ value, label }) => (
-            <div key={label} className="text-center">
-              <div className="text-3xl font-bold text-white">{value}</div>
-              <div className="text-sm mt-1" style={{ color: "#64748B" }}>{label}</div>
+        <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
+            <div style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: "#3b82f6", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <GraduationCap size={20} color="#fff" />
             </div>
-          ))}
-        </div>
-      </section>
+            <span style={{ fontWeight: 700, fontSize: 18, color: "#f8fafc" }}>LearnFlow</span>
+          </Link>
 
-      {/* Features */}
-      <section id="features" className="py-24 px-6 md:px-12">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-white">Everything you need to grow</h2>
-            <p className="mt-4 text-base max-w-xl mx-auto" style={{ color: "#94A3B8" }}>
-              A complete toolkit for learners, instructors, and administrators.
-            </p>
+          <nav style={{ display: "flex", alignItems: "center", gap: 32 }}>
+            {["Features", "Pricing", "About"].map(l => (
+              <Link key={l} href={`#${l.toLowerCase()}`} style={{ color: "#94a3b8", fontSize: 14, fontWeight: 500, textDecoration: "none" }}>{l}</Link>
+            ))}
+          </nav>
+
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <Link href="/login" style={{ color: "#94a3b8", fontSize: 14, fontWeight: 500, textDecoration: "none", padding: "8px 16px" }}>Sign in</Link>
+            <Link href="/register" style={{
+              backgroundColor: "#3b82f6", color: "#fff", fontSize: 14, fontWeight: 600,
+              padding: "8px 18px", borderRadius: 8, textDecoration: "none",
+            }}>
+              Get Started
+            </Link>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {features.map(({ icon: Icon, title, description }) => (
-              <div
-                key={title}
-                className="rounded-2xl p-6 transition-all duration-200 hover:border-blue-600"
-                style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
-              >
-                <div
-                  className="flex items-center justify-center w-10 h-10 rounded-xl mb-4"
-                  style={{ backgroundColor: "#3B82F620" }}
-                >
-                  <Icon size={20} style={{ color: "#3B82F6" }} />
-                </div>
-                <h3 className="font-semibold text-base text-white mb-2">{title}</h3>
-                <p className="text-sm leading-relaxed" style={{ color: "#94A3B8" }}>{description}</p>
+        </div>
+      </header>
+
+      {/* ── HERO ── */}
+      <section style={{ paddingTop: 160, paddingBottom: 100, textAlign: "center", position: "relative", overflow: "hidden" }}>
+        {/* Glow blobs */}
+        <div style={{
+          position: "absolute", top: 40, left: "50%", transform: "translateX(-50%)",
+          width: 900, height: 500, borderRadius: "50%",
+          background: "radial-gradient(ellipse, rgba(59,130,246,0.18) 0%, transparent 70%)",
+          pointerEvents: "none",
+        }} />
+        <div style={{
+          position: "absolute", top: 200, left: "10%",
+          width: 300, height: 300, borderRadius: "50%",
+          background: "radial-gradient(ellipse, rgba(139,92,246,0.12) 0%, transparent 70%)",
+          pointerEvents: "none",
+        }} />
+
+        <div style={{ maxWidth: 800, margin: "0 auto", padding: "0 24px", position: "relative" }}>
+          {/* Badge */}
+          <div style={{
+            display: "inline-flex", alignItems: "center", gap: 8,
+            backgroundColor: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.25)",
+            borderRadius: 100, padding: "6px 16px", marginBottom: 28,
+          }}>
+            <Star size={13} color="#60a5fa" fill="#60a5fa" />
+            <span style={{ color: "#60a5fa", fontSize: 13, fontWeight: 600 }}>Trusted by 50,000+ learners worldwide</span>
+          </div>
+
+          <h1 style={{
+            fontSize: "clamp(40px, 6vw, 72px)", fontWeight: 800, lineHeight: 1.1,
+            letterSpacing: "-0.03em", color: "#f8fafc", marginBottom: 24,
+          }}>
+            The Modern LMS for{" "}
+            <span style={{
+              background: "linear-gradient(135deg, #3b82f6 0%, #60a5fa 50%, #a5f3fc 100%)",
+              WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+            }}>
+              Every Learner
+            </span>
+          </h1>
+
+          <p style={{ fontSize: 18, color: "#94a3b8", lineHeight: 1.7, marginBottom: 40, maxWidth: 580, margin: "0 auto 40px" }}>
+            Structured learning paths, AI-powered recommendations, and real-time analytics — built for enterprises and universities alike.
+          </p>
+
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 16, flexWrap: "wrap" }}>
+            <Link href="/register" style={{
+              display: "inline-flex", alignItems: "center", gap: 8,
+              backgroundColor: "#3b82f6", color: "#fff", fontWeight: 700,
+              fontSize: 15, padding: "14px 28px", borderRadius: 12, textDecoration: "none",
+              boxShadow: "0 0 0 1px rgba(59,130,246,0.5), 0 8px 32px rgba(59,130,246,0.35)",
+            }}>
+              Start Learning Free <ArrowRight size={17} />
+            </Link>
+            <button style={{
+              display: "inline-flex", alignItems: "center", gap: 8,
+              backgroundColor: "#1e293b", color: "#cbd5e1", fontWeight: 600,
+              fontSize: 15, padding: "14px 28px", borderRadius: 12, border: "1px solid #334155",
+              cursor: "pointer",
+            }}>
+              <Play size={15} fill="#3b82f6" color="#3b82f6" /> Watch demo
+            </button>
+          </div>
+
+          {/* Stats */}
+          <div style={{ display: "flex", justifyContent: "center", gap: 48, marginTop: 72, flexWrap: "wrap" }}>
+            {stats.map(({ value, label }) => (
+              <div key={label}>
+                <div style={{ fontSize: 32, fontWeight: 800, color: "#f8fafc" }}>{value}</div>
+                <div style={{ fontSize: 13, color: "#64748b", marginTop: 4 }}>{label}</div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Pricing */}
-      <section id="pricing" className="py-24 px-6 md:px-12">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-white">Simple, transparent pricing</h2>
-            <p className="mt-4 text-base" style={{ color: "#94A3B8" }}>Start free. Scale as you grow.</p>
+      {/* ── FEATURES ── */}
+      <section id="features" style={{ padding: "96px 24px" }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: 64 }}>
+            <h2 style={{ fontSize: 40, fontWeight: 800, color: "#f8fafc", letterSpacing: "-0.02em" }}>
+              Everything you need to grow
+            </h2>
+            <p style={{ color: "#94a3b8", fontSize: 17, marginTop: 12 }}>
+              A complete toolkit for learners, instructors, and admins.
+            </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 20 }}>
+            {features.map(({ icon: Icon, title, desc, color }) => (
+              <div
+                key={title}
+                style={{
+                  backgroundColor: "#1e293b", border: "1px solid #334155",
+                  borderRadius: 20, padding: "28px 28px 32px",
+                }}
+              >
+                <div style={{
+                  width: 48, height: 48, borderRadius: 14, marginBottom: 20,
+                  backgroundColor: `${color}18`,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                }}>
+                  <Icon size={22} color={color} />
+                </div>
+                <h3 style={{ fontSize: 16, fontWeight: 700, color: "#f8fafc", marginBottom: 10 }}>{title}</h3>
+                <p style={{ fontSize: 14, color: "#94a3b8", lineHeight: 1.65 }}>{desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── PRICING ── */}
+      <section id="pricing" style={{ padding: "96px 24px", backgroundColor: "#0d1424" }}>
+        <div style={{ maxWidth: 1000, margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: 64 }}>
+            <h2 style={{ fontSize: 40, fontWeight: 800, color: "#f8fafc", letterSpacing: "-0.02em" }}>
+              Simple, transparent pricing
+            </h2>
+            <p style={{ color: "#94a3b8", fontSize: 17, marginTop: 12 }}>Start free. Scale as you grow.</p>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 20 }}>
             {plans.map((plan) => (
               <div
                 key={plan.name}
-                className="rounded-2xl p-6 flex flex-col relative"
                 style={{
-                  backgroundColor: plan.highlighted ? "#1D3A6B" : "#1E293B",
-                  border: `1px solid ${plan.highlighted ? "#3B82F6" : "#334155"}`,
-                  boxShadow: plan.highlighted ? "0 0 40px #3B82F620" : "none",
+                  backgroundColor: plan.hot ? "#112240" : "#1e293b",
+                  border: `1px solid ${plan.hot ? "#3b82f6" : "#334155"}`,
+                  borderRadius: 24, padding: "32px 28px",
+                  boxShadow: plan.hot ? "0 0 60px rgba(59,130,246,0.15)" : "none",
+                  position: "relative", display: "flex", flexDirection: "column",
                 }}
               >
-                {plan.highlighted && (
-                  <div
-                    className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-xs font-semibold text-white"
-                    style={{ backgroundColor: "#3B82F6" }}
-                  >
-                    Most Popular
+                {plan.hot && (
+                  <div style={{
+                    position: "absolute", top: -13, left: "50%", transform: "translateX(-50%)",
+                    backgroundColor: "#3b82f6", color: "#fff", fontSize: 12,
+                    fontWeight: 700, padding: "4px 16px", borderRadius: 100,
+                    letterSpacing: "0.02em",
+                  }}>
+                    MOST POPULAR
                   </div>
                 )}
-                <div className="mb-6">
-                  <h3
-                    className="text-xs font-semibold uppercase tracking-wider mb-1"
-                    style={{ color: "#94A3B8" }}
-                  >
+
+                <div style={{ marginBottom: 28 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: "#64748b", letterSpacing: "0.08em", textTransform: "uppercase", marginBottom: 12 }}>
                     {plan.name}
-                  </h3>
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-4xl font-bold text-white">{plan.price}</span>
-                    {plan.period && <span style={{ color: "#64748B" }}>{plan.period}</span>}
                   </div>
-                  <p className="text-sm mt-2" style={{ color: "#64748B" }}>{plan.description}</p>
+                  <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: 8 }}>
+                    <span style={{ fontSize: 44, fontWeight: 800, color: "#f8fafc", lineHeight: 1 }}>{plan.price}</span>
+                    {plan.period && <span style={{ color: "#64748b", fontSize: 16 }}>{plan.period}</span>}
+                  </div>
+                  <p style={{ fontSize: 14, color: "#64748b" }}>{plan.desc}</p>
                 </div>
-                <ul className="space-y-3 flex-1 mb-8">
-                  {plan.features.map((f) => (
-                    <li key={f} className="flex items-center gap-2 text-sm" style={{ color: "#CBD5E1" }}>
-                      <CheckCircle2 size={15} style={{ color: "#3B82F6", flexShrink: 0 }} />
+
+                <ul style={{ listStyle: "none", padding: 0, margin: "0 0 32px", flex: 1 }}>
+                  {plan.features.map(f => (
+                    <li key={f} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12, fontSize: 14, color: "#cbd5e1" }}>
+                      <CheckCircle2 size={16} color="#3b82f6" style={{ flexShrink: 0 }} />
                       {f}
                     </li>
                   ))}
                 </ul>
-                <Link
-                  href={plan.href}
-                  className="block text-center py-2.5 rounded-xl text-sm font-semibold transition-colors duration-150 text-white hover:opacity-90"
-                  style={{ backgroundColor: plan.highlighted ? "#3B82F6" : "#334155" }}
-                >
+
+                <Link href={plan.href} style={{
+                  display: "block", textAlign: "center", padding: "12px",
+                  borderRadius: 12, fontSize: 14, fontWeight: 700,
+                  textDecoration: "none", color: "#fff",
+                  backgroundColor: plan.hot ? "#3b82f6" : "#334155",
+                }}>
                   {plan.cta}
                 </Link>
               </div>
@@ -307,39 +308,38 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="py-24 px-6 md:px-12">
-        <div
-          className="max-w-3xl mx-auto text-center rounded-3xl py-16 px-8 relative overflow-hidden"
-          style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
-        >
-          <div
-            className="absolute inset-0 opacity-5 pointer-events-none"
-            style={{ background: "radial-gradient(circle at 50% 50%, #3B82F6, transparent 70%)" }}
-          />
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 relative">
-            Ready to start learning?
-          </h2>
-          <p className="text-base mb-8 relative" style={{ color: "#94A3B8" }}>
-            Join thousands of learners and teams already growing with LearnFlow.
-          </p>
-          <Link
-            href="/register"
-            className="inline-flex items-center gap-2 px-8 py-3 rounded-xl text-sm font-semibold text-white transition-colors duration-150 relative hover:opacity-90"
-            style={{ backgroundColor: "#3B82F6" }}
-          >
-            Create your free account
-            <ArrowRight size={16} />
-          </Link>
+      {/* ── CTA ── */}
+      <section style={{ padding: "96px 24px" }}>
+        <div style={{ maxWidth: 700, margin: "0 auto", textAlign: "center", position: "relative" }}>
+          <div style={{
+            backgroundColor: "#1e293b", border: "1px solid #334155",
+            borderRadius: 28, padding: "72px 48px", overflow: "hidden", position: "relative",
+          }}>
+            <div style={{
+              position: "absolute", inset: 0, pointerEvents: "none",
+              background: "radial-gradient(ellipse at 50% 0%, rgba(59,130,246,0.15) 0%, transparent 65%)",
+            }} />
+            <h2 style={{ fontSize: 40, fontWeight: 800, color: "#f8fafc", letterSpacing: "-0.02em", marginBottom: 16, position: "relative" }}>
+              Ready to start learning?
+            </h2>
+            <p style={{ color: "#94a3b8", fontSize: 17, marginBottom: 36, position: "relative" }}>
+              Join thousands of learners and teams already growing with LearnFlow.
+            </p>
+            <Link href="/register" style={{
+              display: "inline-flex", alignItems: "center", gap: 8,
+              backgroundColor: "#3b82f6", color: "#fff", fontWeight: 700,
+              fontSize: 15, padding: "14px 32px", borderRadius: 12, textDecoration: "none",
+              boxShadow: "0 8px 32px rgba(59,130,246,0.35)", position: "relative",
+            }}>
+              Create your free account <ArrowRight size={17} />
+            </Link>
+          </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer
-        className="py-8 px-6 text-center text-sm"
-        style={{ color: "#475569", borderTop: "1px solid #1E293B" }}
-      >
-        © 2025 LearnFlow. Built for learners, by learners.
+      {/* ── FOOTER ── */}
+      <footer style={{ borderTop: "1px solid #1e293b", padding: "32px 24px", textAlign: "center", color: "#475569", fontSize: 14 }}>
+        © 2025 LearnFlow · Built for learners, by learners
       </footer>
     </div>
   )

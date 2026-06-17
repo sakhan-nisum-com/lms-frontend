@@ -7,9 +7,14 @@ import {
   ChevronLeft, ChevronRight, CheckCircle2, Lock, Play,
   HelpCircle, FileText, PenLine, Wifi, Video,
   BookmarkPlus, Share2, MessageSquare, Settings2,
+<<<<<<< HEAD
   Volume2, Maximize2, Pause, SkipForward, RotateCcw,
 } from "lucide-react"
 import type { QuizQuestion } from "@/lib/data/courses"
+=======
+  Volume2, Maximize2, Pause, SkipForward,
+} from "lucide-react"
+>>>>>>> main
 
 const lessonTypeIcon = (type: string, size = 14) => {
   const s = size
@@ -23,6 +28,7 @@ const lessonTypeIcon = (type: string, size = 14) => {
   }
 }
 
+<<<<<<< HEAD
 const OPTION_LABELS = ["A", "B", "C", "D"]
 
 function QuizPlayer({
@@ -220,6 +226,8 @@ function QuizPlayer({
   )
 }
 
+=======
+>>>>>>> main
 export default function LessonPlayerPage({
   params,
 }: {
@@ -383,6 +391,7 @@ export default function LessonPlayerPage({
         <div className="flex-1 overflow-y-auto">
           <div className="max-w-4xl mx-auto px-6 py-6 space-y-6">
 
+<<<<<<< HEAD
             {/* Video player or Quiz */}
             {currentLesson?.type === "quiz" && currentLesson.questions && currentLesson.questions.length > 0 ? (
               <QuizPlayer
@@ -390,10 +399,14 @@ export default function LessonPlayerPage({
                 onComplete={() => setMarkedComplete(true)}
               />
             ) : (
+=======
+            {/* Video player */}
+>>>>>>> main
             <div
               className="rounded-2xl overflow-hidden relative"
               style={{ backgroundColor: "#0A0F1E", border: "1px solid #334155", aspectRatio: "16/9" }}
             >
+<<<<<<< HEAD
               {currentLesson?.videoId ? (
                 <iframe
                   key={currentLesson.videoId + currentLesson.id}
@@ -440,6 +453,40 @@ export default function LessonPlayerPage({
               )}
             </div>
             )}
+=======
+              {/* Mock video content */}
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
+                <div
+                  className="flex items-center justify-center w-20 h-20 rounded-full transition-transform cursor-pointer"
+                  style={{ backgroundColor: "#3B82F6", boxShadow: "0 0 40px rgba(59,130,246,0.4)" }}
+                  onClick={() => setPlaying(!playing)}
+                >
+                  {playing ? <Pause size={32} fill="#fff" color="#fff" /> : <Play size={32} fill="#fff" color="#fff" className="ml-1" />}
+                </div>
+                <p className="text-sm font-medium" style={{ color: "#64748B" }}>
+                  {currentLesson?.type === "video" ? currentLesson?.title : "Interactive content"}
+                </p>
+              </div>
+
+              {/* Video controls bar */}
+              <div
+                className="absolute bottom-0 left-0 right-0 px-4 py-3 flex items-center gap-3"
+                style={{ background: "linear-gradient(transparent, rgba(0,0,0,0.8))" }}
+              >
+                <button onClick={() => setPlaying(!playing)}>
+                  {playing ? <Pause size={16} fill="#fff" color="#fff" /> : <Play size={16} fill="#fff" color="#fff" />}
+                </button>
+                <button><SkipForward size={16} color="#9CA3AF" /></button>
+                <div className="flex-1 h-1 rounded-full cursor-pointer" style={{ backgroundColor: "#334155" }}>
+                  <div className="h-full rounded-full" style={{ width: "34%", backgroundColor: "#3B82F6" }} />
+                </div>
+                <span className="text-xs" style={{ color: "#9CA3AF" }}>8:12 / {currentLesson?.duration}</span>
+                <button><Volume2 size={16} color="#9CA3AF" /></button>
+                <button><Settings2 size={16} color="#9CA3AF" /></button>
+                <button><Maximize2 size={16} color="#9CA3AF" /></button>
+              </div>
+            </div>
+>>>>>>> main
 
             {/* Lesson header */}
             <div>
