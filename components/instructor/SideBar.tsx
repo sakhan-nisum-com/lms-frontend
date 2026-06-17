@@ -15,6 +15,7 @@ import {
   ChevronLeft,
   ChevronRight,
   X,
+  Target,
 } from "lucide-react"
 
 interface NavItem {
@@ -26,6 +27,7 @@ interface NavItem {
 const instructorNav: NavItem[] = [
   { label: "Dashboard",   href: "/instructor/dashboard",  icon: LayoutDashboard },
   { label: "My Courses",  href: "/instructor/courses",    icon: BookOpen },
+  { label: "Trainings",   href: "/instructor/trainings",  icon: Target },
   { label: "Students",    href: "/instructor/students",   icon: Users },
   { label: "Analytics",   href: "/instructor/analytics",  icon: BarChart3 },
   { label: "Revenue",     href: "/instructor/revenue",    icon: DollarSign },
