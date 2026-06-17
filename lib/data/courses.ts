@@ -513,7 +513,28 @@ export const COURSES: Course[] = [
     tags: ["Product Management", "User Research", "Roadmapping", "A/B Testing"],
     price: 129,
     certificateOffered: true,
-    sections: [],
+    sections: [
+      {
+        id: "s1",
+        title: "Product Discovery",
+        lessons: [
+          { id: "l-c7-1-1", title: "Understanding User Needs", duration: "18:20", type: "video", completed: false, locked: false },
+          { id: "l-c7-1-2", title: "Problem Framing & Opportunity Sizing", duration: "22:10", type: "video", completed: false, locked: false },
+          { id: "l-c7-1-3", title: "User Interviews 101", duration: "16:45", type: "video", completed: false, locked: false },
+          { id: "l-c7-1-4", title: "Module Quiz: Discovery", duration: "15:00", type: "quiz", completed: false, locked: false },
+        ],
+      },
+      {
+        id: "s2",
+        title: "Prioritization & Roadmapping",
+        lessons: [
+          { id: "l-c7-2-1", title: "RICE & ICE Frameworks", duration: "24:30", type: "video", completed: false, locked: false },
+          { id: "l-c7-2-2", title: "Building a Product Roadmap", duration: "28:15", type: "video", completed: false, locked: false },
+          { id: "l-c7-2-3", title: "Stakeholder Communication", duration: "19:50", type: "video", completed: false, locked: false },
+          { id: "l-c7-2-4", title: "Capstone: Ship a Roadmap", duration: "60:00", type: "assignment", completed: false, locked: false },
+        ],
+      },
+    ],
   },
   {
     id: "c8",
@@ -535,7 +556,27 @@ export const COURSES: Course[] = [
     price: 99,
     isMandatory: false,
     certificateOffered: true,
-    sections: [],
+    sections: [
+      {
+        id: "s1",
+        title: "Foundations of Leadership",
+        lessons: [
+          { id: "l-c8-1-1", title: "What Makes a Great Leader", duration: "16:00", type: "video", completed: false, locked: false },
+          { id: "l-c8-1-2", title: "Communication Styles", duration: "21:30", type: "video", completed: false, locked: false },
+          { id: "l-c8-1-3", title: "Active Listening & Feedback", duration: "18:45", type: "video", completed: false, locked: false },
+        ],
+      },
+      {
+        id: "s2",
+        title: "Leading Teams",
+        lessons: [
+          { id: "l-c8-2-1", title: "Conflict Resolution Strategies", duration: "26:10", type: "video", completed: false, locked: false },
+          { id: "l-c8-2-2", title: "Performance Management", duration: "24:00", type: "video", completed: false, locked: false },
+          { id: "l-c8-2-3", title: "Building Inclusive Cultures", duration: "20:15", type: "video", completed: false, locked: false },
+          { id: "l-c8-2-4", title: "Final Assessment", duration: "20:00", type: "quiz", completed: false, locked: false },
+        ],
+      },
+    ],
   },
   {
     id: "c9",
@@ -556,7 +597,27 @@ export const COURSES: Course[] = [
     tags: ["UX Design", "Figma", "User Research", "Prototyping", "Design Systems"],
     price: 139,
     certificateOffered: true,
-    sections: [],
+    sections: [
+      {
+        id: "s1",
+        title: "Research Foundations",
+        lessons: [
+          { id: "l-c9-1-1", title: "Intro to UX Research Methods", duration: "17:30", type: "video", completed: false, locked: false },
+          { id: "l-c9-1-2", title: "User Personas & Journey Maps", duration: "23:00", type: "video", completed: false, locked: false },
+          { id: "l-c9-1-3", title: "Conducting Usability Tests", duration: "21:15", type: "video", completed: false, locked: false },
+        ],
+      },
+      {
+        id: "s2",
+        title: "Prototyping in Figma",
+        lessons: [
+          { id: "l-c9-2-1", title: "Wireframing Basics", duration: "19:40", type: "video", completed: false, locked: false },
+          { id: "l-c9-2-2", title: "Building Interactive Prototypes", duration: "27:50", type: "video", completed: false, locked: false },
+          { id: "l-c9-2-3", title: "Design Systems 101", duration: "22:30", type: "video", completed: false, locked: false },
+          { id: "l-c9-2-4", title: "Capstone: Redesign a Flow", duration: "90:00", type: "assignment", completed: false, locked: false },
+        ],
+      },
+    ],
   },
   {
     id: "c10",
@@ -577,7 +638,27 @@ export const COURSES: Course[] = [
     tags: ["AWS", "Cloud", "Lambda", "Serverless", "CloudFormation"],
     price: 189,
     certificateOffered: true,
-    sections: [],
+    sections: [
+      {
+        id: "s1",
+        title: "AWS Foundations",
+        lessons: [
+          { id: "l-c10-1-1", title: "IAM & Account Security", duration: "20:00", type: "video", completed: false, locked: false },
+          { id: "l-c10-1-2", title: "VPC Networking Basics", duration: "26:40", type: "video", completed: false, locked: false },
+          { id: "l-c10-1-3", title: "EC2 & Compute Options", duration: "24:15", type: "video", completed: false, locked: false },
+        ],
+      },
+      {
+        id: "s2",
+        title: "Storage, Serverless & Deployment",
+        lessons: [
+          { id: "l-c10-2-1", title: "S3 & RDS Deep Dive", duration: "28:30", type: "video", completed: false, locked: false },
+          { id: "l-c10-2-2", title: "Lambda & Serverless Patterns", duration: "32:00", type: "video", completed: false, locked: false },
+          { id: "l-c10-2-3", title: "CloudFormation & IaC", duration: "25:45", type: "video", completed: false, locked: false },
+          { id: "l-c10-2-4", title: "Lab: Deploy a Serverless API", duration: "90:00", type: "assignment", completed: false, locked: false },
+        ],
+      },
+    ],
   },
   {
     id: "c11",
@@ -598,7 +679,26 @@ export const COURSES: Course[] = [
     tags: ["Python", "SQL", "pandas", "Data Analysis", "Visualization"],
     price: 109,
     certificateOffered: true,
-    sections: [],
+    sections: [
+      {
+        id: "s1",
+        title: "Python for Data Analysis",
+        lessons: [
+          { id: "l-c11-1-1", title: "pandas Fundamentals", duration: "22:00", type: "video", completed: false, locked: false },
+          { id: "l-c11-1-2", title: "Data Cleaning Techniques", duration: "26:15", type: "video", completed: false, locked: false },
+          { id: "l-c11-1-3", title: "NumPy Essentials", duration: "18:30", type: "video", completed: false, locked: false },
+        ],
+      },
+      {
+        id: "s2",
+        title: "SQL & Visualization",
+        lessons: [
+          { id: "l-c11-2-1", title: "SQL Joins & Aggregations", duration: "24:50", type: "video", completed: false, locked: false },
+          { id: "l-c11-2-2", title: "Building Dashboards with matplotlib", duration: "27:10", type: "video", completed: false, locked: false },
+          { id: "l-c11-2-3", title: "Capstone: Analyze a Dataset", duration: "75:00", type: "assignment", completed: false, locked: false },
+        ],
+      },
+    ],
   },
   {
     id: "c12",

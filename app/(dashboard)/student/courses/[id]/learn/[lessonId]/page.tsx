@@ -3,6 +3,9 @@
 import { useState, use } from "react"
 import Link from "next/link"
 import { COURSES, STUDENT_PROFILE } from "@/lib/data/courses"
+import { useProgress } from "@/lib/hooks/useProgress"
+import { usePurchases } from "@/lib/hooks/usePurchases"
+import { CourseThumbnail } from "@/components/CourseThumbnail"
 import {
   ChevronLeft, ChevronRight, CheckCircle2, Lock, Play,
   HelpCircle, FileText, PenLine, Wifi, Video,
@@ -12,14 +15,13 @@ import {
 import type { QuizQuestion } from "@/lib/data/courses"
 
 const lessonTypeIcon = (type: string, size = 14) => {
-  const s = size
   switch (type) {
-    case "video": return <Video size={s} style={{ color: "#3B82F6" }} />
-    case "quiz": return <HelpCircle size={s} style={{ color: "#8B5CF6" }} />
-    case "reading": return <FileText size={s} style={{ color: "#10B981" }} />
-    case "assignment": return <PenLine size={s} style={{ color: "#F59E0B" }} />
-    case "live": return <Wifi size={s} style={{ color: "#EC4899" }} />
-    default: return <Video size={s} style={{ color: "#3B82F6" }} />
+    case "video": return <Video size={size} style={{ color: "#3B82F6" }} />
+    case "quiz": return <HelpCircle size={size} style={{ color: "#8B5CF6" }} />
+    case "reading": return <FileText size={size} style={{ color: "#10B981" }} />
+    case "assignment": return <PenLine size={size} style={{ color: "#F59E0B" }} />
+    case "live": return <Wifi size={size} style={{ color: "#EC4899" }} />
+    default: return <Video size={size} style={{ color: "#3B82F6" }} />
   }
 }
 
@@ -226,22 +228,71 @@ export default function LessonPlayerPage({
   params: Promise<{ id: string; lessonId: string }>
 }) {
   const { id, lessonId } = use(params)
-  const p = STUDENT_PROFILE
   const course = COURSES.find((c) => c.id === id) ?? COURSES[0]
-
-  const allLessons = course.sections.flatMap((s) => s.lessons.map((l) => ({ ...l, sectionTitle: s.title })))
-  const currentIndex = allLessons.findIndex((l) => l.id === lessonId)
-  const currentLesson = allLessons[currentIndex] ?? allLessons[0]
-  const prevLesson = currentIndex > 0 ? allLessons[currentIndex - 1] : null
-  const nextLesson = currentIndex < allLessons.length - 1 ? allLessons[currentIndex + 1] : null
+  const { completedIds, markComplete, isComplete } = useProgress(id)
+  const { isPurchased } = usePurchases()
 
   const [playing, setPlaying] = useState(false)
   const [notesOpen, setNotesOpen] = useState(false)
   const [noteText, setNoteText] = useState("")
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
-  const [markedComplete, setMarkedComplete] = useState(currentLesson.completed)
 
-  const completedCount = allLessons.filter((l) => l.completed).length + (markedComplete && !currentLesson.completed ? 1 : 0)
+  const owned = course.progress !== undefined || isPurchased(course.id)
+
+  if (!owned) {
+    return (
+      <div className="flex h-screen items-center justify-center p-6" style={{ backgroundColor: "#0F172A" }}>
+        <div className="rounded-2xl p-8 text-center" style={{ maxWidth: 420, backgroundColor: "#1E293B", border: "1px solid #334155" }}>
+          <CourseThumbnail course={course} heightClass="h-32 mb-5" roundedClass="rounded-xl" />
+          <div className="mx-auto mb-4 flex items-center justify-center w-14 h-14 rounded-full" style={{ backgroundColor: "#3B82F620" }}>
+            <Lock size={24} style={{ color: "#60A5FA" }} />
+          </div>
+          <h1 className="text-lg font-bold text-white mb-2">Purchase this course to start watching</h1>
+          <p className="text-sm mb-6" style={{ color: "#94A3B8" }}><strong className="text-white">{course.title}</strong> isn&apos;t in your library yet. Buy it once and watch every lesson, anytime.</p>
+          <div className="flex items-center justify-center gap-3 flex-wrap">
+            <Link
+              href={course.price === "Free" ? `/student/courses/${course.id}` : `/student/courses/${course.id}/checkout`}
+              className="px-5 py-3 rounded-xl text-sm font-bold"
+              style={{ backgroundColor: "#3B82F6", color: "#fff" }}
+            >
+              {course.price === "Free" ? "Enroll for Free" : `Buy Now — $${course.price}`}
+            </Link>
+            <Link
+              href={`/student/courses/${course.id}`}
+              className="px-5 py-3 rounded-xl text-sm font-semibold"
+              style={{ backgroundColor: "#334155", color: "#CBD5E1" }}
+            >
+              Back to course
+            </Link>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  const allLessons = course.sections.flatMap((s) =>
+    s.lessons.map((l) => ({ ...l, sectionTitle: s.title, sectionId: s.id }))
+  )
+  const currentIndex = allLessons.findIndex((l) => l.id === lessonId)
+  const currentLesson = allLessons[currentIndex] ?? allLessons[0]
+  const prevLesson = currentIndex > 0 ? allLessons[currentIndex - 1] : null
+  const nextLesson = currentIndex < allLessons.length - 1 ? allLessons[currentIndex + 1] : null
+
+  // A lesson is done if the static data says so OR the user just marked it
+  const isDone = (lId: string, staticDone: boolean) => staticDone || isComplete(lId)
+
+  const completedCount = allLessons.filter((l) => isDone(l.id, l.completed)).length
+  const totalLessons = allLessons.length
+  const progressPct = totalLessons > 0 ? Math.round((completedCount / totalLessons) * 100) : 0
+
+  const currentDone = isDone(currentLesson.id, currentLesson.completed)
+
+  // Section completion derived from tracked state
+  const sectionProgress = course.sections.map((sec) => {
+    const lessons = sec.lessons
+    const done = lessons.filter((l) => isDone(l.id, l.completed)).length
+    return { ...sec, done, total: lessons.length, pct: Math.round((done / lessons.length) * 100) }
+  })
 
   return (
     <div className="flex h-screen overflow-hidden" style={{ backgroundColor: "#0F172A" }}>
@@ -268,13 +319,16 @@ export default function LessonPlayerPage({
           <h2 className="text-sm font-bold text-white leading-snug line-clamp-2">{course.title}</h2>
           <div className="mt-2">
             <div className="flex justify-between text-xs mb-1" style={{ color: "#64748B" }}>
-              <span>{completedCount}/{allLessons.length} completed</span>
-              <span>{course.progress}%</span>
+              <span>{completedCount}/{totalLessons} lessons</span>
+              <span style={{ color: progressPct === 100 ? "#10B981" : "#94A3B8" }}>{progressPct}%</span>
             </div>
             <div className="h-1.5 rounded-full" style={{ backgroundColor: "#334155" }}>
               <div
-                className="h-full rounded-full"
-                style={{ width: `${course.progress}%`, backgroundColor: "#3B82F6" }}
+                className="h-full rounded-full transition-all duration-500"
+                style={{
+                  width: `${progressPct}%`,
+                  backgroundColor: progressPct === 100 ? "#10B981" : "#3B82F6",
+                }}
               />
             </div>
           </div>
@@ -282,47 +336,67 @@ export default function LessonPlayerPage({
 
         {/* Lessons list */}
         <div className="flex-1 overflow-y-auto" style={{ scrollbarWidth: "none" }}>
-          {course.sections.map((section) => (
-            <div key={section.id}>
-              <div
-                className="px-4 py-2.5 text-xs font-bold uppercase tracking-wider"
-                style={{ color: "#475569", backgroundColor: "#172033", borderBottom: "1px solid #334155" }}
-              >
-                {section.title}
-              </div>
-              {section.lessons.map((lesson) => {
-                const active = lesson.id === (currentLesson?.id ?? lessonId)
-                const done = lesson.completed || (active && markedComplete)
-                return (
-                  <Link
-                    key={lesson.id}
-                    href={lesson.locked ? "#" : `/student/courses/${id}/learn/${lesson.id}`}
-                    className="flex items-start gap-3 px-4 py-3 text-sm transition-colors"
+          {course.sections.map((section, si) => {
+            const sp = sectionProgress[si]
+            const allSecDone = sp.done === sp.total
+            return (
+              <div key={section.id}>
+                {/* Section header */}
+                <div
+                  className="px-4 py-2.5 flex items-center justify-between"
+                  style={{ color: "#475569", backgroundColor: "#172033", borderBottom: "1px solid #334155" }}
+                >
+                  <span className="text-xs font-bold uppercase tracking-wider">{section.title}</span>
+                  <span
+                    className="text-xs font-semibold px-1.5 py-0.5 rounded-full flex items-center gap-1"
                     style={{
-                      backgroundColor: active ? "#3B82F620" : "transparent",
-                      color: lesson.locked ? "#475569" : active ? "#F8FAFC" : "#94A3B8",
-                      cursor: lesson.locked ? "not-allowed" : "pointer",
-                      borderLeft: active ? "2px solid #3B82F6" : "2px solid transparent",
+                      backgroundColor: allSecDone ? "#10B98120" : "#33415540",
+                      color: allSecDone ? "#10B981" : "#64748B",
                     }}
                   >
-                    <div className="flex-shrink-0 mt-0.5">
-                      {done ? (
-                        <CheckCircle2 size={14} style={{ color: "#10B981" }} />
-                      ) : lesson.locked ? (
-                        <Lock size={13} style={{ color: "#475569" }} />
-                      ) : (
-                        lessonTypeIcon(lesson.type)
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium leading-snug">{lesson.title}</p>
-                      <p className="text-xs mt-0.5" style={{ color: "#475569" }}>{lesson.duration}</p>
-                    </div>
-                  </Link>
-                )
-              })}
-            </div>
-          ))}
+                    {allSecDone && <CheckCircle2 size={10} />}
+                    {sp.done}/{sp.total}
+                  </span>
+                </div>
+
+                {section.lessons.map((lesson) => {
+                  const active = lesson.id === currentLesson.id
+                  const done = isDone(lesson.id, lesson.completed)
+                  return (
+                    <Link
+                      key={lesson.id}
+                      href={lesson.locked ? "#" : `/student/courses/${id}/learn/${lesson.id}`}
+                      className="flex items-start gap-3 px-4 py-3 text-sm transition-colors"
+                      style={{
+                        backgroundColor: active ? "#3B82F620" : "transparent",
+                        color: lesson.locked ? "#475569" : active ? "#F8FAFC" : "#94A3B8",
+                        cursor: lesson.locked ? "not-allowed" : "pointer",
+                        borderLeft: active ? "2px solid #3B82F6" : "2px solid transparent",
+                      }}
+                      onMouseEnter={(e) => { if (!active && !lesson.locked) e.currentTarget.style.backgroundColor = "#33415540" }}
+                      onMouseLeave={(e) => { if (!active) e.currentTarget.style.backgroundColor = active ? "#3B82F620" : "transparent" }}
+                    >
+                      <div className="flex-shrink-0 mt-0.5">
+                        {done ? (
+                          <CheckCircle2 size={14} style={{ color: "#10B981" }} />
+                        ) : lesson.locked ? (
+                          <Lock size={13} style={{ color: "#475569" }} />
+                        ) : (
+                          lessonTypeIcon(lesson.type)
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-medium leading-snug" style={{ textDecoration: done ? "line-through" : "none", opacity: done ? 0.6 : 1 }}>
+                          {lesson.title}
+                        </p>
+                        <p className="text-xs mt-0.5" style={{ color: "#475569" }}>{lesson.duration}</p>
+                      </div>
+                    </Link>
+                  )
+                })}
+              </div>
+            )
+          })}
         </div>
       </aside>
 
@@ -357,23 +431,13 @@ export default function LessonPlayerPage({
             >
               <PenLine size={13} /> Notes
             </button>
-            <button
-              className="p-1.5 rounded-lg transition-colors"
-              style={{ color: "#94A3B8", backgroundColor: "#334155" }}
-            >
+            <button className="p-1.5 rounded-lg" style={{ color: "#94A3B8", backgroundColor: "#334155" }}>
               <BookmarkPlus size={15} />
             </button>
-            <button
-              className="p-1.5 rounded-lg transition-colors"
-              style={{ color: "#94A3B8", backgroundColor: "#334155" }}
-            >
+            <button className="p-1.5 rounded-lg" style={{ color: "#94A3B8", backgroundColor: "#334155" }}>
               <Share2 size={15} />
             </button>
-            <Link
-              href="/student/discussions"
-              className="p-1.5 rounded-lg transition-colors"
-              style={{ color: "#94A3B8", backgroundColor: "#334155" }}
-            >
+            <Link href="/student/discussions" className="p-1.5 rounded-lg" style={{ color: "#94A3B8", backgroundColor: "#334155" }}>
               <MessageSquare size={15} />
             </Link>
           </div>
@@ -442,73 +506,61 @@ export default function LessonPlayerPage({
             )}
 
             {/* Lesson header */}
-            <div>
-              <div className="flex items-center gap-2 mb-2 flex-wrap">
-                <div className="flex items-center gap-1.5 text-xs" style={{ color: "#64748B" }}>
-                  {lessonTypeIcon(currentLesson?.type ?? "video", 13)}
-                  <span className="capitalize">{currentLesson?.type}</span>
+            <div className="flex items-start justify-between gap-4 flex-wrap">
+              <div>
+                <div className="flex items-center gap-2 mb-2 flex-wrap">
+                  <div className="flex items-center gap-1.5 text-xs" style={{ color: "#64748B" }}>
+                    {lessonTypeIcon(currentLesson?.type ?? "video", 13)}
+                    <span className="capitalize">{currentLesson?.type}</span>
+                  </div>
+                  <span className="text-xs" style={{ color: "#475569" }}>·</span>
+                  <span className="text-xs" style={{ color: "#64748B" }}>{currentLesson?.duration}</span>
+                  {currentDone && (
+                    <span className="flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full" style={{ backgroundColor: "#10B98120", color: "#10B981" }}>
+                      <CheckCircle2 size={11} /> Completed
+                    </span>
+                  )}
                 </div>
-                <span className="text-xs" style={{ color: "#475569" }}>·</span>
-                <span className="text-xs" style={{ color: "#64748B" }}>{currentLesson?.duration}</span>
+                <h1 className="text-xl font-bold text-white">{currentLesson?.title}</h1>
+                <p className="text-sm mt-1" style={{ color: "#64748B" }}>
+                  {(currentLesson as { sectionTitle?: string })?.sectionTitle ?? ""} · {course.instructor}
+                </p>
               </div>
-              <h1 className="text-xl font-bold text-white">{currentLesson?.title}</h1>
-              <p className="text-sm mt-1" style={{ color: "#64748B" }}>
-                {(currentLesson as { sectionTitle?: string })?.sectionTitle ?? ""} · {course.instructor}
-              </p>
             </div>
 
-            {/* Transcript sample */}
-            <div
-              className="rounded-2xl p-5"
-              style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
-            >
+            {/* Transcript */}
+            <div className="rounded-2xl p-5" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
               <h3 className="text-sm font-bold text-white mb-3">Transcript</h3>
               <div className="space-y-3 text-sm" style={{ color: "#94A3B8", lineHeight: 1.7 }}>
-                <p>
-                  <span className="text-xs mr-2 font-mono" style={{ color: "#475569" }}>0:00</span>
-                  Welcome back to the course. In this lesson, we&apos;re going to dive deep into Server Components and how they fundamentally change the way we think about data fetching in Next.js.
-                </p>
-                <p>
-                  <span className="text-xs mr-2 font-mono" style={{ color: "#475569" }}>0:42</span>
-                  Before we start, let me quickly recap what we covered in the previous lesson about the App Router architecture and why server-side rendering matters for performance.
-                </p>
-                <p>
-                  <span className="text-xs mr-2 font-mono" style={{ color: "#475569" }}>2:15</span>
-                  Server Components run exclusively on the server. They have direct access to your database, file system, and backend services without any client-side JavaScript being sent to the browser.
-                </p>
-                <p>
-                  <span className="text-xs mr-2 font-mono" style={{ color: "#475569" }}>4:30</span>
-                  This is the key insight: because Server Components never ship their code to the client, you can import heavy dependencies, secret keys, and database queries without any security or bundle-size concerns.
-                </p>
+                {[
+                  ["0:00", "Welcome back to the course. In this lesson, we're going to dive deep into Server Components and how they fundamentally change the way we think about data fetching in Next.js."],
+                  ["0:42", "Before we start, let me quickly recap what we covered in the previous lesson about the App Router architecture and why server-side rendering matters for performance."],
+                  ["2:15", "Server Components run exclusively on the server. They have direct access to your database, file system, and backend services without any client-side JavaScript being sent to the browser."],
+                  ["4:30", "This is the key insight: because Server Components never ship their code to the client, you can import heavy dependencies, secret keys, and database queries without any security or bundle-size concerns."],
+                ].map(([time, text]) => (
+                  <p key={time}>
+                    <span className="text-xs mr-2 font-mono" style={{ color: "#475569" }}>{time}</span>
+                    {text}
+                  </p>
+                ))}
               </div>
             </div>
 
             {/* Notes panel */}
             {notesOpen && (
-              <div
-                className="rounded-2xl p-5"
-                style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
-              >
+              <div className="rounded-2xl p-5" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
                 <h3 className="text-sm font-bold text-white mb-3">My Notes</h3>
                 <textarea
                   className="w-full rounded-xl p-3 text-sm resize-none outline-none"
-                  style={{
-                    backgroundColor: "#0F172A",
-                    border: "1px solid #334155",
-                    color: "#F8FAFC",
-                    minHeight: 120,
-                  }}
-                  placeholder="Take notes here... They&apos;ll be saved to this lesson."
+                  style={{ backgroundColor: "#0F172A", border: "1px solid #334155", color: "#F8FAFC", minHeight: 120 }}
+                  placeholder="Take notes here..."
                   value={noteText}
                   onChange={(e) => setNoteText(e.target.value)}
                   onFocus={(e) => (e.target.style.borderColor = "#3B82F6")}
                   onBlur={(e) => (e.target.style.borderColor = "#334155")}
                 />
                 <div className="flex justify-end mt-2">
-                  <button
-                    className="text-xs px-3 py-1.5 rounded-lg font-semibold"
-                    style={{ backgroundColor: "#3B82F6", color: "#fff" }}
-                  >
+                  <button className="text-xs px-3 py-1.5 rounded-lg font-semibold" style={{ backgroundColor: "#3B82F6", color: "#fff" }}>
                     Save Note
                   </button>
                 </div>
@@ -523,11 +575,12 @@ export default function LessonPlayerPage({
           className="flex items-center justify-between px-6 py-4 flex-shrink-0"
           style={{ backgroundColor: "#1E293B", borderTop: "1px solid #334155" }}
         >
+          {/* Prev */}
           <div>
             {prevLesson ? (
               <Link
                 href={`/student/courses/${id}/learn/${prevLesson.id}`}
-                className="flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-xl transition-colors"
+                className="flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-xl"
                 style={{ backgroundColor: "#334155", color: "#94A3B8" }}
               >
                 <ChevronLeft size={16} />
@@ -536,29 +589,29 @@ export default function LessonPlayerPage({
                   <p className="truncate max-w-36">{prevLesson.title}</p>
                 </span>
               </Link>
-            ) : (
-              <div />
-            )}
+            ) : <div />}
           </div>
 
+          {/* Mark complete */}
           <button
-            onClick={() => setMarkedComplete(true)}
+            onClick={() => markComplete(currentLesson.id, !currentDone)}
             className="flex items-center gap-2 text-sm font-semibold px-5 py-2.5 rounded-xl transition-all"
             style={{
-              backgroundColor: markedComplete ? "#10B98120" : "#3B82F6",
-              color: markedComplete ? "#10B981" : "#fff",
-              border: markedComplete ? "1px solid #10B98140" : "none",
+              backgroundColor: currentDone ? "#10B98120" : "#3B82F6",
+              color: currentDone ? "#10B981" : "#fff",
+              border: currentDone ? "1px solid #10B98140" : "none",
             }}
           >
             <CheckCircle2 size={16} />
-            {markedComplete ? "Marked Complete" : "Mark Complete"}
+            {currentDone ? "Completed ✓" : "Mark Complete"}
           </button>
 
+          {/* Next */}
           <div>
             {nextLesson && !nextLesson.locked ? (
               <Link
                 href={`/student/courses/${id}/learn/${nextLesson.id}`}
-                className="flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-xl transition-colors"
+                className="flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-xl"
                 style={{ backgroundColor: "#3B82F620", color: "#60A5FA" }}
               >
                 <span className="text-right">
@@ -567,8 +620,25 @@ export default function LessonPlayerPage({
                 </span>
                 <ChevronRight size={16} />
               </Link>
+            ) : nextLesson?.locked ? (
+              <div className="flex items-center gap-2 text-sm px-4 py-2 rounded-xl" style={{ backgroundColor: "#1E293B", color: "#475569" }}>
+                <span className="text-right">
+                  <p className="text-xs">Next</p>
+                  <p className="truncate max-w-36">{nextLesson.title}</p>
+                </span>
+                <Lock size={14} />
+              </div>
             ) : (
-              <div />
+              // Last lesson — course complete
+              currentDone ? (
+                <Link
+                  href={`/student/courses/${id}`}
+                  className="flex items-center gap-2 text-sm font-bold px-4 py-2 rounded-xl"
+                  style={{ backgroundColor: "#10B981", color: "#fff" }}
+                >
+                  <CheckCircle2 size={15} /> Course Complete!
+                </Link>
+              ) : <div />
             )}
           </div>
         </div>

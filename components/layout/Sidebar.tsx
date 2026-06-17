@@ -3,23 +3,10 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
-  LayoutDashboard,
-  BookOpen,
-  Compass,
-  Map,
-  ClipboardList,
-  Brain,
-  BarChart3,
-  Award,
-  MessageSquare,
-  Users,
-  Calendar,
-  UserCircle,
-  Settings,
-  LogOut,
-  ChevronLeft,
-  ChevronRight,
-  GraduationCap,
+  LayoutDashboard, BookOpen, Compass, Map, ClipboardList, Brain,
+  BarChart3, Award, MessageSquare, Users, Calendar, UserCircle,
+  Settings, LogOut, ChevronLeft, ChevronRight, GraduationCap,
+  Radio, Video, Wrench, GraduationCap as Training, CalendarCheck,
 } from "lucide-react"
 import { useState } from "react"
 
@@ -31,6 +18,7 @@ interface NavItem {
   icon: React.ElementType
   badge?: string
   badgeColor?: string
+  liveIndicator?: boolean
 }
 
 interface NavGroup {
@@ -49,8 +37,19 @@ const studentGroups: NavGroup[] = [
     label: "MY LEARNING",
     items: [
       { label: "My Courses", href: "/student/courses", icon: BookOpen },
+      { label: "My Trainings", href: "/student/my-trainings", icon: Training },
+      { label: "My Workshops", href: "/student/my-workshops", icon: CalendarCheck },
       { label: "Learning Paths", href: "/student/learning-paths", icon: Map },
       { label: "Explore Catalog", href: "/student/explore", icon: Compass },
+    ],
+  },
+  {
+    label: "LIVE & CONTENT",
+    items: [
+      { label: "Live Classes", href: "/student/live", icon: Radio, badge: "LIVE", badgeColor: "#EF4444", liveIndicator: true },
+      { label: "Videos", href: "/student/videos", icon: Video },
+      { label: "Workshops", href: "/student/workshops", icon: Wrench, badge: "3", badgeColor: "#10B981" },
+      { label: "Trainings", href: "/student/trainings", icon: Training },
     ],
   },
   {
@@ -130,34 +129,35 @@ export function Sidebar({ role }: SidebarProps) {
     <aside
       className="relative flex flex-col h-full transition-all duration-300 ease-in-out"
       style={{
-        width: collapsed ? "72px" : "240px",
+        width: collapsed ? "64px" : "240px",
         backgroundColor: "#1E293B",
         borderRight: "1px solid #334155",
         flexShrink: 0,
       }}
     >
       {/* Logo */}
-      <div
+      <Link
+        href="/"
         className="flex items-center gap-3 px-4 py-5 flex-shrink-0"
         style={{ borderBottom: "1px solid #334155" }}
       >
         <div
           className="flex items-center justify-center rounded-lg flex-shrink-0"
-          style={{ width: 36, height: 36, backgroundColor: "#3B82F6" }}
+          style={{ width: 34, height: 34, backgroundColor: "#3B82F6" }}
         >
-          <GraduationCap size={20} color="#fff" />
+          <GraduationCap size={18} color="#fff" />
         </div>
         {!collapsed && (
-          <span className="font-bold text-lg tracking-tight text-white">LearnFlow</span>
+          <span className="font-bold text-base tracking-tight text-white">LearnFlow</span>
         )}
-      </div>
+      </Link>
 
       {/* Role badge */}
       {!collapsed && (
-        <div className="px-4 pt-4 pb-2 flex-shrink-0">
+        <div className="px-4 pt-3 pb-1 flex-shrink-0">
           <span
-            className="text-xs font-semibold uppercase tracking-widest px-2 py-1 rounded"
-            style={{ color: "#3B82F6", backgroundColor: "#1D4ED820" }}
+            className="text-xs font-semibold uppercase tracking-widest px-2 py-0.5 rounded"
+            style={{ color: "#3B82F6", backgroundColor: "#1D4ED815" }}
           >
             {role === "student" ? "Student" : "Instructor"}
           </span>
@@ -165,31 +165,31 @@ export function Sidebar({ role }: SidebarProps) {
       )}
 
       {/* Nav */}
-      <nav className="flex-1 overflow-y-auto px-2 py-2 space-y-1" style={{ scrollbarWidth: "none" }}>
+      <nav className="flex-1 overflow-y-auto px-2 py-1" style={{ scrollbarWidth: "none" }}>
         {groups.map((group) => (
-          <div key={group.label} className="mb-1">
-            {/* Group label */}
+          <div key={group.label} className="mb-0.5">
             {!collapsed && (
               <div
-                className="px-3 pt-4 pb-1.5 text-xs font-semibold tracking-widest"
-                style={{ color: "#475569" }}
+                className="px-3 pt-3.5 pb-1 text-xs font-bold tracking-widest"
+                style={{ color: "#3F5068", letterSpacing: "0.09em" }}
               >
                 {group.label}
               </div>
             )}
-            {collapsed && <div className="pt-3" />}
+            {collapsed && <div className="pt-2.5" />}
 
-            {group.items.map(({ label, href, icon: Icon, badge, badgeColor }) => {
+            {group.items.map(({ label, href, icon: Icon, badge, badgeColor, liveIndicator }) => {
               const active = pathname === href || pathname.startsWith(href + "/")
               return (
                 <Link
                   key={href}
                   href={href}
                   title={collapsed ? label : undefined}
-                  className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150"
+                  className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium transition-all duration-150 relative"
                   style={{
-                    backgroundColor: active ? "#3B82F620" : "transparent",
+                    backgroundColor: active ? "#3B82F618" : "transparent",
                     color: active ? "#60A5FA" : "#94A3B8",
+                    marginBottom: 1,
                   }}
                   onMouseEnter={(e) => {
                     if (!active) {
@@ -204,26 +204,39 @@ export function Sidebar({ role }: SidebarProps) {
                     }
                   }}
                 >
-                  <Icon
-                    size={17}
-                    style={{ flexShrink: 0, color: active ? "#3B82F6" : "inherit" }}
-                  />
+                  {/* Active left bar */}
+                  {active && (
+                    <span
+                      className="absolute left-0 top-1 bottom-1 w-0.5 rounded-r"
+                      style={{ backgroundColor: "#3B82F6" }}
+                    />
+                  )}
+
+                  <div className="relative flex-shrink-0">
+                    <Icon size={16} style={{ color: active ? "#3B82F6" : "inherit" }} />
+                    {liveIndicator && !collapsed && (
+                      <span
+                        className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full"
+                        style={{ backgroundColor: "#EF4444", boxShadow: "0 0 0 2px #1E293B" }}
+                      />
+                    )}
+                  </div>
+
                   {!collapsed && (
                     <>
-                      <span className="flex-1">{label}</span>
+                      <span className="flex-1 truncate">{label}</span>
                       {badge && (
                         <span
-                          className="text-xs font-bold px-1.5 py-0.5 rounded-full"
-                          style={{ backgroundColor: `${badgeColor}22`, color: badgeColor, fontSize: 11 }}
+                          className="text-xs font-bold px-1.5 py-0.5 rounded-full flex-shrink-0"
+                          style={{
+                            backgroundColor: liveIndicator ? "#EF444422" : `${badgeColor}22`,
+                            color: badgeColor,
+                            fontSize: liveIndicator ? 9 : 10,
+                            letterSpacing: liveIndicator ? "0.04em" : 0,
+                          }}
                         >
                           {badge}
                         </span>
-                      )}
-                      {active && !badge && (
-                        <span
-                          className="w-1.5 h-1.5 rounded-full"
-                          style={{ backgroundColor: "#3B82F6" }}
-                        />
                       )}
                     </>
                   )}
@@ -236,11 +249,12 @@ export function Sidebar({ role }: SidebarProps) {
 
       {/* Logout */}
       <div className="px-2 py-3 flex-shrink-0" style={{ borderTop: "1px solid #334155" }}>
-        <button
-          className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium w-full transition-colors duration-150"
+        <Link
+          href="/login"
+          className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium w-full transition-colors duration-150"
           style={{ color: "#94A3B8" }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = "#EF444420"
+            e.currentTarget.style.backgroundColor = "#EF444418"
             e.currentTarget.style.color = "#F87171"
           }}
           onMouseLeave={(e) => {
@@ -248,21 +262,16 @@ export function Sidebar({ role }: SidebarProps) {
             e.currentTarget.style.color = "#94A3B8"
           }}
         >
-          <LogOut size={17} style={{ flexShrink: 0 }} />
+          <LogOut size={16} style={{ flexShrink: 0 }} />
           {!collapsed && <span>Log out</span>}
-        </button>
+        </Link>
       </div>
 
       {/* Collapse toggle */}
       <button
         onClick={() => setCollapsed(!collapsed)}
-        className="absolute -right-3 top-20 flex items-center justify-center w-6 h-6 rounded-full border transition-colors duration-150"
-        style={{
-          backgroundColor: "#1E293B",
-          borderColor: "#334155",
-          color: "#94A3B8",
-          zIndex: 10,
-        }}
+        className="absolute -right-3 top-[72px] flex items-center justify-center w-6 h-6 rounded-full border transition-all duration-150 z-10"
+        style={{ backgroundColor: "#1E293B", borderColor: "#334155", color: "#64748B" }}
         onMouseEnter={(e) => {
           e.currentTarget.style.backgroundColor = "#3B82F6"
           e.currentTarget.style.color = "#fff"
@@ -270,11 +279,11 @@ export function Sidebar({ role }: SidebarProps) {
         }}
         onMouseLeave={(e) => {
           e.currentTarget.style.backgroundColor = "#1E293B"
-          e.currentTarget.style.color = "#94A3B8"
+          e.currentTarget.style.color = "#64748B"
           e.currentTarget.style.borderColor = "#334155"
         }}
       >
-        {collapsed ? <ChevronRight size={12} /> : <ChevronLeft size={12} />}
+        {collapsed ? <ChevronRight size={11} /> : <ChevronLeft size={11} />}
       </button>
     </aside>
   )
