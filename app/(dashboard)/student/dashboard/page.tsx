@@ -6,8 +6,9 @@ import { COURSES, ASSIGNMENTS, SCHEDULE_EVENTS, STUDENT_PROFILE } from "@/lib/da
 import {
   BookOpen, Clock, Trophy, TrendingUp, Play, ChevronRight,
   Flame, Star, AlertCircle, Zap, CheckCircle2, ArrowRight,
-  Target, Calendar, BarChart2,
+  Target, Calendar, BarChart2, Video, ExternalLink,
 } from "lucide-react"
+import { isZoomLink } from "@/lib/data/live-session"
 
 const enrolled = COURSES.filter((c) => c.progress !== undefined)
 const inProgress = enrolled.filter((c) => c.progress! > 0 && c.progress! < 100)
@@ -314,6 +315,27 @@ export default function StudentDashboardPage() {
                         <p className="text-xs mt-0.5" style={{ color: "#64748B" }}>
                           {isToday ? "Today" : event.date.slice(5).replace("-", "/")} · {getHour(event.startTime)}
                         </p>
+                        {event.meetLink && (
+                          isZoomLink(event.meetLink) ? (
+                            <Link
+                              href={`/student/live-session/${event.id}`}
+                              className="flex items-center gap-1 text-xs mt-1 font-medium"
+                              style={{ color: "#10B981" }}
+                            >
+                              <Video size={10} /> Join in LMS
+                            </Link>
+                          ) : (
+                            <a
+                              href={event.meetLink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-1 text-xs mt-1"
+                              style={{ color: "#3B82F6" }}
+                            >
+                              <ExternalLink size={10} /> Join meeting
+                            </a>
+                          )
+                        )}
                       </div>
                       <span
                         className="text-xs font-bold px-1.5 py-0.5 rounded self-start flex-shrink-0"

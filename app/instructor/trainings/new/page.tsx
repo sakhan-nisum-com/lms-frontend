@@ -10,12 +10,14 @@ import {
   ChevronUp,
   Copy,
   DollarSign,
+  Film,
   Flag,
   Globe,
   GripVertical,
   Link2,
   Lock,
   Pencil,
+  Play,
   Plus,
   Save,
   Search,
@@ -23,22 +25,34 @@ import {
   Trash2,
   Video,
   X,
+  Zap,
 } from "lucide-react"
 import { InstructorPageShell } from "@/components/instructor/InstructorPageShell"
 import { INSTRUCTOR_COURSES } from "@/lib/data/instructor-courses"
+import type { AssignmentTemplate, KnowledgeCheckTemplate } from "@/lib/data/live-session"
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
 type ActivityType = "course" | "workshop" | "milestone"
 
-interface CourseActivity   { id: string; type: "course";    title: string; courseId?: number; sectionId?: string }
-interface WorkshopActivity { id: string; type: "workshop";  title: string; scheduledAt?: string; meetUrl?: string }
-interface MilestoneActivity{ id: string; type: "milestone"; title: string; description?: string; dueDate?: string }
+interface CourseActivity    { id: string; type: "course";    title: string; courseId?: number; sectionId?: string }
+interface WorkshopActivity  {
+  id: string; type: "workshop"; title: string
+  scheduledAt?: string; meetUrl?: string
+  sessionType: "live" | "recorded"
+  videoUrl?: string
+  checks: KnowledgeCheckTemplate[]
+  assignments: AssignmentTemplate[]
+}
+interface MilestoneActivity { id: string; type: "milestone"; title: string; description?: string; dueDate?: string }
 type Activity = CourseActivity | WorkshopActivity | MilestoneActivity
 
 interface AnyActivityPatch {
   title?: string; courseId?: number; sectionId?: string
   scheduledAt?: string; meetUrl?: string; description?: string; dueDate?: string
+  sessionType?: "live" | "recorded"; videoUrl?: string
+  checks?: KnowledgeCheckTemplate[]
+  assignments?: AssignmentTemplate[]
 }
 
 interface Week { id: string; title: string; activities: Activity[] }
@@ -135,6 +149,22 @@ export default function CreateTrainingPage() {
   const [copied, setCopied]           = useState(false)
   const expiryInputRef = useRef<HTMLInputElement>(null)
 
+  // Knowledge check draft state (for adding checks to a workshop activity)
+  const [checkDraft, setCheckDraft] = useState<{
+    type: "mcq" | "descriptive"
+    question: string
+    options: [string, string, string, string]
+    correctIndex: number
+  } | null>(null)
+
+  // Assignment draft state
+  const [assignmentDraft, setAssignmentDraft] = useState<{
+    title: string
+    description: string
+    dueDate: string
+    maxPoints: string
+  } | null>(null)
+
   useEffect(() => {
     setToken(
       Array.from({ length: 16 }, () =>
@@ -197,7 +227,7 @@ export default function CreateTrainingPage() {
       const first = PUBLISHED[0]
       activity = { id, type, title: first?.title ?? "Linked Course", courseId: first?.id }
     } else if (type === "workshop") {
-      activity = { id, type, title: "Live Workshop Session", scheduledAt: "", meetUrl: "" }
+      activity = { id, type, title: "Live Workshop Session", scheduledAt: "", meetUrl: "", sessionType: "live", checks: [], assignments: [] }
     } else {
       activity = { id, type, title: "Capstone Milestone", description: "", dueDate: "" }
     }
@@ -229,6 +259,33 @@ export default function CreateTrainingPage() {
       ...w,
       activities: w.activities.map(a => a.id === aId ? { ...a, ...patch } as Activity : a),
     })))
+  }
+
+  // ── Knowledge check helpers ───────────────────────────────────────────────────
+  function addCheckToCurrent(check: KnowledgeCheckTemplate) {
+    if (!selectedActivity || selectedActivity.type !== "workshop") return
+    const ws = selectedActivity as WorkshopActivity
+    patchActivity(selectedActivity.id, { checks: [...ws.checks, check] })
+    setCheckDraft(null)
+  }
+
+  function removeCheckFromCurrent(checkId: string) {
+    if (!selectedActivity || selectedActivity.type !== "workshop") return
+    const ws = selectedActivity as WorkshopActivity
+    patchActivity(selectedActivity.id, { checks: ws.checks.filter(c => c.id !== checkId) })
+  }
+
+  function addAssignmentToCurrent(asgn: AssignmentTemplate) {
+    if (!selectedActivity || selectedActivity.type !== "workshop") return
+    const ws = selectedActivity as WorkshopActivity
+    patchActivity(selectedActivity.id, { assignments: [...ws.assignments, asgn] })
+    setAssignmentDraft(null)
+  }
+
+  function removeAssignmentFromCurrent(asgnId: string) {
+    if (!selectedActivity || selectedActivity.type !== "workshop") return
+    const ws = selectedActivity as WorkshopActivity
+    patchActivity(selectedActivity.id, { assignments: ws.assignments.filter(a => a.id !== asgnId) })
   }
 
   // ── Open native date picker ───────────────────────────────────────────────────
@@ -673,39 +730,395 @@ export default function CreateTrainingPage() {
                     </>
                   )}
 
-                  {/* ─── Workshop: datetime + meeting URL ─── */}
-                  {selectedActivity.type === "workshop" && (
-                    <>
-                      <div>
-                        <FieldLabel>Date & Time</FieldLabel>
-                        <input
-                          type="datetime-local"
-                          value={(selectedActivity as WorkshopActivity).scheduledAt ?? ""}
-                          onChange={e => patchActivity(selectedActivity.id, { scheduledAt: e.target.value })}
-                          className="w-full px-3 py-2.5 rounded-xl text-sm outline-none"
-                          style={{ backgroundColor: "#0F172A", border: "1px solid #334155", color: "#F8FAFC" }}
-                          onFocus={e => (e.currentTarget.style.borderColor = "#10B981")}
-                          onBlur={e => (e.currentTarget.style.borderColor = "#334155")}
-                        />
-                      </div>
-                      <div>
-                        <FieldLabel>Meeting URL</FieldLabel>
-                        <input
-                          type="url"
-                          value={(selectedActivity as WorkshopActivity).meetUrl ?? ""}
-                          onChange={e => patchActivity(selectedActivity.id, { meetUrl: e.target.value })}
-                          placeholder="https://meet.google.com/… or zoom.us/…"
-                          className="w-full px-3 py-2.5 rounded-xl text-sm outline-none placeholder-slate-600"
-                          style={{ backgroundColor: "#0F172A", border: "1px solid #334155", color: "#F8FAFC" }}
-                          onFocus={e => (e.currentTarget.style.borderColor = "#10B981")}
-                          onBlur={e => (e.currentTarget.style.borderColor = "#334155")}
-                        />
-                        <p className="text-xs mt-1" style={{ color: "#475569" }}>
-                          Paste a Zoom, Google Meet, or Teams link.
-                        </p>
-                      </div>
-                    </>
-                  )}
+                  {/* ─── Workshop: session type + url + checks ─── */}
+                  {selectedActivity.type === "workshop" && (() => {
+                    const ws = selectedActivity as WorkshopActivity
+                    return (
+                      <>
+                        {/* Session type toggle */}
+                        <div>
+                          <FieldLabel>Session Type</FieldLabel>
+                          <div className="flex items-center gap-1 p-1 rounded-xl" style={{ backgroundColor: "#0F172A" }}>
+                            {([
+                              { key: "live"     as const, Icon: Video, label: "Live Meeting" },
+                              { key: "recorded" as const, Icon: Film,  label: "Pre-recorded" },
+                            ]).map(({ key, Icon, label }) => (
+                              <button
+                                key={key}
+                                type="button"
+                                onClick={() => patchActivity(selectedActivity.id, { sessionType: key })}
+                                className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-semibold transition-colors"
+                                style={{
+                                  backgroundColor: ws.sessionType === key ? "#10B981" : "transparent",
+                                  color: ws.sessionType === key ? "#fff" : "#64748B",
+                                }}
+                              >
+                                <Icon size={12} /> {label}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Date & Time */}
+                        <div>
+                          <FieldLabel>Date & Time</FieldLabel>
+                          <input
+                            type="datetime-local"
+                            value={ws.scheduledAt ?? ""}
+                            onChange={e => patchActivity(selectedActivity.id, { scheduledAt: e.target.value })}
+                            className="w-full px-3 py-2.5 rounded-xl text-sm outline-none"
+                            style={{ backgroundColor: "#0F172A", border: "1px solid #334155", color: "#F8FAFC" }}
+                            onFocus={e => (e.currentTarget.style.borderColor = "#10B981")}
+                            onBlur={e => (e.currentTarget.style.borderColor = "#334155")}
+                          />
+                        </div>
+
+                        {/* Meeting URL (live) or Video URL (recorded) */}
+                        {ws.sessionType !== "recorded" ? (
+                          <div>
+                            <FieldLabel>Meeting URL</FieldLabel>
+                            <input
+                              type="url"
+                              value={ws.meetUrl ?? ""}
+                              onChange={e => patchActivity(selectedActivity.id, { meetUrl: e.target.value })}
+                              placeholder="https://zoom.us/j/… or meet.google.com/…"
+                              className="w-full px-3 py-2.5 rounded-xl text-sm outline-none placeholder-slate-600"
+                              style={{ backgroundColor: "#0F172A", border: "1px solid #334155", color: "#F8FAFC" }}
+                              onFocus={e => (e.currentTarget.style.borderColor = "#10B981")}
+                              onBlur={e => (e.currentTarget.style.borderColor = "#334155")}
+                            />
+                            <p className="text-xs mt-1.5 flex items-center gap-1" style={{ color: "#10B981" }}>
+                              <Link2 size={10} />
+                              This link stays active for all sessions in the program — share it once.
+                            </p>
+                          </div>
+                        ) : (
+                          <div>
+                            <FieldLabel>Video URL</FieldLabel>
+                            <input
+                              type="url"
+                              value={ws.videoUrl ?? ""}
+                              onChange={e => patchActivity(selectedActivity.id, { videoUrl: e.target.value })}
+                              placeholder="https://youtube.com/watch?v=… or direct MP4 link"
+                              className="w-full px-3 py-2.5 rounded-xl text-sm outline-none placeholder-slate-600"
+                              style={{ backgroundColor: "#0F172A", border: "1px solid #334155", color: "#F8FAFC" }}
+                              onFocus={e => (e.currentTarget.style.borderColor = "#10B981")}
+                              onBlur={e => (e.currentTarget.style.borderColor = "#334155")}
+                            />
+                            <p className="text-xs mt-1" style={{ color: "#475569" }}>YouTube, Vimeo, or direct MP4 link.</p>
+                          </div>
+                        )}
+
+                        {/* Knowledge Checks builder */}
+                        <div style={{ borderTop: "1px solid #334155", paddingTop: 16 }}>
+                          <div className="flex items-center justify-between mb-3">
+                            <div>
+                              <p className="text-xs font-semibold" style={{ color: "#94A3B8" }}>Knowledge Checks</p>
+                              <p className="text-[10px] mt-0.5" style={{ color: "#475569" }}>MCQ or descriptive questions pushed to students during the session</p>
+                            </div>
+                            {!checkDraft && (
+                              <button
+                                type="button"
+                                onClick={() => setCheckDraft({ type: "mcq", question: "", options: ["", "", "", ""], correctIndex: 0 })}
+                                className="flex items-center gap-1 text-xs font-semibold flex-shrink-0"
+                                style={{ color: "#10B981" }}
+                              >
+                                <Plus size={11} /> Add
+                              </button>
+                            )}
+                          </div>
+
+                          {/* Existing checks */}
+                          {ws.checks.length > 0 && (
+                            <div className="space-y-2 mb-3">
+                              {ws.checks.map((check, ci) => (
+                                <div
+                                  key={check.id}
+                                  className="flex items-start gap-2.5 p-2.5 rounded-xl"
+                                  style={{ backgroundColor: "#0F172A", border: "1px solid #334155" }}
+                                >
+                                  <span
+                                    className="flex-shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded mt-0.5"
+                                    style={{ backgroundColor: check.type === "mcq" ? "#3B82F620" : "#8B5CF620", color: check.type === "mcq" ? "#60A5FA" : "#A78BFA" }}
+                                  >
+                                    {check.type === "mcq" ? "MCQ" : "DESC"}
+                                  </span>
+                                  <p className="flex-1 text-xs text-white truncate">{check.question || `Check ${ci + 1}`}</p>
+                                  <button
+                                    type="button"
+                                    onClick={() => removeCheckFromCurrent(check.id)}
+                                    className="flex-shrink-0 p-0.5 rounded transition-colors"
+                                    style={{ color: "#475569" }}
+                                    onMouseEnter={e => (e.currentTarget.style.color = "#EF4444")}
+                                    onMouseLeave={e => (e.currentTarget.style.color = "#475569")}
+                                  >
+                                    <X size={11} />
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+
+                          {ws.checks.length === 0 && !checkDraft && (
+                            <p className="text-[10px] text-center py-3 rounded-xl" style={{ color: "#475569", border: "1px dashed #334155" }}>
+                              No checks yet — add MCQ or descriptive questions
+                            </p>
+                          )}
+
+                          {/* New check form */}
+                          {checkDraft && (
+                            <div className="p-3 rounded-xl space-y-3" style={{ backgroundColor: "#0F172A", border: "1px solid #10B98140" }}>
+                              {/* Type toggle */}
+                              <div className="flex items-center gap-1 p-0.5 rounded-lg w-fit" style={{ backgroundColor: "#1E293B" }}>
+                                {(["mcq", "descriptive"] as const).map(t => (
+                                  <button
+                                    key={t}
+                                    type="button"
+                                    onClick={() => setCheckDraft(d => d ? { ...d, type: t } : d)}
+                                    className="px-2.5 py-1 rounded-md text-[10px] font-bold transition-colors"
+                                    style={{
+                                      backgroundColor: checkDraft.type === t ? "#10B981" : "transparent",
+                                      color: checkDraft.type === t ? "#fff" : "#64748B",
+                                    }}
+                                  >
+                                    {t === "mcq" ? "MCQ" : "Descriptive"}
+                                  </button>
+                                ))}
+                              </div>
+
+                              {/* Question */}
+                              <textarea
+                                rows={2}
+                                value={checkDraft.question}
+                                onChange={e => setCheckDraft(d => d ? { ...d, question: e.target.value } : d)}
+                                placeholder="Question text…"
+                                className="w-full px-3 py-2 rounded-lg text-xs outline-none resize-none placeholder-slate-600"
+                                style={{ backgroundColor: "#1E293B", border: "1px solid #334155", color: "#F8FAFC" }}
+                                onFocus={e => (e.currentTarget.style.borderColor = "#10B981")}
+                                onBlur={e => (e.currentTarget.style.borderColor = "#334155")}
+                              />
+
+                              {/* MCQ options */}
+                              {checkDraft.type === "mcq" && (
+                                <div className="space-y-1.5">
+                                  {checkDraft.options.map((opt, oi) => (
+                                    <div key={oi} className="flex items-center gap-2">
+                                      <button
+                                        type="button"
+                                        onClick={() => setCheckDraft(d => d ? { ...d, correctIndex: oi } : d)}
+                                        className="flex-shrink-0 w-4 h-4 rounded-full border-2 transition-all"
+                                        style={{
+                                          borderColor: checkDraft.correctIndex === oi ? "#10B981" : "#475569",
+                                          backgroundColor: checkDraft.correctIndex === oi ? "#10B981" : "transparent",
+                                        }}
+                                        title="Mark as correct"
+                                      />
+                                      <span className="text-[10px] font-bold w-4 flex-shrink-0" style={{ color: "#475569" }}>
+                                        {String.fromCharCode(65 + oi)}
+                                      </span>
+                                      <input
+                                        value={opt}
+                                        onChange={e => setCheckDraft(d => {
+                                          if (!d) return d
+                                          const opts = [...d.options] as [string,string,string,string]
+                                          opts[oi] = e.target.value
+                                          return { ...d, options: opts }
+                                        })}
+                                        placeholder={`Option ${String.fromCharCode(65 + oi)}`}
+                                        className="flex-1 bg-transparent outline-none text-xs placeholder-slate-600"
+                                        style={{ color: checkDraft.correctIndex === oi ? "#6EE7B7" : "#94A3B8", borderBottom: "1px solid #334155" }}
+                                      />
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+
+                              <div className="flex items-center gap-2 pt-1">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    if (!checkDraft.question.trim()) return
+                                    addCheckToCurrent({
+                                      id: uid("ck"),
+                                      type: checkDraft.type,
+                                      question: checkDraft.question,
+                                      options: checkDraft.type === "mcq" ? checkDraft.options : [],
+                                      correctIndex: checkDraft.type === "mcq" ? checkDraft.correctIndex : undefined,
+                                    })
+                                  }}
+                                  disabled={!checkDraft.question.trim()}
+                                  className="flex-1 py-1.5 rounded-lg text-xs font-semibold transition-all disabled:opacity-30"
+                                  style={{ backgroundColor: "#10B981", color: "#fff" }}
+                                >
+                                  Save Check
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setCheckDraft(null)}
+                                  className="px-3 py-1.5 rounded-lg text-xs font-medium"
+                                  style={{ backgroundColor: "#334155", color: "#94A3B8" }}
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Assignments builder */}
+                        <div style={{ borderTop: "1px solid #334155", paddingTop: 16 }}>
+                          <div className="flex items-center justify-between mb-3">
+                            <div>
+                              <p className="text-xs font-semibold" style={{ color: "#94A3B8" }}>Assignments</p>
+                              <p className="text-[10px] mt-0.5" style={{ color: "#475569" }}>Students see these only after you publish them during the session</p>
+                            </div>
+                            {!assignmentDraft && (
+                              <button
+                                type="button"
+                                onClick={() => setAssignmentDraft({ title: "", description: "", dueDate: "", maxPoints: "" })}
+                                className="flex items-center gap-1 text-xs font-semibold flex-shrink-0"
+                                style={{ color: "#8B5CF6" }}
+                              >
+                                <Plus size={11} /> Add
+                              </button>
+                            )}
+                          </div>
+
+                          {/* Existing assignments */}
+                          {ws.assignments.length > 0 && (
+                            <div className="space-y-2 mb-3">
+                              {ws.assignments.map((asgn, ai) => (
+                                <div
+                                  key={asgn.id}
+                                  className="flex items-start gap-2.5 p-2.5 rounded-xl"
+                                  style={{ backgroundColor: "#0F172A", border: "1px solid #334155" }}
+                                >
+                                  <span
+                                    className="flex-shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded mt-0.5"
+                                    style={{ backgroundColor: "#8B5CF620", color: "#A78BFA" }}
+                                  >
+                                    {ai + 1}
+                                  </span>
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-xs text-white truncate">{asgn.title || `Assignment ${ai + 1}`}</p>
+                                    {asgn.dueDate && (
+                                      <p className="text-[10px] mt-0.5" style={{ color: "#475569" }}>
+                                        Due {new Date(asgn.dueDate).toLocaleDateString()} {asgn.maxPoints ? `· ${asgn.maxPoints} pts` : ""}
+                                      </p>
+                                    )}
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() => removeAssignmentFromCurrent(asgn.id)}
+                                    className="flex-shrink-0 p-0.5 rounded transition-colors"
+                                    style={{ color: "#475569" }}
+                                    onMouseEnter={e => (e.currentTarget.style.color = "#EF4444")}
+                                    onMouseLeave={e => (e.currentTarget.style.color = "#475569")}
+                                  >
+                                    <X size={11} />
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+
+                          {ws.assignments.length === 0 && !assignmentDraft && (
+                            <p className="text-[10px] text-center py-3 rounded-xl" style={{ color: "#475569", border: "1px dashed #334155" }}>
+                              No assignments yet — add tasks for students to complete
+                            </p>
+                          )}
+
+                          {/* New assignment form */}
+                          {assignmentDraft && (
+                            <div className="p-3 rounded-xl space-y-3" style={{ backgroundColor: "#0F172A", border: "1px solid #8B5CF640" }}>
+                              <input
+                                value={assignmentDraft.title}
+                                onChange={e => setAssignmentDraft(d => d ? { ...d, title: e.target.value } : d)}
+                                placeholder="Assignment title…"
+                                className="w-full px-3 py-2 rounded-lg text-xs outline-none placeholder-slate-600"
+                                style={{ backgroundColor: "#1E293B", border: "1px solid #334155", color: "#F8FAFC" }}
+                                onFocus={e => (e.currentTarget.style.borderColor = "#8B5CF6")}
+                                onBlur={e => (e.currentTarget.style.borderColor = "#334155")}
+                              />
+                              <textarea
+                                rows={2}
+                                value={assignmentDraft.description}
+                                onChange={e => setAssignmentDraft(d => d ? { ...d, description: e.target.value } : d)}
+                                placeholder="Instructions or description…"
+                                className="w-full px-3 py-2 rounded-lg text-xs outline-none resize-none placeholder-slate-600"
+                                style={{ backgroundColor: "#1E293B", border: "1px solid #334155", color: "#F8FAFC" }}
+                                onFocus={e => (e.currentTarget.style.borderColor = "#8B5CF6")}
+                                onBlur={e => (e.currentTarget.style.borderColor = "#334155")}
+                              />
+                              <div className="flex items-center gap-2">
+                                <div className="flex-1">
+                                  <p className="text-[10px] mb-1" style={{ color: "#475569" }}>Due date</p>
+                                  <input
+                                    type="date"
+                                    value={assignmentDraft.dueDate}
+                                    onChange={e => setAssignmentDraft(d => d ? { ...d, dueDate: e.target.value } : d)}
+                                    className="w-full px-2.5 py-1.5 rounded-lg text-xs outline-none"
+                                    style={{ backgroundColor: "#1E293B", border: "1px solid #334155", color: "#F8FAFC" }}
+                                  />
+                                </div>
+                                <div className="w-20">
+                                  <p className="text-[10px] mb-1" style={{ color: "#475569" }}>Max pts</p>
+                                  <input
+                                    type="number"
+                                    min={0}
+                                    value={assignmentDraft.maxPoints}
+                                    onChange={e => setAssignmentDraft(d => d ? { ...d, maxPoints: e.target.value } : d)}
+                                    placeholder="100"
+                                    className="w-full px-2.5 py-1.5 rounded-lg text-xs outline-none placeholder-slate-600"
+                                    style={{ backgroundColor: "#1E293B", border: "1px solid #334155", color: "#F8FAFC" }}
+                                  />
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2 pt-1">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    if (!assignmentDraft.title.trim()) return
+                                    addAssignmentToCurrent({
+                                      id: uid("asgn"),
+                                      title: assignmentDraft.title,
+                                      description: assignmentDraft.description,
+                                      dueDate: assignmentDraft.dueDate || undefined,
+                                      maxPoints: assignmentDraft.maxPoints ? Number(assignmentDraft.maxPoints) : undefined,
+                                    })
+                                  }}
+                                  disabled={!assignmentDraft.title.trim()}
+                                  className="flex-1 py-1.5 rounded-lg text-xs font-semibold disabled:opacity-30"
+                                  style={{ backgroundColor: "#8B5CF6", color: "#fff" }}
+                                >
+                                  Save Assignment
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setAssignmentDraft(null)}
+                                  className="px-3 py-1.5 rounded-lg text-xs font-medium"
+                                  style={{ backgroundColor: "#334155", color: "#94A3B8" }}
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Launch Session button */}
+                        {(ws.meetUrl || ws.videoUrl) && (
+                          <Link
+                            href={`/instructor/live-session/${selectedActivity.id}`}
+                            className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-semibold text-white transition-opacity hover:opacity-90"
+                            style={{ backgroundColor: "#10B981", marginTop: 4 }}
+                          >
+                            <Play size={13} fill="#fff" /> Launch Session
+                          </Link>
+                        )}
+                      </>
+                    )
+                  })()}
 
                   {/* ─── Milestone: description + due date ─── */}
                   {selectedActivity.type === "milestone" && (

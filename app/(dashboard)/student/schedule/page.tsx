@@ -8,6 +8,7 @@ import {
   Calendar, ChevronLeft, ChevronRight, Clock, ExternalLink,
   Video, ClipboardList, Brain, AlertCircle, Wrench,
 } from "lucide-react"
+import { isZoomLink } from "@/lib/data/live-session"
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
 const MONTHS = [
@@ -114,15 +115,25 @@ export default function SchedulePage() {
                       {getHour(event.startTime)} – {getHour(event.endTime)}
                     </p>
                     {event.meetLink && (
-                      <a
-                        href={event.meetLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-1 text-xs mt-1"
-                        style={{ color: "#3B82F6" }}
-                      >
-                        <ExternalLink size={10} /> Join meeting
-                      </a>
+                      isZoomLink(event.meetLink) ? (
+                        <Link
+                          href={`/student/live-session/${event.id}`}
+                          className="flex items-center gap-1 text-xs mt-1 font-medium"
+                          style={{ color: "#10B981" }}
+                        >
+                          <Video size={10} /> Join in LMS
+                        </Link>
+                      ) : (
+                        <a
+                          href={event.meetLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-1 text-xs mt-1"
+                          style={{ color: "#3B82F6" }}
+                        >
+                          <ExternalLink size={10} /> Join meeting
+                        </a>
+                      )
                     )}
                   </div>
                 </div>
@@ -273,15 +284,25 @@ export default function SchedulePage() {
                           </span>
                         </div>
                         {event.meetLink && (
-                          <a
-                            href={event.meetLink}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-1 text-xs mt-1.5"
-                            style={{ color: "#3B82F6" }}
-                          >
-                            <ExternalLink size={10} /> Join meeting
-                          </a>
+                          isZoomLink(event.meetLink) ? (
+                            <Link
+                              href={`/student/live-session/${event.id}`}
+                              className="flex items-center gap-1 text-xs mt-1.5 font-medium"
+                              style={{ color: "#10B981" }}
+                            >
+                              <Video size={10} /> Join in LMS
+                            </Link>
+                          ) : (
+                            <a
+                              href={event.meetLink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-1 text-xs mt-1.5"
+                              style={{ color: "#3B82F6" }}
+                            >
+                              <ExternalLink size={10} /> Join meeting
+                            </a>
+                          )
                         )}
                       </div>
                     </div>

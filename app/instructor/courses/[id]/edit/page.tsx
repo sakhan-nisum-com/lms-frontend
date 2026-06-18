@@ -29,6 +29,21 @@ function buildInitialForm(id: number): CourseForm {
       commentsEnabled: true,
       certificate: true,
       sections: [],
+      learningObjectives: ["", "", "", ""],
+      targetAudience: [""],
+      requirements: [""],
+      weeklyTime: "casually",
+      courseType: "practical",
+      testVideoFileName: undefined,
+      testVideoUrl: undefined,
+      captionsSrtUrl: undefined,
+      hasTranscripts: false,
+      isKeyboardNavigable: false,
+      couponCode: "",
+      discountPercent: "",
+      couponExpiry: "",
+      welcomeMessage: "",
+      completionMessage: "",
     }
   }
 
@@ -51,6 +66,21 @@ function buildInitialForm(id: number): CourseForm {
     commentsEnabled: true,
     certificate: course.status === "published",
     sections: course.sections,
+    learningObjectives: ["", "", "", ""],
+    targetAudience: [""],
+    requirements: [""],
+    weeklyTime: "casually",
+    courseType: "practical",
+    testVideoFileName: undefined,
+    testVideoUrl: undefined,
+    captionsSrtUrl: undefined,
+    hasTranscripts: false,
+    isKeyboardNavigable: false,
+    couponCode: "",
+    discountPercent: "",
+    couponExpiry: "",
+    welcomeMessage: "",
+    completionMessage: "",
   }
 }
 

@@ -25,6 +25,21 @@ const DEFAULT_FORM: CourseForm = {
   commentsEnabled: true,
   certificate: true,
   sections: [],
+  learningObjectives: ["", "", "", ""],
+  targetAudience: [""],
+  requirements: [""],
+  weeklyTime: "casually",
+  courseType: "practical",
+  testVideoFileName: undefined,
+  testVideoUrl: undefined,
+  captionsSrtUrl: undefined,
+  hasTranscripts: false,
+  isKeyboardNavigable: false,
+  couponCode: "",
+  discountPercent: "",
+  couponExpiry: "",
+  welcomeMessage: "",
+  completionMessage: "",
 }
 
 export default function NewCoursePage() {
