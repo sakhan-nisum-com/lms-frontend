@@ -21,8 +21,8 @@ export default function InstructorLoginPage() {
 
   return (
     <div
-      className="min-h-screen flex"
-      style={{ backgroundColor: "#0F172A" }}
+      className="flex"
+      style={{ backgroundColor: "#0F172A", minHeight: "calc(100vh - var(--app-header-height, 150px))" }}
     >
       {/* Left Panel */}
       <div

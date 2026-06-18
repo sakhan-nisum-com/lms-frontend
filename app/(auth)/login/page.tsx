@@ -24,7 +24,7 @@ export default function LoginPage() {
 
   return (
     <div style={{
-      minHeight: "100vh", backgroundColor: "#0f172a",
+      minHeight: "calc(100vh - var(--app-header-height, 150px))", backgroundColor: "#0f172a",
       display: "flex", alignItems: "center", justifyContent: "center",
       padding: "24px", position: "relative",
     }}>

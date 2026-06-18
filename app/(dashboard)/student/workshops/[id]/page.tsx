@@ -15,7 +15,10 @@ import { AssignmentTab } from "@/components/workshop/AssignmentTab"
 import { PeerReviewTab } from "@/components/workshop/PeerReviewTab"
 import { LiveSessionTab } from "@/components/workshop/LiveSessionTab"
 import { ProgressTab } from "@/components/workshop/ProgressTab"
+import { RecommendedSection } from "@/components/RecommendedSection"
+import type { RecommendedItem } from "@/components/RecommendedSection"
 import { WORKSHOPS } from "@/lib/data/workshops"
+import type { Workshop } from "@/lib/data/workshops"
 import { WORKSHOP_INTERIORS } from "@/lib/data/workshopInterior"
 import { useWorkshopRegistrations } from "@/lib/hooks/useWorkshopRegistrations"
 
@@ -64,6 +67,36 @@ export default function WorkshopDetailPage({ params }: { params: Promise<{ id: s
   const fillPct = Math.round((ws.attendees / ws.maxAttendees) * 100)
   const kindMeta = KIND_META[ws.kind]
   const KindIcon = kindMeta.icon
+
+  const toRecommendedItem = (w: Workshop): RecommendedItem => ({
+    id: w.id,
+    href: `/student/workshops/${w.id}`,
+    thumbnail: w.thumbnail,
+    thumbnailColor: KIND_META[w.kind].color,
+    title: w.title,
+    meta: w.instructor,
+    rating: w.rating,
+    reviewCount: w.reviewCount,
+    priceLabel: w.price === 0 ? "Free" : `$${w.price}`,
+  })
+
+  const alsoBought = [...WORKSHOPS]
+    .filter((w) => w.id !== ws.id)
+    .sort((a, b) => b.attendees - a.attendees)
+    .slice(0, 4)
+    .map(toRecommendedItem)
+
+  const alsoBoughtIds = new Set(alsoBought.map((w) => w.id))
+  const recommended = [...WORKSHOPS]
+    .filter((w) => w.id !== ws.id && !alsoBoughtIds.has(w.id))
+    .sort((a, b) => {
+      const aMatch = a.kind === ws.kind || a.tags.some((t) => ws.tags.includes(t)) ? 1 : 0
+      const bMatch = b.kind === ws.kind || b.tags.some((t) => ws.tags.includes(t)) ? 1 : 0
+      if (aMatch !== bMatch) return bMatch - aMatch
+      return b.rating - a.rating
+    })
+    .slice(0, 4)
+    .map(toRecommendedItem)
 
   return (
     <DashboardLayout role="student">
@@ -396,6 +429,12 @@ export default function WorkshopDetailPage({ params }: { params: Promise<{ id: s
         {activeTab === "peer-review" && <PeerReviewTab interior={interior} />}
         {activeTab === "live" && <LiveSessionTab interior={interior} />}
         {activeTab === "progress" && <ProgressTab interior={interior} />}
+
+        {/* Students also bought + Recommended */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <RecommendedSection title="Students Also Bought" items={alsoBought} />
+          <RecommendedSection title="Recommended For You" items={recommended} />
+        </div>
       </div>
 
       {showPaymentModal && (

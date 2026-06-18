@@ -1,15 +1,16 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { DashboardLayout } from "@/components/layout/DashboardLayout"
 import { QUIZZES, STUDENT_PROFILE } from "@/lib/data/courses"
 import type { Quiz } from "@/lib/data/courses"
 import {
   Brain, Clock, Star, CheckCircle2, Lock, AlertCircle,
-  ChevronRight, X, ArrowRight,
+  ChevronRight, X, ArrowRight, Flag, Square, CheckSquare, Circle,
 } from "lucide-react"
 
 type Tab = "all" | "available" | "completed" | "locked"
+type AnswerValue = number | number[] | boolean | string
 
 const statusConfig: Record<Quiz["status"], { label: string; color: string }> = {
   available: { label: "Available", color: "#10B981" },
@@ -18,14 +19,44 @@ const statusConfig: Record<Quiz["status"], { label: string; color: string }> = {
   locked: { label: "Locked", color: "#475569" },
 }
 
+function isAnswered(value: AnswerValue | undefined): boolean {
+  if (value === undefined) return false
+  if (Array.isArray(value)) return value.length > 0
+  if (typeof value === "string") return value.trim().length > 0
+  return true
+}
+
+function formatTime(totalSeconds: number): string {
+  const m = Math.floor(totalSeconds / 60)
+  const s = totalSeconds % 60
+  return `${m}:${String(s).padStart(2, "0")}`
+}
+
 export default function QuizzesPage() {
   const p = STUDENT_PROFILE
   const [tab, setTab] = useState<Tab>("all")
   const [activeQuiz, setActiveQuiz] = useState<Quiz | null>(null)
   const [currentQ, setCurrentQ] = useState(0)
-  const [answers, setAnswers] = useState<Record<string, number>>({})
+  const [answers, setAnswers] = useState<Record<string, AnswerValue>>({})
+  const [flagged, setFlagged] = useState<Set<string>>(new Set())
   const [submitted, setSubmitted] = useState(false)
-  const [timeLeft] = useState<number | null>(null)
+  const [secondsLeft, setSecondsLeft] = useState<number | null>(null)
+
+  // Countdown timer — auto-submits when time runs out
+  useEffect(() => {
+    if (!activeQuiz || submitted || secondsLeft === null || secondsLeft <= 0) return
+    const timer = setTimeout(() => {
+      setSecondsLeft((s) => {
+        if (s === null) return null
+        if (s <= 1) {
+          setSubmitted(true)
+          return 0
+        }
+        return s - 1
+      })
+    }, 1000)
+    return () => clearTimeout(timer)
+  }, [activeQuiz, submitted, secondsLeft])
 
   const filtered = QUIZZES.filter((q) => {
     if (tab === "all") return true
@@ -47,21 +78,64 @@ export default function QuizzesPage() {
     setActiveQuiz(quiz)
     setCurrentQ(0)
     setAnswers({})
+    setFlagged(new Set())
     setSubmitted(false)
+    setSecondsLeft(quiz.timeLimit * 60)
   }
 
-  const handleAnswer = (qId: string, idx: number) => {
+  const handleSelectMCQ = (qId: string, idx: number) => {
     if (submitted) return
     setAnswers((prev) => ({ ...prev, [qId]: idx }))
   }
 
+  const handleSelectTrueFalse = (qId: string, value: boolean) => {
+    if (submitted) return
+    setAnswers((prev) => ({ ...prev, [qId]: value }))
+  }
+
+  const handleToggleMultiSelect = (qId: string, idx: number) => {
+    if (submitted) return
+    setAnswers((prev) => {
+      const current = Array.isArray(prev[qId]) ? (prev[qId] as number[]) : []
+      const next = current.includes(idx) ? current.filter((i) => i !== idx) : [...current, idx]
+      return { ...prev, [qId]: next }
+    })
+  }
+
+  const handleShortAnswerChange = (qId: string, value: string) => {
+    if (submitted) return
+    setAnswers((prev) => ({ ...prev, [qId]: value }))
+  }
+
+  const toggleFlag = (qId: string) => {
+    setFlagged((prev) => {
+      const next = new Set(prev)
+      if (next.has(qId)) next.delete(qId)
+      else next.add(qId)
+      return next
+    })
+  }
+
   const handleSubmit = () => setSubmitted(true)
+
+  const isQuestionCorrect = (q: Quiz["questions"][number]): boolean => {
+    const value = answers[q.id]
+    if (q.type === "true-false") return value === q.correctAnswer
+    if (q.type === "multi-select") {
+      const selected = Array.isArray(value) ? [...value].sort() : []
+      const expected = [...q.correctIndexes].sort()
+      return selected.length === expected.length && selected.every((v, i) => v === expected[i])
+    }
+    if (q.type === "short-answer") {
+      const text = typeof value === "string" ? value.trim().toLowerCase() : ""
+      return q.acceptedAnswers.some((a: string) => a.trim().toLowerCase() === text)
+    }
+    return value === q.correctIndex
+  }
 
   const calcScore = () => {
     if (!activeQuiz) return 0
-    const correct = activeQuiz.questions.filter(
-      (q) => answers[q.id] === q.correctIndex
-    ).length
+    const correct = activeQuiz.questions.filter(isQuestionCorrect).length
     return Math.round((correct / activeQuiz.questions.length) * 100)
   }
 
@@ -115,7 +189,7 @@ export default function QuizzesPage() {
                 </button>
                 {!passed && (
                   <button
-                    onClick={() => { setAnswers({}); setSubmitted(false); setCurrentQ(0) }}
+                    onClick={() => { setAnswers({}); setFlagged(new Set()); setSubmitted(false); setCurrentQ(0); setSecondsLeft(activeQuiz.timeLimit * 60) }}
                     className="px-4 py-2 rounded-xl text-sm font-semibold"
                     style={{ backgroundColor: "#3B82F6", color: "#fff" }}
                   >
@@ -128,13 +202,13 @@ export default function QuizzesPage() {
               <div className="mt-6 text-left space-y-4">
                 <p className="text-xs font-bold uppercase tracking-wider" style={{ color: "#475569" }}>Answer Review</p>
                 {activeQuiz.questions.map((q, i) => {
+                  const correct = isQuestionCorrect(q)
                   const userAnswer = answers[q.id]
-                  const correct = userAnswer === q.correctIndex
                   return (
                     <div key={q.id} className="rounded-xl p-4" style={{ backgroundColor: "#0F172A", border: `1px solid ${correct ? "#10B98130" : "#EF444430"}` }}>
                       <p className="text-sm font-medium text-white mb-2">Q{i + 1}. {q.question}</p>
                       <div className="space-y-1.5">
-                        {q.options.map((opt, idx) => {
+                        {!q.type && q.options.map((opt, idx) => {
                           const isCorrect = idx === q.correctIndex
                           const isUser = idx === userAnswer
                           return (
@@ -151,7 +225,73 @@ export default function QuizzesPage() {
                             </div>
                           )
                         })}
+
+                        {q.type === "multi-select" && q.options.map((opt, idx) => {
+                          const isCorrect = q.correctIndexes.includes(idx)
+                          const isUser = Array.isArray(userAnswer) && userAnswer.includes(idx)
+                          const wrongPick = isUser && !isCorrect
+                          return (
+                            <div
+                              key={idx}
+                              className="px-3 py-2 rounded-lg text-xs"
+                              style={{
+                                backgroundColor: isCorrect ? "#10B98115" : wrongPick ? "#EF444415" : "#1E293B",
+                                color: isCorrect ? "#10B981" : wrongPick ? "#EF4444" : "#94A3B8",
+                                border: `1px solid ${isCorrect ? "#10B98130" : wrongPick ? "#EF444430" : "#334155"}`,
+                              }}
+                            >
+                              {isCorrect && "✓ "}{wrongPick && "✗ "}{opt}
+                            </div>
+                          )
+                        })}
+
+                        {q.type === "true-false" && (
+                          <div className="flex gap-2">
+                            {[true, false].map((val) => {
+                              const isCorrect = val === q.correctAnswer
+                              const isUser = val === userAnswer
+                              return (
+                                <div
+                                  key={String(val)}
+                                  className="flex-1 px-3 py-2 rounded-lg text-xs text-center"
+                                  style={{
+                                    backgroundColor: isCorrect ? "#10B98115" : isUser && !correct ? "#EF444415" : "#1E293B",
+                                    color: isCorrect ? "#10B981" : isUser && !correct ? "#EF4444" : "#94A3B8",
+                                    border: `1px solid ${isCorrect ? "#10B98130" : isUser && !correct ? "#EF444430" : "#334155"}`,
+                                  }}
+                                >
+                                  {isCorrect && "✓ "}{isUser && !correct && "✗ "}{val ? "True" : "False"}
+                                </div>
+                              )
+                            })}
+                          </div>
+                        )}
+
+                        {q.type === "short-answer" && (
+                          <div className="space-y-1.5">
+                            <div
+                              className="px-3 py-2 rounded-lg text-xs"
+                              style={{
+                                backgroundColor: correct ? "#10B98115" : "#EF444415",
+                                color: correct ? "#10B981" : "#EF4444",
+                                border: `1px solid ${correct ? "#10B98130" : "#EF444430"}`,
+                              }}
+                            >
+                              Your answer: {typeof userAnswer === "string" && userAnswer.trim() ? userAnswer : "(blank)"}
+                            </div>
+                            {!correct && (
+                              <div className="px-3 py-2 rounded-lg text-xs" style={{ backgroundColor: "#10B98115", color: "#10B981", border: "1px solid #10B98130" }}>
+                                Accepted: {q.acceptedAnswers.join(" / ")}
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
+                      {q.explanation && (
+                        <p className="text-xs mt-2.5 leading-relaxed" style={{ color: "#64748B" }}>
+                          <strong style={{ color: "#94A3B8" }}>Explanation: </strong>{q.explanation}
+                        </p>
+                      )}
                     </div>
                   )
                 })}
@@ -166,11 +306,11 @@ export default function QuizzesPage() {
               >
                 <div className="flex items-center justify-between mb-2 text-xs" style={{ color: "#64748B" }}>
                   <span>Question {currentQ + 1} of {activeQuiz.questions.length}</span>
-                  <span className="flex items-center gap-1">
-                    <Clock size={11} /> {activeQuiz.timeLimit} min limit
+                  <span className="flex items-center gap-1 font-semibold" style={{ color: secondsLeft !== null && secondsLeft <= 60 ? "#EF4444" : "#64748B" }}>
+                    <Clock size={11} /> {secondsLeft !== null ? formatTime(secondsLeft) : `${activeQuiz.timeLimit}:00`} left
                   </span>
                 </div>
-                <div className="h-1.5 rounded-full" style={{ backgroundColor: "#334155" }}>
+                <div className="h-1.5 rounded-full mb-3" style={{ backgroundColor: "#334155" }}>
                   <div
                     className="h-full rounded-full transition-all"
                     style={{
@@ -178,6 +318,34 @@ export default function QuizzesPage() {
                       backgroundColor: "#3B82F6",
                     }}
                   />
+                </div>
+
+                {/* Question navigator palette */}
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  {activeQuiz.questions.map((q, i) => {
+                    const answeredQ = isAnswered(answers[q.id])
+                    const isCurrent = i === currentQ
+                    const isFlagged = flagged.has(q.id)
+                    return (
+                      <button
+                        key={q.id}
+                        onClick={() => setCurrentQ(i)}
+                        className="relative flex items-center justify-center w-7 h-7 rounded-lg text-xs font-bold transition-colors"
+                        style={{
+                          backgroundColor: isCurrent ? "#3B82F6" : answeredQ ? "#10B98120" : "#0F172A",
+                          color: isCurrent ? "#fff" : answeredQ ? "#10B981" : "#64748B",
+                          border: `1px solid ${isCurrent ? "#3B82F6" : answeredQ ? "#10B98130" : "#334155"}`,
+                        }}
+                      >
+                        {i + 1}
+                        {isFlagged && (
+                          <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full flex items-center justify-center" style={{ backgroundColor: "#F59E0B" }}>
+                            <Flag size={7} fill="#0F172A" style={{ color: "#0F172A" }} />
+                          </span>
+                        )}
+                      </button>
+                    )
+                  })}
                 </div>
               </div>
 
@@ -187,35 +355,118 @@ export default function QuizzesPage() {
                   className="rounded-2xl p-6"
                   style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
                 >
-                  <h2 className="text-base font-semibold text-white mb-5">{question.question}</h2>
-                  <div className="space-y-3">
-                    {question.options.map((opt, idx) => {
-                      const selected = answers[question.id] === idx
-                      return (
-                        <button
-                          key={idx}
-                          className="w-full text-left px-4 py-3.5 rounded-xl text-sm transition-all"
-                          style={{
-                            backgroundColor: selected ? "#3B82F620" : "#0F172A",
-                            border: `1px solid ${selected ? "#3B82F6" : "#334155"}`,
-                            color: selected ? "#60A5FA" : "#CBD5E1",
-                          }}
-                          onClick={() => handleAnswer(question.id, idx)}
-                        >
-                          <span
-                            className="inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold mr-3"
-                            style={{
-                              backgroundColor: selected ? "#3B82F6" : "#334155",
-                              color: selected ? "#fff" : "#94A3B8",
-                            }}
-                          >
-                            {String.fromCharCode(65 + idx)}
-                          </span>
-                          {opt}
-                        </button>
-                      )
-                    })}
+                  <div className="flex items-start justify-between gap-3 mb-5">
+                    <h2 className="text-base font-semibold text-white flex-1">{question.question}</h2>
+                    <button
+                      onClick={() => toggleFlag(question.id)}
+                      className="flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-lg flex-shrink-0"
+                      style={{
+                        backgroundColor: flagged.has(question.id) ? "#F59E0B20" : "#334155",
+                        color: flagged.has(question.id) ? "#F59E0B" : "#64748B",
+                      }}
+                    >
+                      <Flag size={12} fill={flagged.has(question.id) ? "#F59E0B" : "none"} />
+                      {flagged.has(question.id) ? "Flagged" : "Flag"}
+                    </button>
                   </div>
+
+                  {/* MCQ */}
+                  {!question.type && (
+                    <div className="space-y-3">
+                      {question.options.map((opt, idx) => {
+                        const selected = answers[question.id] === idx
+                        return (
+                          <button
+                            key={idx}
+                            className="w-full text-left px-4 py-3.5 rounded-xl text-sm transition-all"
+                            style={{
+                              backgroundColor: selected ? "#3B82F620" : "#0F172A",
+                              border: `1px solid ${selected ? "#3B82F6" : "#334155"}`,
+                              color: selected ? "#60A5FA" : "#CBD5E1",
+                            }}
+                            onClick={() => handleSelectMCQ(question.id, idx)}
+                          >
+                            <span
+                              className="inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold mr-3"
+                              style={{
+                                backgroundColor: selected ? "#3B82F6" : "#334155",
+                                color: selected ? "#fff" : "#94A3B8",
+                              }}
+                            >
+                              {String.fromCharCode(65 + idx)}
+                            </span>
+                            {opt}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  )}
+
+                  {/* Multi-select */}
+                  {question.type === "multi-select" && (
+                    <div className="space-y-3">
+                      <p className="text-xs -mt-2 mb-1" style={{ color: "#64748B" }}>Select all that apply</p>
+                      {question.options.map((opt, idx) => {
+                        const current = answers[question.id]
+                        const selected = Array.isArray(current) && current.includes(idx)
+                        return (
+                          <button
+                            key={idx}
+                            className="w-full text-left px-4 py-3.5 rounded-xl text-sm transition-all flex items-center gap-3"
+                            style={{
+                              backgroundColor: selected ? "#3B82F620" : "#0F172A",
+                              border: `1px solid ${selected ? "#3B82F6" : "#334155"}`,
+                              color: selected ? "#60A5FA" : "#CBD5E1",
+                            }}
+                            onClick={() => handleToggleMultiSelect(question.id, idx)}
+                          >
+                            {selected ? (
+                              <CheckSquare size={18} style={{ color: "#3B82F6", flexShrink: 0 }} />
+                            ) : (
+                              <Square size={18} style={{ color: "#475569", flexShrink: 0 }} />
+                            )}
+                            {opt}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  )}
+
+                  {/* True / False */}
+                  {question.type === "true-false" && (
+                    <div className="grid grid-cols-2 gap-3">
+                      {[true, false].map((val) => {
+                        const selected = answers[question.id] === val
+                        return (
+                          <button
+                            key={String(val)}
+                            className="flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl text-sm font-semibold transition-all"
+                            style={{
+                              backgroundColor: selected ? "#3B82F620" : "#0F172A",
+                              border: `1px solid ${selected ? "#3B82F6" : "#334155"}`,
+                              color: selected ? "#60A5FA" : "#CBD5E1",
+                            }}
+                            onClick={() => handleSelectTrueFalse(question.id, val)}
+                          >
+                            <Circle size={14} fill={selected ? "#3B82F6" : "none"} style={{ color: selected ? "#3B82F6" : "#475569" }} />
+                            {val ? "True" : "False"}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  )}
+
+                  {/* Short answer */}
+                  {question.type === "short-answer" && (
+                    <input
+                      type="text"
+                      value={typeof answers[question.id] === "string" ? (answers[question.id] as string) : ""}
+                      onChange={(e) => handleShortAnswerChange(question.id, e.target.value)}
+                      placeholder="Type your answer…"
+                      className="w-full px-4 py-3.5 rounded-xl text-sm outline-none"
+                      style={{ backgroundColor: "#0F172A", border: "1px solid #334155", color: "#F8FAFC" }}
+                    />
+                  )}
                 </div>
               )}
 
@@ -230,7 +481,8 @@ export default function QuizzesPage() {
                   Previous
                 </button>
                 <span className="text-xs" style={{ color: "#64748B" }}>
-                  {Object.keys(answers).length}/{activeQuiz.questions.length} answered
+                  {activeQuiz.questions.filter((q) => isAnswered(answers[q.id])).length}/{activeQuiz.questions.length} answered
+                  {flagged.size > 0 && <span style={{ color: "#F59E0B" }}> · {flagged.size} flagged</span>}
                 </span>
                 {currentQ < activeQuiz.questions.length - 1 ? (
                   <button
@@ -243,7 +495,7 @@ export default function QuizzesPage() {
                 ) : (
                   <button
                     onClick={handleSubmit}
-                    disabled={Object.keys(answers).length < activeQuiz.questions.length}
+                    disabled={activeQuiz.questions.some((q) => !isAnswered(answers[q.id]))}
                     className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold disabled:opacity-40"
                     style={{ backgroundColor: "#10B981", color: "#fff" }}
                   >

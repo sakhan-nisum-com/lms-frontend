@@ -36,6 +36,7 @@ const studentGroups: NavGroup[] = [
   {
     label: "MY LEARNING",
     items: [
+      { label: "My Learning", href: "/student/my-learning", icon: LayoutDashboard },
       { label: "My Courses", href: "/student/courses", icon: BookOpen },
       { label: "My Trainings", href: "/student/my-trainings", icon: Training },
       { label: "My Workshops", href: "/student/my-workshops", icon: CalendarCheck },

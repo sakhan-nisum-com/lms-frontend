@@ -5,7 +5,11 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { DashboardLayout } from "@/components/layout/DashboardLayout"
 import { CourseThumbnail } from "@/components/CourseThumbnail"
+import { RecommendedSection } from "@/components/RecommendedSection"
+import type { RecommendedItem } from "@/components/RecommendedSection"
 import { COURSES, DISCUSSIONS, STUDENT_PROFILE } from "@/lib/data/courses"
+import type { Course } from "@/lib/data/courses"
+import { getInstructorByName } from "@/lib/data/instructors"
 import { useProgress } from "@/lib/hooks/useProgress"
 import { usePurchases } from "@/lib/hooks/usePurchases"
 import {
@@ -47,6 +51,7 @@ const resources = [
 export default function CourseDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
   const course = COURSES.find((c) => c.id === id) ?? COURSES[0]
+  const instructorProfile = getInstructorByName(course.instructor)
   const p = STUDENT_PROFILE
   const router = useRouter()
   const { isComplete } = useProgress(id)
@@ -86,6 +91,36 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
       router.push(`/student/courses/${course.id}/checkout`)
     }
   }
+
+  const toRecommendedItem = (c: Course): RecommendedItem => ({
+    id: c.id,
+    href: `/student/courses/${c.id}`,
+    thumbnail: c.thumbnail,
+    thumbnailColor: c.thumbnailColor,
+    title: c.title,
+    meta: c.instructor,
+    rating: c.rating,
+    reviewCount: c.reviewCount,
+    priceLabel: c.price === "Free" ? "Free" : `$${c.price}`,
+  })
+
+  const alsoBought = [...COURSES]
+    .filter((c) => c.id !== course.id)
+    .sort((a, b) => b.studentsCount - a.studentsCount)
+    .slice(0, 4)
+    .map(toRecommendedItem)
+
+  const alsoBoughtIds = new Set(alsoBought.map((c) => c.id))
+  const recommended = [...COURSES]
+    .filter((c) => c.id !== course.id && !alsoBoughtIds.has(c.id))
+    .sort((a, b) => {
+      const aSame = a.category === course.category ? 1 : 0
+      const bSame = b.category === course.category ? 1 : 0
+      if (aSame !== bSame) return bSame - aSame
+      return b.rating - a.rating
+    })
+    .slice(0, 4)
+    .map(toRecommendedItem)
 
   return (
     <DashboardLayout role="student" userName={p.name}>
@@ -157,7 +192,14 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
               </div>
 
               <p className="text-sm mt-4" style={{ color: "#94A3B8" }}>
-                Instructor: <strong className="text-white">{course.instructor}</strong>
+                Instructor:{" "}
+                {instructorProfile ? (
+                  <Link href={`/instructors/${instructorProfile.id}`} className="font-bold text-white hover:underline">
+                    {course.instructor}
+                  </Link>
+                ) : (
+                  <strong className="text-white">{course.instructor}</strong>
+                )}
                 <span className="ml-2" style={{ color: "#64748B" }}>{course.instructorTitle}</span>
               </p>
             </div>
@@ -601,6 +643,12 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
             </div>
           )}
 
+        </div>
+
+        {/* Students also bought + Recommended */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <RecommendedSection title="Students Also Bought" items={alsoBought} />
+          <RecommendedSection title="Recommended For You" items={recommended} />
         </div>
       </div>
     </DashboardLayout>
