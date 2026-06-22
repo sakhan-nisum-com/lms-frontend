@@ -16,99 +16,7 @@ import {
   Search,
 } from "lucide-react"
 import { InstructorPageShell } from "@/components/instructor/InstructorPageShell"
-
-const COURSES = [
-  {
-    id: 1,
-    title: "React & TypeScript Masterclass",
-    description: "Build production-grade React apps with TypeScript, hooks, and modern patterns.",
-    category: "Software Engineering",
-    students: 1204,
-    rating: 4.9,
-    reviews: 342,
-    revenue: "$3,612",
-    status: "published",
-    lessons: 48,
-    duration: "18h 30m",
-    updated: "2 days ago",
-    color: "#3B82F6",
-  },
-  {
-    id: 2,
-    title: "Node.js REST API Development",
-    description: "Design and build scalable REST APIs with Node.js, Express, and PostgreSQL.",
-    category: "Software Engineering",
-    students: 876,
-    rating: 4.7,
-    reviews: 218,
-    revenue: "$2,628",
-    status: "published",
-    lessons: 35,
-    duration: "12h 15m",
-    updated: "1 week ago",
-    color: "#10B981",
-  },
-  {
-    id: 3,
-    title: "Advanced CSS & Animation",
-    description: "Master CSS grid, flexbox, custom properties, and silky-smooth animations.",
-    category: "Design & UX",
-    students: 543,
-    rating: 4.8,
-    reviews: 97,
-    revenue: "$1,629",
-    status: "published",
-    lessons: 27,
-    duration: "9h 45m",
-    updated: "3 days ago",
-    color: "#F59E0B",
-  },
-  {
-    id: 4,
-    title: "System Design Fundamentals",
-    description: "Learn to architect scalable distributed systems used at top tech companies.",
-    category: "Software Engineering",
-    students: 0,
-    rating: 0,
-    reviews: 0,
-    revenue: "$0",
-    status: "draft",
-    lessons: 12,
-    duration: "6h 00m",
-    updated: "Today",
-    color: "#8B5CF6",
-  },
-  {
-    id: 5,
-    title: "Docker & Kubernetes for Developers",
-    description: "Containerise apps with Docker and orchestrate them with Kubernetes end-to-end.",
-    category: "Cloud & DevOps",
-    students: 0,
-    rating: 0,
-    reviews: 0,
-    revenue: "$0",
-    status: "review",
-    lessons: 31,
-    duration: "14h 20m",
-    updated: "Yesterday",
-    color: "#EF4444",
-  },
-  {
-    id: 6,
-    title: "GraphQL with Apollo",
-    description: "Replace REST with GraphQL — schema design, resolvers, subscriptions, and caching.",
-    category: "Software Engineering",
-    students: 312,
-    rating: 4.6,
-    reviews: 54,
-    revenue: "$936",
-    status: "published",
-    lessons: 22,
-    duration: "8h 10m",
-    updated: "5 days ago",
-    color: "#EC4899",
-  },
-]
+import { INSTRUCTOR_COURSES as COURSES } from "@/lib/data/instructor-courses"
 
 const TABS = [
   { key: "all",       label: "All",       count: COURSES.length },
@@ -222,7 +130,12 @@ function CourseCard({ course }: { course: (typeof COURSES)[0] }) {
         </div>
 
         <div className="flex items-center justify-between pt-3" style={{ borderTop: "1px solid #334155" }}>
-          <span className="text-sm font-bold text-white">{course.revenue}</span>
+          <div>
+            <span className="text-sm font-bold text-white">{course.price}</span>
+            <p className="text-xs mt-0.5" style={{ color: "#475569" }}>
+              Revenue: <span style={{ color: "#64748B" }}>{course.revenue}</span>
+            </p>
+          </div>
           {course.rating > 0 ? (
             <span className="flex items-center gap-1 text-xs font-medium" style={{ color: "#F59E0B" }}>
               <Star size={12} fill="#F59E0B" />
@@ -255,14 +168,18 @@ function CourseCard({ course }: { course: (typeof COURSES)[0] }) {
   )
 }
 
+const CATEGORIES = Array.from(new Set(COURSES.map((c) => c.category))).sort()
+
 export default function CoursesPage() {
   const [activeTab, setActiveTab] = useState("all")
+  const [category, setCategory] = useState("all")
   const [search, setSearch] = useState("")
 
   const filtered = COURSES.filter((c) => {
     const matchTab = activeTab === "all" || c.status === activeTab
+    const matchCategory = category === "all" || c.category === category
     const matchSearch = c.title.toLowerCase().includes(search.toLowerCase())
-    return matchTab && matchSearch
+    return matchTab && matchCategory && matchSearch
   })
 
   return (
@@ -308,18 +225,36 @@ export default function CoursesPage() {
             ))}
           </div>
 
-          <div
-            className="flex items-center gap-2 px-3 py-2 rounded-xl sm:ml-auto"
-            style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
-          >
-            <Search size={13} style={{ color: "#475569" }} />
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search courses..."
-              className="bg-transparent outline-none text-sm w-40 placeholder-slate-600"
-              style={{ color: "#F8FAFC" }}
-            />
+          <div className="flex items-center gap-2 sm:ml-auto">
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="px-3 py-2 rounded-xl text-sm outline-none appearance-none"
+              style={{
+                backgroundColor: "#1E293B",
+                border: "1px solid #334155",
+                color: category === "all" ? "#64748B" : "#F8FAFC",
+              }}
+            >
+              <option value="all">All Categories</option>
+              {CATEGORIES.map((cat) => (
+                <option key={cat} value={cat}>{cat}</option>
+              ))}
+            </select>
+
+            <div
+              className="flex items-center gap-2 px-3 py-2 rounded-xl"
+              style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
+            >
+              <Search size={13} style={{ color: "#475569" }} />
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search courses..."
+                className="bg-transparent outline-none text-sm w-40 placeholder-slate-600"
+                style={{ color: "#F8FAFC" }}
+              />
+            </div>
           </div>
         </div>
 

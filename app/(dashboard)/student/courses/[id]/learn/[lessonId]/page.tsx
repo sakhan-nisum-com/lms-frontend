@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, use } from "react"
+import { useState, use, useEffect } from "react"
 import Link from "next/link"
 import { COURSES, STUDENT_PROFILE } from "@/lib/data/courses"
 import { useProgress } from "@/lib/hooks/useProgress"
@@ -10,8 +10,10 @@ import {
   ChevronLeft, ChevronRight, CheckCircle2, Lock, Play,
   HelpCircle, FileText, PenLine, Wifi, Video,
   BookmarkPlus, Share2, MessageSquare, Settings2,
-  Volume2, Maximize2, Pause, SkipForward,
+  Volume2, Maximize2, Pause, SkipForward, RotateCcw,
+  BrainCircuit, AlertCircle, X,
 } from "lucide-react"
+import type { QuizQuestion } from "@/lib/data/courses"
 
 const lessonTypeIcon = (type: string, size = 14) => {
   switch (type) {
@@ -22,6 +24,205 @@ const lessonTypeIcon = (type: string, size = 14) => {
     case "live": return <Wifi size={size} style={{ color: "#EC4899" }} />
     default: return <Video size={size} style={{ color: "#3B82F6" }} />
   }
+}
+
+const OPTION_LABELS = ["A", "B", "C", "D"]
+
+function QuizPlayer({
+  questions,
+  onComplete,
+  passingScore = 70,
+}: {
+  questions: QuizQuestion[]
+  onComplete: (passed: boolean) => void
+  passingScore?: number
+}) {
+  const [current, setCurrent] = useState(0)
+  const [selected, setSelected] = useState<(number | null)[]>(Array(questions.length).fill(null))
+  const [submitted, setSubmitted] = useState(false)
+
+  const q = questions[current]
+  const isLast = current === questions.length - 1
+  const answered = selected[current] !== null
+
+  function choose(oi: number) {
+    if (submitted) return
+    const next = [...selected]
+    next[current] = oi
+    setSelected(next)
+  }
+
+  function next() {
+    if (isLast) { setSubmitted(true) } else { setCurrent((c) => c + 1) }
+  }
+
+  function retry() {
+    setCurrent(0)
+    setSelected(Array(questions.length).fill(null))
+    setSubmitted(false)
+  }
+
+  if (submitted) {
+    const score = questions.filter((q, i) => selected[i] === q.correctIndex).length
+    const pct = Math.round((score / questions.length) * 100)
+    const passed = pct >= passingScore
+
+    return (
+      <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
+        {/* Results header */}
+        <div
+          className="flex flex-col items-center py-8 px-6"
+          style={{ borderBottom: "1px solid #334155", backgroundColor: passed ? "#10B98110" : "#EF444410" }}
+        >
+          <div
+            className="flex items-center justify-center w-16 h-16 rounded-full mb-4"
+            style={{ backgroundColor: passed ? "#10B98120" : "#EF444420" }}
+          >
+            {passed
+              ? <CheckCircle2 size={32} style={{ color: "#10B981" }} />
+              : <HelpCircle size={32} style={{ color: "#EF4444" }} />
+            }
+          </div>
+          <h2 className="text-xl font-bold text-white mb-1">{passed ? "Quiz Passed!" : "Quiz Complete"}</h2>
+          <p className="text-sm" style={{ color: "#64748B" }}>
+            You scored <span className="font-bold" style={{ color: passed ? "#10B981" : "#EF4444" }}>{score}/{questions.length}</span>
+          </p>
+          {/* Score bar */}
+          <div className="w-48 h-2 rounded-full mt-4 overflow-hidden" style={{ backgroundColor: "#334155" }}>
+            <div
+              className="h-full rounded-full transition-all"
+              style={{ width: `${pct}%`, backgroundColor: passed ? "#10B981" : "#EF4444" }}
+            />
+          </div>
+          <p className="text-2xl font-bold mt-2" style={{ color: passed ? "#10B981" : "#EF4444" }}>{pct}%</p>
+        </div>
+
+        {/* Per-question breakdown */}
+        <div className="px-6 py-4 space-y-2">
+          {questions.map((q, i) => {
+            const correct = selected[i] === q.correctIndex
+            return (
+              <div key={q.id} className="flex items-start gap-3 py-2" style={{ borderBottom: i < questions.length - 1 ? "1px solid #1E293B" : "none" }}>
+                <div
+                  className="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center mt-0.5"
+                  style={{ backgroundColor: correct ? "#10B98118" : "#EF444418" }}
+                >
+                  {correct
+                    ? <CheckCircle2 size={12} style={{ color: "#10B981" }} />
+                    : <HelpCircle size={12} style={{ color: "#EF4444" }} />
+                  }
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-white leading-snug">{q.question}</p>
+                  {!correct && (
+                    <p className="text-xs mt-0.5" style={{ color: "#10B981" }}>
+                      Correct: {q.options[q.correctIndex]}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+
+        {/* Actions */}
+        <div className="flex items-center justify-between px-6 py-4" style={{ borderTop: "1px solid #334155" }}>
+          <button
+            onClick={retry}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors"
+            style={{ backgroundColor: "#334155", color: "#94A3B8" }}
+          >
+            <RotateCcw size={14} /> Try Again
+          </button>
+          <button
+            onClick={() => onComplete(passed)}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white hover:opacity-90"
+            style={{ backgroundColor: "#3B82F6" }}
+          >
+            <CheckCircle2 size={14} /> Mark Complete
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
+      {/* Progress bar */}
+      <div className="h-1.5" style={{ backgroundColor: "#334155" }}>
+        <div
+          className="h-full transition-all"
+          style={{ width: `${((current + 1) / questions.length) * 100}%`, backgroundColor: "#8B5CF6" }}
+        />
+      </div>
+
+      <div className="p-6 space-y-5">
+        {/* Question counter */}
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-semibold" style={{ color: "#8B5CF6" }}>
+            Question {current + 1} of {questions.length}
+          </span>
+          <span className="text-xs" style={{ color: "#475569" }}>
+            {questions.filter((_, i) => selected[i] !== null).length} answered
+          </span>
+        </div>
+
+        {/* Question */}
+        <h2 className="text-base font-semibold text-white leading-snug">{q.question}</h2>
+
+        {/* Options */}
+        <div className="space-y-2.5">
+          {q.options.map((opt, oi) => {
+            const isSelected = selected[current] === oi
+            return (
+              <button
+                key={oi}
+                type="button"
+                onClick={() => choose(oi)}
+                className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-left transition-all"
+                style={{
+                  backgroundColor: isSelected ? "#8B5CF620" : "#0F172A",
+                  border: `1px solid ${isSelected ? "#8B5CF6" : "#334155"}`,
+                  color: isSelected ? "#E9D5FF" : "#CBD5E1",
+                }}
+              >
+                <span
+                  className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold"
+                  style={{
+                    backgroundColor: isSelected ? "#8B5CF6" : "#1E293B",
+                    color: isSelected ? "#fff" : "#64748B",
+                  }}
+                >
+                  {OPTION_LABELS[oi]}
+                </span>
+                <span className="text-sm">{opt}</span>
+              </button>
+            )
+          })}
+        </div>
+
+        {/* Navigation */}
+        <div className="flex items-center justify-between pt-2">
+          <button
+            onClick={() => setCurrent((c) => Math.max(0, c - 1))}
+            disabled={current === 0}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium transition-colors disabled:opacity-30"
+            style={{ backgroundColor: "#334155", color: "#94A3B8" }}
+          >
+            <ChevronLeft size={15} /> Back
+          </button>
+          <button
+            onClick={next}
+            disabled={!answered}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold text-white hover:opacity-90 disabled:opacity-30 transition-all"
+            style={{ backgroundColor: "#8B5CF6" }}
+          >
+            {isLast ? "Submit Quiz" : "Next"} <ChevronRight size={15} />
+          </button>
+        </div>
+      </div>
+    </div>
+  )
 }
 
 export default function LessonPlayerPage({
@@ -38,6 +239,16 @@ export default function LessonPlayerPage({
   const [notesOpen, setNotesOpen] = useState(false)
   const [noteText, setNoteText] = useState("")
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+
+  // Knowledge check state
+  const [lessonKCResults, setLessonKCResults] = useState<Record<string, "passed" | "failed" | "skipped">>({})
+  const [sectionKCDone, setSectionKCDone] = useState<Record<string, string[]>>({})
+  const [sessionKCFlow, setSessionKCFlow] = useState<{
+    sectionId: string
+    partIndex: number
+    phase: "taking" | "results"
+    passedLessonIds: string[]
+  } | null>(null)
 
   const owned = course.progress !== undefined || isPurchased(course.id)
 
@@ -96,8 +307,145 @@ export default function LessonPlayerPage({
     return { ...sec, done, total: lessons.length, pct: Math.round((done / lessons.length) * 100) }
   })
 
+  // KC derived state
+  const currentSection = course.sections.find(s => s.lessons.some(l => l.id === currentLesson?.id))
+  const lessonKCResult = lessonKCResults[currentLesson?.id]
+  const showLessonKCGate = !!currentLesson?.lessonKC && lessonKCResult === undefined
+  const skippableLessonIds = currentSection ? (sectionKCDone[currentSection.id] ?? []) : []
+
+  // Auto-start session KC when entering a section with an unseen KC
+  const sectionId = currentSection?.id ?? ""
+  const hasSessionKC = !!currentSection?.sessionKC
+  const sessionKCUnseen = hasSessionKC && sectionKCDone[sectionId] === undefined && sessionKCFlow === null && !showLessonKCGate
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  useEffect(() => {
+    if (sessionKCUnseen) setSessionKCFlow({ sectionId, partIndex: 0, phase: "taking", passedLessonIds: [] })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sectionId, sessionKCUnseen])
+
+  function finishSessionKC(passedIds: string[]) {
+    setSectionKCDone(prev => ({ ...prev, [sectionId]: passedIds }))
+    setSessionKCFlow(null)
+  }
+
   return (
     <div className="flex h-screen overflow-hidden" style={{ backgroundColor: "#0F172A" }}>
+
+      {/* ── Session KC Modal (full-screen) ── */}
+      {sessionKCFlow && currentSection?.sessionKC && (() => {
+        const kc = currentSection.sessionKC!
+        const part = kc.parts[sessionKCFlow.partIndex]
+        const partLesson = currentSection.lessons.find(l => l.id === part?.lessonId)
+        return (
+          <div className="fixed inset-0 z-50 flex flex-col" style={{ backgroundColor: "#0F172A" }}>
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 flex-shrink-0" style={{ backgroundColor: "#1E293B", borderBottom: "1px solid #334155" }}>
+              <div className="flex items-center gap-3">
+                <BrainCircuit size={18} style={{ color: "#8B5CF6" }} />
+                <div>
+                  <p className="text-xs font-semibold" style={{ color: "#8B5CF6" }}>Session Knowledge Check</p>
+                  <p className="text-sm font-bold text-white">{currentSection.title}</p>
+                </div>
+                {kc.isMandatory && (
+                  <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ backgroundColor: "#F59E0B20", color: "#F59E0B" }}>Mandatory</span>
+                )}
+              </div>
+              {!kc.isMandatory && (
+                <button onClick={() => finishSessionKC([])} className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-xl transition-colors" style={{ backgroundColor: "#334155", color: "#94A3B8" }}>
+                  <X size={12} /> Skip Check
+                </button>
+              )}
+            </div>
+
+            <div className="flex-1 overflow-y-auto">
+              <div className="max-w-2xl mx-auto px-6 py-8 space-y-5">
+                {sessionKCFlow.phase === "taking" && part ? (
+                  <>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-xs font-semibold mb-1" style={{ color: "#8B5CF6" }}>
+                          Part {sessionKCFlow.partIndex + 1} of {kc.parts.length}
+                        </p>
+                        <p className="text-sm text-white font-medium">{partLesson?.title}</p>
+                      </div>
+                      <div className="flex gap-1">
+                        {kc.parts.map((_, i) => (
+                          <div key={i} className="w-2 h-2 rounded-full" style={{ backgroundColor: i < sessionKCFlow.partIndex ? "#10B981" : i === sessionKCFlow.partIndex ? "#8B5CF6" : "#334155" }} />
+                        ))}
+                      </div>
+                    </div>
+                    {part.questions.length > 0 ? (
+                      <QuizPlayer
+                        questions={part.questions}
+                        passingScore={part.passingScore}
+                        onComplete={(passed) => {
+                          const newPassed = passed
+                            ? [...sessionKCFlow.passedLessonIds, part.lessonId]
+                            : sessionKCFlow.passedLessonIds
+                          const nextIdx = sessionKCFlow.partIndex + 1
+                          if (nextIdx < kc.parts.length) {
+                            setSessionKCFlow({ ...sessionKCFlow, partIndex: nextIdx, passedLessonIds: newPassed })
+                          } else {
+                            setSessionKCFlow({ ...sessionKCFlow, phase: "results", passedLessonIds: newPassed })
+                          }
+                        }}
+                      />
+                    ) : (
+                      <div className="text-center py-10" style={{ color: "#64748B" }}>
+                        <p className="text-sm">No questions for this part.</p>
+                        <button onClick={() => {
+                          const nextIdx = sessionKCFlow.partIndex + 1
+                          if (nextIdx < kc.parts.length) setSessionKCFlow({ ...sessionKCFlow, partIndex: nextIdx })
+                          else setSessionKCFlow({ ...sessionKCFlow, phase: "results" })
+                        }} className="mt-3 px-4 py-2 rounded-xl text-sm font-semibold text-white" style={{ backgroundColor: "#8B5CF6" }}>
+                          Next Part
+                        </button>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  /* Results phase */
+                  <div className="space-y-6">
+                    <div className="text-center">
+                      <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: "#8B5CF620" }}>
+                        <BrainCircuit size={28} style={{ color: "#8B5CF6" }} />
+                      </div>
+                      <h2 className="text-xl font-bold text-white mb-1">Check Complete</h2>
+                      <p className="text-sm" style={{ color: "#64748B" }}>Here&apos;s what you can skip:</p>
+                    </div>
+                    <div className="space-y-2">
+                      {kc.parts.map((p, i) => {
+                        const passed = sessionKCFlow.passedLessonIds.includes(p.lessonId)
+                        const ln = currentSection.lessons.find(l => l.id === p.lessonId)
+                        return (
+                          <div key={p.lessonId} className="flex items-center gap-3 px-4 py-3 rounded-xl" style={{ backgroundColor: "#1E293B", border: `1px solid ${passed ? "#10B98140" : "#334155"}` }}>
+                            {passed
+                              ? <CheckCircle2 size={16} style={{ color: "#10B981", flexShrink: 0 }} />
+                              : <AlertCircle size={16} style={{ color: "#EF4444", flexShrink: 0 }} />}
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs font-medium text-white truncate">Part {i + 1} — {ln?.title}</p>
+                              <p className="text-xs mt-0.5" style={{ color: passed ? "#10B981" : "#EF4444" }}>
+                                {passed ? "Passed — lesson can be skipped" : "Not passed — lesson required"}
+                              </p>
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                    <button
+                      onClick={() => finishSessionKC(sessionKCFlow.passedLessonIds)}
+                      className="w-full py-3 rounded-xl text-sm font-bold text-white hover:opacity-90 transition-all"
+                      style={{ backgroundColor: "#8B5CF6" }}
+                    >
+                      Start Learning →
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )
+      })()}
 
       {/* ── Left Sidebar: Curriculum ── */}
       <aside
@@ -191,7 +539,15 @@ export default function LessonPlayerPage({
                         <p className="text-xs font-medium leading-snug" style={{ textDecoration: done ? "line-through" : "none", opacity: done ? 0.6 : 1 }}>
                           {lesson.title}
                         </p>
-                        <p className="text-xs mt-0.5" style={{ color: "#475569" }}>{lesson.duration}</p>
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                          <p className="text-xs" style={{ color: "#475569" }}>{lesson.duration}</p>
+                          {skippableLessonIds.includes(lesson.id) && (
+                            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ backgroundColor: "#8B5CF620", color: "#A78BFA" }}>SKIP</span>
+                          )}
+                          {lesson.lessonKC && !lessonKCResults[lesson.id] && (
+                            <BrainCircuit size={10} style={{ color: "#8B5CF6", flexShrink: 0 }} />
+                          )}
+                        </div>
                       </div>
                     </Link>
                   )
@@ -249,45 +605,115 @@ export default function LessonPlayerPage({
         <div className="flex-1 overflow-y-auto">
           <div className="max-w-4xl mx-auto px-6 py-6 space-y-6">
 
-            {/* Video player */}
+            {/* Lesson KC Gate */}
+            {showLessonKCGate && currentLesson?.lessonKC && (
+              <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: "#1E293B", border: "1px solid #8B5CF640" }}>
+                <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom: "1px solid #334155", backgroundColor: "#8B5CF610" }}>
+                  <div className="flex items-center gap-3">
+                    <BrainCircuit size={18} style={{ color: "#8B5CF6" }} />
+                    <div>
+                      <p className="text-xs font-semibold" style={{ color: "#8B5CF6" }}>Lesson Knowledge Check</p>
+                      <p className="text-sm text-white">Do you already know this? Pass to skip the lesson.</p>
+                    </div>
+                  </div>
+                  {!currentLesson.lessonKC.isMandatory && (
+                    <button
+                      onClick={() => setLessonKCResults(prev => ({ ...prev, [currentLesson.id]: "skipped" }))}
+                      className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-xl transition-colors flex-shrink-0"
+                      style={{ backgroundColor: "#334155", color: "#94A3B8" }}
+                    >
+                      <X size={12} /> Skip Check
+                    </button>
+                  )}
+                </div>
+                <div className="p-6">
+                  <QuizPlayer
+                    questions={currentLesson.lessonKC.questions}
+                    passingScore={currentLesson.lessonKC.passingScore}
+                    onComplete={(passed) => {
+                      setLessonKCResults(prev => ({ ...prev, [currentLesson.id]: passed ? "passed" : "failed" }))
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Passed KC — offer skip or continue */}
+            {lessonKCResult === "passed" && nextLesson && (
+              <div className="flex items-center gap-4 px-5 py-4 rounded-2xl" style={{ backgroundColor: "#10B98115", border: "1px solid #10B98140" }}>
+                <CheckCircle2 size={20} style={{ color: "#10B981", flexShrink: 0 }} />
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-white">You already know this!</p>
+                  <p className="text-xs mt-0.5" style={{ color: "#64748B" }}>You passed the knowledge check — this lesson is optional for you.</p>
+                </div>
+                <Link
+                  href={`/student/courses/${id}/learn/${nextLesson.id}`}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold text-white flex-shrink-0 hover:opacity-90"
+                  style={{ backgroundColor: "#10B981" }}
+                >
+                  Skip Lesson <SkipForward size={14} />
+                </Link>
+              </div>
+            )}
+
+            {/* Video player or Quiz */}
+            {!showLessonKCGate && (currentLesson?.type === "quiz" && currentLesson.questions && currentLesson.questions.length > 0 ? (
+              <QuizPlayer
+                questions={currentLesson.questions}
+                onComplete={() => markComplete(currentLesson.id, true)}
+                passingScore={70}
+              />
+            ) : (
             <div
               className="rounded-2xl overflow-hidden relative"
               style={{ backgroundColor: "#0A0F1E", border: "1px solid #334155", aspectRatio: "16/9" }}
             >
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
-                <div
-                  className="flex items-center justify-center w-20 h-20 rounded-full cursor-pointer"
-                  style={{ backgroundColor: "#3B82F6", boxShadow: "0 0 40px rgba(59,130,246,0.4)" }}
-                  onClick={() => setPlaying(!playing)}
-                >
-                  {playing
-                    ? <Pause size={32} fill="#fff" color="#fff" />
-                    : <Play size={32} fill="#fff" color="#fff" className="ml-1" />
-                  }
-                </div>
-                <p className="text-sm font-medium" style={{ color: "#64748B" }}>
-                  {currentLesson?.type === "video" ? currentLesson?.title : "Interactive content"}
-                </p>
-              </div>
-
-              {/* Controls bar */}
-              <div
-                className="absolute bottom-0 left-0 right-0 px-4 py-3 flex items-center gap-3"
-                style={{ background: "linear-gradient(transparent, rgba(0,0,0,0.8))" }}
-              >
-                <button onClick={() => setPlaying(!playing)}>
-                  {playing ? <Pause size={16} fill="#fff" color="#fff" /> : <Play size={16} fill="#fff" color="#fff" />}
-                </button>
-                <button><SkipForward size={16} color="#9CA3AF" /></button>
-                <div className="flex-1 h-1 rounded-full cursor-pointer" style={{ backgroundColor: "#334155" }}>
-                  <div className="h-full rounded-full" style={{ width: "34%", backgroundColor: "#3B82F6" }} />
-                </div>
-                <span className="text-xs" style={{ color: "#9CA3AF" }}>8:12 / {currentLesson?.duration}</span>
-                <button><Volume2 size={16} color="#9CA3AF" /></button>
-                <button><Settings2 size={16} color="#9CA3AF" /></button>
-                <button><Maximize2 size={16} color="#9CA3AF" /></button>
-              </div>
+              {currentLesson?.videoId ? (
+                <iframe
+                  key={currentLesson.videoId + currentLesson.id}
+                  src={`https://www.youtube.com/embed/${currentLesson.videoId}?rel=0&modestbranding=1`}
+                  title={currentLesson.title}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                  className="absolute inset-0 w-full h-full"
+                  style={{ border: "none" }}
+                />
+              ) : (
+                <>
+                  {/* Mock player for non-video or lessons without a videoId */}
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
+                    <div
+                      className="flex items-center justify-center w-20 h-20 rounded-full transition-transform cursor-pointer"
+                      style={{ backgroundColor: "#3B82F6", boxShadow: "0 0 40px rgba(59,130,246,0.4)" }}
+                      onClick={() => setPlaying(!playing)}
+                    >
+                      {playing ? <Pause size={32} fill="#fff" color="#fff" /> : <Play size={32} fill="#fff" color="#fff" className="ml-1" />}
+                    </div>
+                    <p className="text-sm font-medium" style={{ color: "#64748B" }}>
+                      {currentLesson?.type === "video" ? currentLesson?.title : "Interactive content"}
+                    </p>
+                  </div>
+                  {/* Video controls bar */}
+                  <div
+                    className="absolute bottom-0 left-0 right-0 px-4 py-3 flex items-center gap-3"
+                    style={{ background: "linear-gradient(transparent, rgba(0,0,0,0.8))" }}
+                  >
+                    <button onClick={() => setPlaying(!playing)}>
+                      {playing ? <Pause size={16} fill="#fff" color="#fff" /> : <Play size={16} fill="#fff" color="#fff" />}
+                    </button>
+                    <button><SkipForward size={16} color="#9CA3AF" /></button>
+                    <div className="flex-1 h-1 rounded-full cursor-pointer" style={{ backgroundColor: "#334155" }}>
+                      <div className="h-full rounded-full" style={{ width: "34%", backgroundColor: "#3B82F6" }} />
+                    </div>
+                    <span className="text-xs" style={{ color: "#9CA3AF" }}>8:12 / {currentLesson?.duration}</span>
+                    <button><Volume2 size={16} color="#9CA3AF" /></button>
+                    <button><Settings2 size={16} color="#9CA3AF" /></button>
+                    <button><Maximize2 size={16} color="#9CA3AF" /></button>
+                  </div>
+                </>
+              )}
             </div>
+            ))}
 
             {/* Lesson header */}
             <div className="flex items-start justify-between gap-4 flex-wrap">

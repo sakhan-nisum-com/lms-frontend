@@ -11,6 +11,23 @@ export type CourseCategory =
   | "Security"
   | "Product"
 
+export interface LessonKnowledgeCheck {
+  questions: QuizQuestion[]
+  passingScore: number
+  isMandatory: boolean
+}
+
+export interface SessionKCPart {
+  lessonId: string
+  questions: QuizQuestion[]
+  passingScore: number
+}
+
+export interface SessionKnowledgeCheck {
+  isMandatory: boolean
+  parts: SessionKCPart[]
+}
+
 export interface Lesson {
   id: string
   title: string
@@ -18,12 +35,16 @@ export interface Lesson {
   type: "video" | "quiz" | "reading" | "assignment" | "live"
   completed: boolean
   locked: boolean
+  videoId?: string
+  questions?: QuizQuestion[]
+  lessonKC?: LessonKnowledgeCheck
 }
 
 export interface Section {
   id: string
   title: string
   lessons: Lesson[]
+  sessionKC?: SessionKnowledgeCheck
 }
 
 export interface Course {
@@ -192,6 +213,16 @@ export const COURSES: Course[] = [
         id: "s1",
         title: "Foundations of React 19",
         lessons: [
+          { id: "l-c1-1-1", title: "What's New in React 19", duration: "14:32", type: "video", completed: true, locked: false, videoId: "Tn6-PIqc4UM" },
+          { id: "l-c1-1-2", title: "JSX Deep Dive", duration: "22:15", type: "video", completed: true, locked: false, videoId: "Tn6-PIqc4UM" },
+          { id: "l-c1-1-3", title: "Component Lifecycle & Hooks", duration: "38:44", type: "video", completed: true, locked: false, videoId: "Tn6-PIqc4UM" },
+          { id: "l-c1-1-4", title: "State Management Patterns", duration: "31:20", type: "video", completed: true, locked: false, videoId: "Tn6-PIqc4UM" },
+          { id: "l-c1-1-5", title: "Module Quiz: React Basics", duration: "15:00", type: "quiz", completed: true, locked: false, questions: [
+            { id: "sq-1", question: "Which hook lets you run code after a component renders?", options: ["useState", "useEffect", "useContext", "useRef"], correctIndex: 1 },
+            { id: "sq-2", question: "What is JSX?", options: ["A JavaScript framework", "A CSS preprocessor", "A syntax extension that looks like HTML", "A build tool"], correctIndex: 2 },
+            { id: "sq-3", question: "What does React.memo do?", options: ["Memoizes a hook value", "Prevents re-renders if props haven't changed", "Creates a memoized selector", "Caches API responses"], correctIndex: 1 },
+            { id: "sq-4", question: "What is the virtual DOM?", options: ["A browser API", "A lightweight in-memory representation of the real DOM", "A server-side rendering technique", "A CSS layout engine"], correctIndex: 1 },
+          ]},
           { id: "l-c1-1-1", title: "What's New in React 19", duration: "14:32", type: "video", completed: true, locked: false },
           { id: "l-c1-1-2", title: "JSX Deep Dive", duration: "22:15", type: "video", completed: true, locked: false },
           { id: "l-c1-1-3", title: "Component Lifecycle & Hooks", duration: "38:44", type: "video", completed: true, locked: false },
@@ -202,7 +233,35 @@ export const COURSES: Course[] = [
       {
         id: "s2",
         title: "Next.js App Router",
+        sessionKC: {
+          isMandatory: false,
+          parts: [
+            { lessonId: "l-c1-2-3", passingScore: 100, questions: [
+              { id: "skc-1", question: "What does the Next.js App Router replace?", options: ["pages/ directory", "src/ directory", "public/ directory", "styles/ directory"], correctIndex: 0 },
+            ]},
+            { lessonId: "l-c1-2-4", passingScore: 80, questions: [
+              { id: "skc-2", question: "Which function is used to fetch data in a Server Component?", options: ["useEffect", "getServerSideProps", "Direct async/await in the component", "fetch inside useCallback"], correctIndex: 2 },
+            ]},
+            { lessonId: "l-c1-2-5", passingScore: 80, questions: [
+              { id: "skc-3", question: "What does React Suspense enable in Next.js?", options: ["Static generation only", "Streaming HTML to the client progressively", "Client-side data fetching", "Route pre-fetching"], correctIndex: 1 },
+            ]},
+          ],
+        },
         lessons: [
+          { id: "l-c1-2-1", title: "App Router Architecture", duration: "28:10", type: "video", completed: true, locked: false, videoId: "Tn6-PIqc4UM" },
+          { id: "l-c1-2-2", title: "Server vs Client Components", duration: "35:05", type: "video", completed: true, locked: false, videoId: "Tn6-PIqc4UM" },
+          { id: "l-c1-2-3", title: "Server Components Deep Dive", duration: "24:18", type: "video", completed: false, locked: false, videoId: "Tn6-PIqc4UM",
+            lessonKC: {
+              passingScore: 100,
+              isMandatory: false,
+              questions: [
+                { id: "lkc-1", question: "Where do React Server Components run?", options: ["In the browser only", "On the server only", "Both server and browser", "In a Web Worker"], correctIndex: 1 },
+                { id: "lkc-2", question: "Can a Server Component use useState?", options: ["Yes, always", "Only with 'use client'", "No — hooks are not available", "Only in development"], correctIndex: 2 },
+              ],
+            },
+          },
+          { id: "l-c1-2-4", title: "Data Fetching Patterns", duration: "42:30", type: "video", completed: false, locked: false, videoId: "Tn6-PIqc4UM" },
+          { id: "l-c1-2-5", title: "Streaming & Suspense", duration: "29:55", type: "video", completed: false, locked: false, videoId: "Tn6-PIqc4UM" },
           { id: "l-c1-2-1", title: "App Router Architecture", duration: "28:10", type: "video", completed: true, locked: false },
           { id: "l-c1-2-2", title: "Server vs Client Components", duration: "35:05", type: "video", completed: true, locked: false },
           { id: "l-c1-2-3", title: "Server Components Deep Dive", duration: "24:18", type: "video", completed: false, locked: false },
@@ -1394,6 +1453,34 @@ export const SCHEDULE_EVENTS: ScheduleEvent[] = [
     description: "Final compliance exam. Minimum 80% required to receive certificate.",
     status: "upcoming",
     color: "#F97316",
+  },
+  {
+    id: "se11",
+    type: "live-session",
+    title: "System Design Live Workshop",
+    courseId: "c3",
+    courseName: "Backend Engineering",
+    date: "2026-06-18",
+    startTime: "14:00",
+    endTime: "15:30",
+    description: "Live architecture walkthrough with Sarah Chen.",
+    meetLink: "https://zoom.us/j/987654321",
+    status: "today",
+    color: "#3B82F6",
+  },
+  {
+    id: "se12",
+    type: "workshop",
+    title: "ML Deep Dive Q&A",
+    courseId: "c4",
+    courseName: "Machine Learning Fundamentals",
+    date: "2026-06-20",
+    startTime: "10:00",
+    endTime: "11:00",
+    description: "Open Q&A session on model training and evaluation.",
+    meetLink: "https://zoom.us/j/555444333",
+    status: "upcoming",
+    color: "#10B981",
   },
 ]
 
