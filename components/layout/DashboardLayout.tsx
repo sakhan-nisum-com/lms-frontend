@@ -1,7 +1,7 @@
 import { Sidebar } from "./Sidebar"
 import { Topbar } from "./Topbar"
 
-type Role = "student" | "tutor"
+type Role = "student" | "tutor" | "admin"
 
 interface DashboardLayoutProps {
   children: React.ReactNode

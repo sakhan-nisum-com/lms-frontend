@@ -1,14 +1,21 @@
 "use client"
 
-import { useState } from "react"
+import { useState, Suspense } from "react"
+import { useSearchParams } from "next/navigation"
 import { DashboardLayout } from "@/components/layout/DashboardLayout"
-import { DISCUSSIONS, COURSES, STUDENT_PROFILE } from "@/lib/data/courses"
+import { COURSES, STUDENT_PROFILE } from "@/lib/data/courses"
+import { TRAINING_TRACKS } from "@/lib/data/trainings"
+import { usePurchases } from "@/lib/hooks/usePurchases"
+import { useTrainingEnrollments } from "@/lib/hooks/useTrainingEnrollments"
+import { useDiscussions } from "@/lib/hooks/useDiscussions"
+import { NewThreadModal } from "@/components/discussions/NewThreadModal"
 import {
-  MessageSquare, Pin, CheckCircle2, Eye, ChevronRight,
-  Plus, Search, Filter, Send, ThumbsUp,
+  MessageSquare, Pin, CheckCircle2, Eye,
+  Plus, Search, Send, ThumbsUp,
 } from "lucide-react"
 
-type CourseFilter = "all" | string
+// "all" | "course:<id>" | "training:<id>"
+type Scope = "all" | `course:${string}` | `training:${string}`
 
 const mockReplies = [
   {
@@ -41,23 +48,77 @@ const mockReplies = [
 ]
 
 export default function DiscussionsPage() {
+  return (
+    <Suspense fallback={null}>
+      <DiscussionsContent />
+    </Suspense>
+  )
+}
+
+function DiscussionsContent() {
   const p = STUDENT_PROFILE
-  const [courseFilter, setCourseFilter] = useState<CourseFilter>("all")
+  const { isPurchased } = usePurchases()
+  const { isEnrolled } = useTrainingEnrollments()
+  const { threads, createThread } = useDiscussions()
+  const searchParams = useSearchParams()
+  const requestedScope = searchParams.get("scope") as Scope | null
+  const [scope, setScope] = useState<Scope>(requestedScope ?? "all")
   const [search, setSearch] = useState("")
-  const [activeThread, setActiveThread] = useState(DISCUSSIONS[0])
+  const [activeThread, setActiveThread] = useState(threads[0])
   const [replyText, setReplyText] = useState("")
-  const [showNewThread, setShowNewThread] = useState(false)
+  const [showNewThread, setShowNewThread] = useState(searchParams.get("new") === "1")
 
-  const enrolledCourses = COURSES.filter((c) => c.progress !== undefined)
+  const enrolledCourses = COURSES.filter((c) => c.progress !== undefined || isPurchased(c.id))
+  const enrolledTrainings = TRAINING_TRACKS.filter((t) => t.enrolled || isEnrolled(t.id))
 
-  const filtered = DISCUSSIONS.filter((d) => {
-    if (courseFilter !== "all" && d.courseId !== courseFilter) return false
+  const filtered = threads.filter((d) => {
+    if (scope.startsWith("course:") && d.courseId !== scope.slice("course:".length)) return false
+    if (scope.startsWith("training:") && d.trainingId !== scope.slice("training:".length)) return false
     if (search && !d.title.toLowerCase().includes(search.toLowerCase())) return false
     return true
   })
 
   const pinnedThreads = filtered.filter((d) => d.isPinned)
   const regularThreads = filtered.filter((d) => !d.isPinned)
+
+  const handleCreateThread = (threadScope: string, title: string, body: string, tags: string[]) => {
+    const isCourse = threadScope.startsWith("course:")
+    const id = threadScope.slice(threadScope.indexOf(":") + 1)
+    const course = isCourse ? COURSES.find((c) => c.id === id) : undefined
+    const training = !isCourse ? TRAINING_TRACKS.find((t) => t.id === id) : undefined
+
+    const newId = createThread({
+      title,
+      body,
+      tags,
+      author: p.name,
+      authorAvatar: p.avatar,
+      authorRole: "student",
+      ...(course ? { courseId: course.id, courseName: course.title } : {}),
+      ...(training ? { trainingId: training.id, trainingName: training.title } : {}),
+    })
+
+    setScope(threadScope as Scope)
+    setShowNewThread(false)
+    setActiveThread({
+      id: newId,
+      title,
+      body,
+      tags,
+      author: p.name,
+      authorAvatar: p.avatar,
+      authorRole: "student",
+      createdAt: new Date().toISOString().slice(0, 10),
+      replies: 0,
+      views: 0,
+      isPinned: false,
+      isSolved: false,
+      lastReplyAt: new Date().toISOString().slice(0, 10),
+      lastReplyBy: p.name,
+      ...(course ? { courseId: course.id, courseName: course.title } : {}),
+      ...(training ? { trainingId: training.id, trainingName: training.title } : {}),
+    })
+  }
 
   return (
     <DashboardLayout role="student" userName={p.name}>
@@ -68,7 +129,7 @@ export default function DiscussionsPage() {
           <div>
             <h1 className="text-2xl font-bold text-white">Discussions</h1>
             <p className="text-sm mt-1" style={{ color: "#94A3B8" }}>
-              {DISCUSSIONS.length} threads across your courses
+              {threads.length} threads across your courses and trainings
             </p>
           </div>
           <button
@@ -98,33 +159,30 @@ export default function DiscussionsPage() {
               />
             </div>
 
-            {/* Course filter */}
-            <div className="flex gap-1.5 overflow-x-auto pb-2 mb-3 flex-shrink-0" style={{ scrollbarWidth: "none" }}>
-              <button
-                onClick={() => setCourseFilter("all")}
-                className="px-2.5 py-1 rounded-lg text-xs font-medium flex-shrink-0 transition-colors"
-                style={{
-                  backgroundColor: courseFilter === "all" ? "#3B82F6" : "#1E293B",
-                  color: courseFilter === "all" ? "#fff" : "#94A3B8",
-                  border: "1px solid #334155",
-                }}
+            {/* Course / Training selector */}
+            <div className="mb-3 flex-shrink-0">
+              <select
+                value={scope}
+                onChange={(e) => setScope(e.target.value as Scope)}
+                className="w-full px-3 py-2 rounded-xl text-sm outline-none"
+                style={{ backgroundColor: "#1E293B", border: "1px solid #334155", color: "#F8FAFC" }}
               >
-                All Courses
-              </button>
-              {enrolledCourses.map((c) => (
-                <button
-                  key={c.id}
-                  onClick={() => setCourseFilter(c.id)}
-                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium flex-shrink-0 transition-colors"
-                  style={{
-                    backgroundColor: courseFilter === c.id ? "#3B82F6" : "#1E293B",
-                    color: courseFilter === c.id ? "#fff" : "#94A3B8",
-                    border: "1px solid #334155",
-                  }}
-                >
-                  {c.thumbnail} {c.title.split(" ").slice(0, 2).join(" ")}
-                </button>
-              ))}
+                <option value="all">All Courses &amp; Trainings</option>
+                {enrolledCourses.length > 0 && (
+                  <optgroup label="Courses">
+                    {enrolledCourses.map((c) => (
+                      <option key={c.id} value={`course:${c.id}`}>{c.title}</option>
+                    ))}
+                  </optgroup>
+                )}
+                {enrolledTrainings.length > 0 && (
+                  <optgroup label="Trainings">
+                    {enrolledTrainings.map((t) => (
+                      <option key={t.id} value={`training:${t.id}`}>{t.title}</option>
+                    ))}
+                  </optgroup>
+                )}
+              </select>
             </div>
 
             {/* Thread list */}
@@ -189,7 +247,7 @@ export default function DiscussionsPage() {
                             {thread.isSolved && <CheckCircle2 size={11} style={{ color: "#10B981" }} />}
                             <p className="text-xs font-semibold text-white leading-snug line-clamp-2">{thread.title}</p>
                           </div>
-                          <p className="text-xs truncate" style={{ color: "#64748B" }}>{thread.courseName}</p>
+                          <p className="text-xs truncate" style={{ color: "#64748B" }}>{thread.courseName ?? thread.trainingName}</p>
                           <p className="text-xs mt-0.5" style={{ color: "#475569" }}>
                             {thread.replies} replies · {thread.lastReplyAt}
                           </p>
@@ -254,7 +312,11 @@ export default function DiscussionsPage() {
 
               {/* Replies */}
               <div className="flex-1 overflow-y-auto p-5 space-y-4" style={{ scrollbarWidth: "thin", scrollbarColor: "#334155 transparent" }}>
-                {mockReplies.map((reply) => (
+                {activeThread.replies === 0 ? (
+                  <div className="text-center py-8">
+                    <p className="text-xs" style={{ color: "#475569" }}>No replies yet — be the first to respond.</p>
+                  </div>
+                ) : mockReplies.map((reply) => (
                   <div key={reply.id} className="flex gap-3">
                     <div
                       className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
@@ -330,6 +392,16 @@ export default function DiscussionsPage() {
             </div>
           )}
         </div>
+
+        {showNewThread && (
+          <NewThreadModal
+            courses={enrolledCourses}
+            trainings={enrolledTrainings}
+            initialScope={scope}
+            onClose={() => setShowNewThread(false)}
+            onCreate={handleCreateThread}
+          />
+        )}
       </div>
     </DashboardLayout>
   )

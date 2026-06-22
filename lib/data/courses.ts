@@ -166,8 +166,10 @@ export interface Certificate {
 
 export interface DiscussionThread {
   id: string
-  courseId: string
-  courseName: string
+  courseId?: string
+  courseName?: string
+  trainingId?: string
+  trainingName?: string
   title: string
   body: string
   author: string
@@ -1401,6 +1403,42 @@ export const DISCUSSIONS: DiscussionThread[] = [
     tags: ["cookies", "analytics", "consent"],
     lastReplyAt: "2025-06-05",
     lastReplyBy: "Dr. Elena Vasquez (Instructor)",
+  },
+  {
+    id: "d7",
+    trainingId: "tt1",
+    trainingName: "Software Engineering Excellence",
+    title: "Best resources for practicing system design interviews?",
+    body: "Looking for additional practice beyond the capstone — any recommended resources for system design interview prep that pair well with this track?",
+    author: "Sam Rivera",
+    authorAvatar: "SR",
+    authorRole: "student",
+    createdAt: "2025-06-09",
+    replies: 9,
+    views: 201,
+    isPinned: false,
+    isSolved: false,
+    tags: ["system-design", "interview-prep"],
+    lastReplyAt: "2025-06-10",
+    lastReplyBy: "Jordan Lee",
+  },
+  {
+    id: "d8",
+    trainingId: "tt5",
+    trainingName: "Frontend Web Development",
+    title: "📌 Cohort kickoff — introduce yourself!",
+    body: "Welcome to the Frontend Web Development track! Drop a note below with your background and what you're hoping to build by the end of this track.",
+    author: "Sarah Chen",
+    authorAvatar: "SC",
+    authorRole: "instructor",
+    createdAt: "2025-05-01",
+    replies: 34,
+    views: 980,
+    isPinned: true,
+    isSolved: false,
+    tags: ["welcome", "introductions"],
+    lastReplyAt: "2025-06-08",
+    lastReplyBy: "Taylor Reid",
   },
 ]
 

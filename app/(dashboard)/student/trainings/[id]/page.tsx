@@ -5,14 +5,19 @@ import Link from "next/link"
 import { DashboardLayout } from "@/components/layout/DashboardLayout"
 import { TRAINING_TRACKS, CATEGORY_ICONS, DEFAULT_CATEGORY_ICON } from "@/lib/data/trainings"
 import type { TrainingTrack, KnowledgeCheck } from "@/lib/data/trainings"
+import { STUDENT_PROFILE } from "@/lib/data/courses"
 import { useTrainingProgress } from "@/lib/hooks/useTrainingProgress"
 import { useTrainingEnrollments } from "@/lib/hooks/useTrainingEnrollments"
 import { useKnowledgeCheckResults } from "@/lib/hooks/useKnowledgeCheckResults"
+import { useStudyGroups } from "@/lib/hooks/useStudyGroups"
+import { useDiscussions } from "@/lib/hooks/useDiscussions"
+import { StudyGroupCard } from "@/components/study-groups/StudyGroupCard"
 import { RecommendedSection } from "@/components/RecommendedSection"
 import type { RecommendedItem } from "@/components/RecommendedSection"
 import {
   ChevronLeft, ChevronRight, BookOpen, Clock, Users, Award, Shield,
   CheckCircle2, Circle, PlayCircle, HelpCircle, Zap, ClipboardCheck, X,
+  ClipboardList, CalendarClock, MessageSquare,
 } from "lucide-react"
 
 const moduleTypeIcon = (type: string, size = 16) => {
@@ -29,9 +34,18 @@ export default function TrainingDetailPage({ params }: { params: Promise<{ id: s
   const { isComplete, markComplete } = useTrainingProgress(track.id)
   const { isEnrolled, enroll } = useTrainingEnrollments()
   const { getResult, submitResult } = useKnowledgeCheckResults()
+  const { groups, addMembers, removeMember } = useStudyGroups()
+  const { threads } = useDiscussions()
   const [activeCheckId, setActiveCheckId] = useState<string | null>(null)
   const [checkAnswers, setCheckAnswers] = useState<Record<string, number | string>>({})
   const [checkSubmitted, setCheckSubmitted] = useState(false)
+
+  const trainingGroups = groups.filter((g) => g.trainingId === track.id)
+  const trainingDiscussions = threads.filter((d) => d.trainingId === track.id)
+  const toggleJoinGroup = (groupId: string, isMember: boolean) => {
+    if (isMember) removeMember(groupId, STUDENT_PROFILE.id)
+    else addMembers(groupId, [STUDENT_PROFILE.id])
+  }
 
   const owned = track.enrolled || isEnrolled(track.id)
   const isDone = (moduleId: string, staticDone: boolean) => staticDone || isComplete(moduleId)
@@ -429,6 +443,121 @@ export default function TrainingDetailPage({ params }: { params: Promise<{ id: s
             })}
           </div>
         )}
+
+        {/* Assignments */}
+        {track.assignments.length > 0 && (
+          <div className="space-y-4">
+            <div>
+              <h2 className="text-sm font-bold text-white flex items-center gap-2">
+                <ClipboardList size={16} style={{ color: "#F59E0B" }} /> Assignments
+              </h2>
+              <p className="text-xs mt-0.5" style={{ color: "#64748B" }}>
+                {track.assignments.length} assignment{track.assignments.length > 1 ? "s" : ""} for this training
+              </p>
+            </div>
+
+            {track.assignments.map((a) => (
+              <div key={a.id} className="rounded-2xl p-5" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
+                <div className="flex items-start justify-between gap-3 mb-2">
+                  <p className="text-sm font-semibold text-white">{a.title}</p>
+                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full flex-shrink-0 capitalize" style={{ backgroundColor: "#33415560", color: "#94A3B8" }}>
+                    {a.submissionFormat}
+                  </span>
+                </div>
+                <p className="text-sm mb-3" style={{ color: "#94A3B8" }}>{a.description}</p>
+                <div className="flex items-center gap-4 text-xs" style={{ color: "#64748B" }}>
+                  <span className="flex items-center gap-1.5"><CalendarClock size={12} /> Due {a.dueDate}</span>
+                  <span>Max score: {a.maxScore}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Study Groups */}
+        {trainingGroups.length > 0 && (
+          <div className="space-y-4">
+            <div>
+              <h2 className="text-sm font-bold text-white flex items-center gap-2">
+                <Users size={16} style={{ color: "#3B82F6" }} /> Study Groups
+              </h2>
+              <p className="text-xs mt-0.5" style={{ color: "#64748B" }}>
+                Collaborate with peers also taking this training
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {trainingGroups.map((g) => {
+                const isMember = g.memberIds.includes(STUDENT_PROFILE.id)
+                return (
+                  <StudyGroupCard
+                    key={g.id}
+                    group={g}
+                    isMember={isMember}
+                    onToggleJoin={() => toggleJoinGroup(g.id, isMember)}
+                  />
+                )
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Discussions */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-sm font-bold text-white flex items-center gap-2">
+                <MessageSquare size={16} style={{ color: "#3B82F6" }} /> Discussions
+              </h2>
+              <p className="text-xs mt-0.5" style={{ color: "#64748B" }}>
+                {trainingDiscussions.length} thread{trainingDiscussions.length === 1 ? "" : "s"} for this training
+              </p>
+            </div>
+            <Link
+              href={`/student/discussions?scope=training:${track.id}&new=1`}
+              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg flex-shrink-0"
+              style={{ backgroundColor: "#3B82F6", color: "#fff" }}
+            >
+              <MessageSquare size={13} /> New Thread
+            </Link>
+          </div>
+
+          {trainingDiscussions.length === 0 ? (
+            <div className="rounded-2xl p-8 text-center" style={{ backgroundColor: "#1E293B", border: "1px dashed #334155" }}>
+              <p className="text-sm" style={{ color: "#475569" }}>No discussions yet for this training.</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {trainingDiscussions.map((d) => (
+                <Link
+                  key={d.id}
+                  href={`/student/discussions?scope=training:${track.id}`}
+                  className="block rounded-2xl p-4"
+                  style={{ backgroundColor: "#1E293B", border: `1px solid ${d.isPinned ? "#3B82F640" : "#334155"}` }}
+                >
+                  <div className="flex items-start gap-3">
+                    <div
+                      className="flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold flex-shrink-0"
+                      style={{ backgroundColor: "#3B82F6", color: "#fff" }}
+                    >
+                      {d.authorAvatar}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-sm font-semibold text-white">{d.title}</span>
+                        {d.isPinned && <span className="text-xs px-1.5 py-0.5 rounded" style={{ backgroundColor: "#3B82F620", color: "#60A5FA" }}>Pinned</span>}
+                        {d.isSolved && <span className="text-xs px-1.5 py-0.5 rounded" style={{ backgroundColor: "#10B98120", color: "#10B981" }}>Solved</span>}
+                      </div>
+                      <p className="text-xs mt-0.5" style={{ color: "#64748B" }}>
+                        {d.author} · {d.createdAt} · {d.replies} replies · {d.views} views
+                      </p>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
 
         {!trackDone && (
           <div className="flex items-center justify-between">

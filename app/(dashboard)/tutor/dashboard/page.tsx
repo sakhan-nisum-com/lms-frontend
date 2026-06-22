@@ -1,3 +1,5 @@
+"use client"
+
 import { DashboardLayout } from "@/components/layout/DashboardLayout"
 import React from "react"
 import { BookOpen, Users, Star, TrendingUp, Plus, ChevronRight, BarChart2 } from "lucide-react"

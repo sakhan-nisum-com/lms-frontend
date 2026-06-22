@@ -321,6 +321,7 @@ export const TRAINING_TRACKS: TrainingTrack[] = [
         ],
       },
     ],
+    assignments: [],
   },
   {
     id: "tt4",
@@ -349,6 +350,7 @@ export const TRAINING_TRACKS: TrainingTrack[] = [
       { id: "tt4-m6", title: "Leading High-Performing Teams", duration: "4h", type: "course", completed: false },
     ],
     knowledgeChecks: [],
+    assignments: [],
   },
   {
     id: "tt5",
@@ -425,6 +427,7 @@ export const TRAINING_TRACKS: TrainingTrack[] = [
         ],
       },
     ],
+    assignments: [],
   },
   {
     id: "tt6",
@@ -457,6 +460,7 @@ export const TRAINING_TRACKS: TrainingTrack[] = [
       { id: "tt6-m10", title: "Capstone: Multi-Cloud Deployment", duration: "6h", type: "assessment", completed: false },
     ],
     knowledgeChecks: [],
+    assignments: [],
   },
   {
     id: "tt7",
@@ -482,6 +486,7 @@ export const TRAINING_TRACKS: TrainingTrack[] = [
       { id: "tt7-m3", title: "Reporting Procedures & Your Rights", duration: "2h", type: "assessment", completed: true },
     ],
     knowledgeChecks: [],
+    assignments: [],
   },
   {
     id: "tt8",
@@ -518,6 +523,7 @@ export const TRAINING_TRACKS: TrainingTrack[] = [
       { id: "tt8-m14", title: "Capstone: End-to-End ML Project", duration: "8h", type: "assessment", completed: false },
     ],
     knowledgeChecks: [],
+    assignments: [],
   },
 ]
 
