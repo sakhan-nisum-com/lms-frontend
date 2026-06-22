@@ -193,12 +193,20 @@ export const INITIAL_QA_ITEMS: QAItem[] = [
 
 // ── Assignment types ──────────────────────────────────────────────────────────
 
+export interface AttachmentFile {
+  id: string
+  name: string
+  fileType: "image" | "pdf" | "text" | "other"
+  size: string   // display string e.g. "2.4 MB"
+}
+
 export interface AssignmentTemplate {
   id: string
   title: string
   description: string
   dueDate?: string
   maxPoints?: number
+  attachments?: AttachmentFile[]
 }
 
 export interface LiveAssignment extends AssignmentTemplate {

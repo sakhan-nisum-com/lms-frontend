@@ -2,30 +2,27 @@
 
 import { useEffect, useRef, useState } from "react"
 import {
+  Archive,
+  BrainCircuit,
   ChevronDown,
   ChevronUp,
+  ExternalLink,
+  FileText,
+  Film,
+  HelpCircle,
+  ImageIcon,
+  Link2,
+  Paperclip,
+  Pencil,
   Plus,
   Trash2,
-  Pencil,
   Video,
-  FileText,
-  HelpCircle,
   Eye,
   EyeOff,
-  Film,
-  Bold,
-  Italic,
-  Underline,
-  List,
-  ListOrdered,
-  Heading2,
   Check,
-  Camera,
-  Scissors,
-  Mic,
-  Monitor,
+  X,
 } from "lucide-react"
-import type { Section, Lesson, QuizQuestion } from "@/lib/data/instructor-courses"
+import type { Section, Lesson, LessonResource, QuizQuestion, LessonKnowledgeCheck, SessionKnowledgeCheck, SessionKCPart } from "@/lib/data/instructor-courses"
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -55,17 +52,9 @@ export interface CourseForm {
   learningObjectives: string[]
   targetAudience: string[]
   requirements: string[]
-  // Step 2 — Course Structure
-  weeklyTime: "casually" | "seriously" | "intensely" | "full-time"
-  courseType: "practical" | "theory" | "mixed"
   // Step 3 — Setup & Test Video
   testVideoFileName?: string
   testVideoUrl?: string
-  // Step 6 — Captions
-  captionsSrtUrl?: string
-  // Step 7 — Accessibility
-  hasTranscripts: boolean
-  isKeyboardNavigable: boolean
   // Step 10 — Promotions
   couponCode: string
   discountPercent: string
@@ -80,28 +69,23 @@ interface CourseEditorProps {
   mode: "new" | "edit"
 }
 
-type StepId = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11
+type StepId = 1 | 2 | 3 | 4 | 5 | 6
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
 const STEPS: { id: StepId; label: string; group: string; optional?: boolean }[] = [
-  { id: 1,  label: "Intended Learners",   group: "Getting Started" },
-  { id: 2,  label: "Course Structure",    group: "Getting Started" },
-  { id: 3,  label: "Setup & Test Video",  group: "Getting Started" },
-  { id: 4,  label: "Film & Edit",         group: "Getting Started" },
-  { id: 5,  label: "Curriculum",          group: "Course Content" },
-  { id: 6,  label: "Captions",            group: "Course Content", optional: true },
-  { id: 7,  label: "Accessibility",       group: "Course Content", optional: true },
-  { id: 8,  label: "Course Landing Page", group: "Publish" },
-  { id: 9,  label: "Pricing",             group: "Publish" },
-  { id: 10, label: "Promotions",          group: "Publish" },
-  { id: 11, label: "Course Messages",     group: "Publish" },
+  { id: 1, label: "Intended Learners",   group: "Getting Started" },
+  { id: 2, label: "Curriculum",          group: "Course Content" },
+  { id: 3, label: "Course Landing Page", group: "Publish" },
+  { id: 4, label: "Pricing",             group: "Publish" },
+  { id: 5, label: "Promotions",          group: "Publish" },
+  { id: 6, label: "Course Messages",     group: "Publish" },
 ]
 
 const STEP_GROUPS: { label: string; ids: StepId[] }[] = [
-  { label: "Getting Started", ids: [1, 2, 3, 4] },
-  { label: "Course Content",  ids: [5, 6, 7] },
-  { label: "Publish",         ids: [8, 9, 10, 11] },
+  { label: "Getting Started", ids: [1] },
+  { label: "Course Content",  ids: [2] },
+  { label: "Publish",         ids: [3, 4, 5, 6] },
 ]
 
 const CATEGORIES = [
@@ -111,7 +95,8 @@ const CATEGORIES = [
 
 const LEVELS = ["Beginner", "Intermediate", "Advanced", "All Levels"]
 
-const COLOR_SWATCHES = ["#3B82F6", "#10B981", "#F59E0B", "#8B5CF6", "#EF4444", "#EC4899"]
+const FEATURED_PLACEMENT_FEE = "$49 / month"
+
 
 const LESSON_TYPE_META: Record<Lesson["type"], { icon: typeof Video; color: string }> = {
   video: { icon: Video,      color: "#3B82F6" },
@@ -125,20 +110,6 @@ const LESSON_TYPE_ACTIONS: { type: Lesson["type"]; icon: typeof Video; label: st
   { type: "quiz",  icon: HelpCircle, label: "Create Quiz",  color: "#8B5CF6" },
 ]
 
-const RICH_TEXT_TOOLS: { command: string; arg?: string; icon: typeof Bold; title: string }[] = [
-  { command: "bold",                icon: Bold,         title: "Bold" },
-  { command: "italic",              icon: Italic,       title: "Italic" },
-  { command: "underline",           icon: Underline,    title: "Underline" },
-  { command: "formatBlock", arg:"H2",icon: Heading2,     title: "Heading" },
-  { command: "insertUnorderedList", icon: List,         title: "Bullet list" },
-  { command: "insertOrderedList",   icon: ListOrdered,  title: "Numbered list" },
-]
-
-const STATUS_OPTIONS = [
-  { value: "draft"     as const, label: "Draft",      desc: "Only visible to you — not yet listed for students.",      color: "#64748B" },
-  { value: "review"    as const, label: "In Review",  desc: "Submitted for platform review before publishing.",         color: "#F59E0B" },
-  { value: "published" as const, label: "Published",  desc: "Live and discoverable by students.",                       color: "#10B981" },
-]
 
 // ── Completion detection ──────────────────────────────────────────────────────
 
@@ -150,16 +121,11 @@ function isStepComplete(id: StepId, form: CourseForm): boolean {
         form.targetAudience.some((s) => s.trim().length > 0) &&
         form.requirements.some((s) => s.trim().length > 0)
       )
-    case 2: return true
-    case 3: return !!form.testVideoFileName
-    case 4: return true
-    case 5: return form.sections.length > 0 && form.sections.some((s) => s.lessons.length > 0)
-    case 6: return !!form.captionsSrtUrl?.trim()
-    case 7: return form.hasTranscripts || form.isKeyboardNavigable
-    case 8: return form.title.trim().length > 0 && form.category.length > 0 && form.description.trim().length > 0
-    case 9: return form.isFree || form.price.trim().length > 0
-    case 10: return true
-    case 11: return form.welcomeMessage.trim().length > 0 && form.completionMessage.trim().length > 0
+    case 2: return form.sections.length > 0 && form.sections.some((s) => s.lessons.length > 0)
+    case 3: return form.title.trim().length > 0 && form.category.length > 0 && form.description.trim().length > 0
+    case 4: return form.isFree || form.price.trim().length > 0
+    case 5: return true
+    case 6: return form.welcomeMessage.trim().length > 0 && form.completionMessage.trim().length > 0
   }
 }
 
@@ -207,46 +173,63 @@ function TextInput({ value, onChange, placeholder, type = "text" }: {
 }
 
 function RichTextEditor({ value, onChange }: { value: string; onChange: (html: string) => void }) {
-  const editorRef = useRef<HTMLDivElement>(null)
-  const initialized = useRef(false)
+  const containerRef = useRef<HTMLDivElement>(null)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const quillRef = useRef<any>(null)
+  const suppressRef = useRef(false)
 
   useEffect(() => {
-    if (editorRef.current && !initialized.current) {
-      editorRef.current.innerHTML = value
-      initialized.current = true
+    if (!containerRef.current || quillRef.current) return
+    let cancelled = false
+    import('quill').then(({ default: Quill }) => {
+      if (cancelled || !containerRef.current) return
+      const quill = new Quill(containerRef.current, {
+        theme: 'snow',
+        placeholder: 'Write your lesson content here…',
+        modules: {
+          toolbar: [
+            [{ header: [2, 3, false] }],
+            ['bold', 'italic', 'underline'],
+            [{ list: 'ordered' }, { list: 'bullet' }],
+            ['link', 'clean'],
+          ],
+        },
+      })
+      if (value) quill.clipboard.dangerouslyPasteHTML(value)
+      quill.on('text-change', () => {
+        suppressRef.current = true
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const html = (quill as any).getSemanticHTML?.() ?? quill.root.innerHTML
+        onChange(html === '<p></p>' ? '' : html)
+      })
+      quillRef.current = quill
+    })
+    return () => {
+      cancelled = true
+      // Remove the toolbar Quill inserts as the previous sibling of our container
+      const toolbar = containerRef.current?.previousElementSibling
+      if (toolbar?.classList.contains('ql-toolbar')) toolbar.remove()
+      // Reset the container so Quill can re-mount cleanly
+      if (containerRef.current) {
+        containerRef.current.className = ''
+        containerRef.current.innerHTML = ''
+      }
+      quillRef.current = null
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  useEffect(() => {
+    if (suppressRef.current) { suppressRef.current = false; return }
+    if (!quillRef.current) return
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const current = (quillRef.current as any).getSemanticHTML?.() ?? quillRef.current.root.innerHTML
+    if (current !== value) quillRef.current.clipboard.dangerouslyPasteHTML(value || '')
   }, [value])
 
-  function exec(command: string, arg?: string) {
-    editorRef.current?.focus()
-    document.execCommand(command, false, arg)
-    onChange(editorRef.current?.innerHTML ?? "")
-  }
-
   return (
-    <div className="rounded-xl overflow-hidden" style={{ border: "1px solid #334155" }}>
-      <div className="flex items-center gap-1 px-2 py-1.5 flex-wrap" style={{ backgroundColor: "#1E293B", borderBottom: "1px solid #334155" }}>
-        {RICH_TEXT_TOOLS.map(({ command, arg, icon: Icon, title }) => (
-          <button
-            key={command + (arg ?? "")}
-            type="button"
-            title={title}
-            onMouseDown={(e) => { e.preventDefault(); exec(command, arg) }}
-            className="p-1.5 rounded-lg transition-colors hover:bg-white/5"
-            style={{ color: "#94A3B8" }}
-          >
-            <Icon size={13} />
-          </button>
-        ))}
-      </div>
-      <div
-        ref={editorRef}
-        contentEditable
-        suppressContentEditableWarning
-        onInput={() => onChange(editorRef.current?.innerHTML ?? "")}
-        className="px-3 py-3 text-sm outline-none min-h-[140px] max-h-[320px] overflow-y-auto"
-        style={{ color: "#F8FAFC", backgroundColor: "#0F172A" }}
-      />
+    <div className="quill-dark rounded-xl overflow-hidden" style={{ border: "1px solid #334155" }}>
+      <div ref={containerRef} />
     </div>
   )
 }
@@ -371,260 +354,82 @@ function IntendedLearnersStep({ form, onChange }: { form: CourseForm; onChange: 
   )
 }
 
-// ── Step 2: Course Structure ──────────────────────────────────────────────────
+// ── Shared KC question form ───────────────────────────────────────────────────
 
-function CourseStructureStep({ form, onChange }: { form: CourseForm; onChange: (f: CourseForm) => void }) {
+type KCDraft = { question: string; options: string[]; correctIndex: number }
+
+function KCQuestionForm({ draft, onChange, onAdd, onCancel, editMode }: {
+  draft: KCDraft
+  onChange: (d: KCDraft) => void
+  onAdd: () => void
+  onCancel?: () => void
+  editMode?: boolean
+}) {
+  const canAdd = draft.question.trim().length > 0 && draft.options.every(o => o.trim().length > 0)
   return (
-    <div className="space-y-8 max-w-2xl">
-      <div>
-        <h3 className="text-base font-semibold text-white mb-1">Course Structure</h3>
-        <p className="text-sm" style={{ color: "#64748B" }}>
-          Tell us about your availability and course approach so we can tailor guidance for you.
-        </p>
-      </div>
-
-      <div>
-        <FieldLabel>How much time can you spend creating your course per week?</FieldLabel>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
-          {([
-            { key: "casually"  as const, label: "Casually",            time: "~1 hr/week",     desc: "I'll chip away at it slowly" },
-            { key: "seriously" as const, label: "Seriously",           time: "~2–4 hrs/week",  desc: "I can dedicate a few evenings" },
-            { key: "intensely" as const, label: "Intensely",           time: "~5–10 hrs/week", desc: "I'm committed to finishing fast" },
-            { key: "full-time" as const, label: "I'll make it my job", time: "17+ hrs/week",   desc: "Building this is my priority" },
-          ] as const).map(({ key, label, time, desc }) => (
+    <div className="rounded-xl p-3 space-y-2.5" style={{ backgroundColor: "#1E293B", border: "1px dashed #8B5CF630" }}>
+      <p className="text-xs font-semibold" style={{ color: "#8B5CF6" }}>{editMode ? "Edit Question" : "Add Question"}</p>
+      <input
+        value={draft.question}
+        onChange={e => onChange({ ...draft, question: e.target.value })}
+        placeholder="Question text…"
+        className="w-full px-3 py-2 rounded-xl text-xs outline-none placeholder-slate-600"
+        style={{ backgroundColor: "#0F172A", border: "1px solid #334155", color: "#F8FAFC" }}
+        onFocus={e => (e.currentTarget.style.borderColor = "#8B5CF6")}
+        onBlur={e => (e.currentTarget.style.borderColor = "#334155")}
+      />
+      <div className="grid grid-cols-2 gap-2">
+        {draft.options.map((opt, oi) => (
+          <div key={oi} className="flex items-center gap-2">
             <button
-              key={key}
               type="button"
-              onClick={() => onChange({ ...form, weeklyTime: key })}
-              className="flex items-start gap-3 p-4 rounded-xl text-left transition-all"
+              title={`Mark option ${String.fromCharCode(65 + oi)} as correct`}
+              onClick={() => onChange({ ...draft, correctIndex: oi })}
+              className="flex-shrink-0 w-4 h-4 rounded-full border-2 transition-all"
               style={{
-                backgroundColor: "#1E293B",
-                border: `1px solid ${form.weeklyTime === key ? "#3B82F6" : "#334155"}`,
+                borderColor: draft.correctIndex === oi ? "#8B5CF6" : "#475569",
+                backgroundColor: draft.correctIndex === oi ? "#8B5CF6" : "transparent",
               }}
-            >
-              <div
-                className="w-4 h-4 rounded-full border-2 flex-shrink-0 mt-0.5 transition-all"
-                style={{
-                  borderColor: form.weeklyTime === key ? "#3B82F6" : "#475569",
-                  backgroundColor: form.weeklyTime === key ? "#3B82F6" : "transparent",
-                }}
-              />
-              <div>
-                <p className="text-sm font-semibold" style={{ color: form.weeklyTime === key ? "#60A5FA" : "#F8FAFC" }}>
-                  {label}
-                </p>
-                <p className="text-xs font-medium mt-0.5" style={{ color: "#10B981" }}>{time}</p>
-                <p className="text-xs mt-1" style={{ color: "#64748B" }}>{desc}</p>
-              </div>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div>
-        <FieldLabel>What kind of course are you building?</FieldLabel>
-        <div className="flex items-center gap-2 flex-wrap mt-2">
-          {([
-            { key: "practical" as const, label: "Hands-on / Project-based" },
-            { key: "theory"    as const, label: "Concepts & Theory" },
-            { key: "mixed"     as const, label: "Both" },
-          ] as const).map(({ key, label }) => (
-            <button
-              key={key}
-              type="button"
-              onClick={() => onChange({ ...form, courseType: key })}
-              className="px-4 py-2 rounded-xl text-sm font-medium transition-all"
-              style={{
-                backgroundColor: form.courseType === key ? "#3B82F620" : "#1E293B",
-                color: form.courseType === key ? "#60A5FA" : "#64748B",
-                border: `1px solid ${form.courseType === key ? "#3B82F640" : "#334155"}`,
-              }}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// ── Step 3: Setup & Test Video ────────────────────────────────────────────────
-
-function SetupTestVideoStep({ form, onChange }: { form: CourseForm; onChange: (f: CourseForm) => void }) {
-  const [testProgress, setTestProgress] = useState<number | null>(null)
-  const testFileRef = useRef<HTMLInputElement>(null)
-
-  function handleTestFile(file: File | undefined) {
-    if (!file) return
-    setTestProgress(0)
-    let pct = 0
-    const iv = setInterval(() => {
-      pct = Math.min(100, pct + Math.random() * 18 + 7)
-      if (pct >= 100) {
-        clearInterval(iv)
-        const url = URL.createObjectURL(file)
-        onChange({ ...form, testVideoFileName: file.name, testVideoUrl: url })
-        setTestProgress(100)
-        setTimeout(() => setTestProgress(null), 400)
-      } else {
-        setTestProgress(Math.round(pct))
-      }
-    }, 180)
-  }
-
-  return (
-    <div className="space-y-6 max-w-2xl">
-      <div>
-        <h3 className="text-base font-semibold text-white mb-1">Setup & Test Video</h3>
-        <p className="text-sm" style={{ color: "#64748B" }}>
-          Confirm your recording setup with a short test clip before filming your full course.
-        </p>
-      </div>
-
-      {/* Equipment tips */}
-      <div className="rounded-2xl p-5 space-y-4" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
-        <p className="text-sm font-semibold text-white flex items-center gap-2">
-          <Camera size={14} style={{ color: "#3B82F6" }} />
-          Equipment Checklist
-        </p>
-        {[
-          { Icon: Monitor, color: "#3B82F6", text: "Video: Use a webcam or phone at 1080p minimum. Keep your background tidy and well-lit." },
-          { Icon: Mic,     color: "#10B981", text: "Audio: Record in a quiet room. A USB microphone dramatically improves perceived quality." },
-          { Icon: Camera,  color: "#F59E0B", text: "Lighting: Natural side-light or a ring light removes shadows. Avoid backlit windows." },
-        ].map(({ Icon, color, text }) => (
-          <div key={color} className="flex items-start gap-3">
-            <div className="flex-shrink-0 w-6 h-6 rounded-lg flex items-center justify-center mt-0.5" style={{ backgroundColor: `${color}15` }}>
-              <Icon size={12} style={{ color }} />
-            </div>
-            <p className="text-xs leading-relaxed" style={{ color: "#94A3B8" }}>{text}</p>
+            />
+            <input
+              value={opt}
+              onChange={e => { const opts = [...draft.options]; opts[oi] = e.target.value; onChange({ ...draft, options: opts }) }}
+              placeholder={`Option ${String.fromCharCode(65 + oi)}`}
+              className="flex-1 px-2 py-1.5 rounded-lg text-xs outline-none placeholder-slate-600"
+              style={{ backgroundColor: "#0F172A", border: "1px solid #334155", color: "#F8FAFC" }}
+              onFocus={e => (e.currentTarget.style.borderColor = "#8B5CF6")}
+              onBlur={e => (e.currentTarget.style.borderColor = "#334155")}
+            />
           </div>
         ))}
       </div>
-
-      {/* Test video upload */}
-      <div>
-        <FieldLabel>Upload Test Video</FieldLabel>
-        <p className="text-xs mb-3" style={{ color: "#475569" }}>
-          Upload a 2–5 minute sample to verify your audio, video, and lighting before recording the full course.
-        </p>
-        <input
-          ref={testFileRef}
-          type="file"
-          accept="video/*"
-          className="hidden"
-          onChange={(e) => { handleTestFile(e.target.files?.[0]); e.target.value = "" }}
-        />
-        {form.testVideoFileName && testProgress === null ? (
-          <div className="flex items-center gap-3 p-3.5 rounded-xl" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
-            <Film size={14} style={{ color: "#3B82F6", flexShrink: 0 }} />
-            <span className="text-sm text-white truncate flex-1">{form.testVideoFileName}</span>
-            <button
-              type="button"
-              onClick={() => testFileRef.current?.click()}
-              className="text-xs font-medium flex-shrink-0 hover:opacity-80"
-              style={{ color: "#3B82F6" }}
-            >
-              Replace
-            </button>
-          </div>
-        ) : (
+      <div className="flex items-center justify-end gap-2">
+        {onCancel && (
           <button
             type="button"
-            disabled={testProgress !== null}
-            onClick={() => testFileRef.current?.click()}
-            className="flex flex-col items-center justify-center w-full py-10 rounded-2xl transition-all disabled:opacity-60"
-            style={{ border: "1px dashed #334155" }}
-            onMouseEnter={(e) => { if (testProgress === null) e.currentTarget.style.borderColor = "#3B82F6" }}
-            onMouseLeave={(e) => (e.currentTarget.style.borderColor = "#334155")}
+            onClick={onCancel}
+            className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
+            style={{ backgroundColor: "#334155", color: "#94A3B8" }}
           >
-            <Film size={28} style={{ color: "#334155", marginBottom: 10 }} />
-            <span className="text-sm font-medium" style={{ color: "#64748B" }}>
-              {testProgress !== null ? "Uploading…" : "Click to upload test video"}
-            </span>
-            <span className="text-xs mt-1" style={{ color: "#475569" }}>MP4, MOV, AVI — up to 500 MB</span>
+            Cancel
           </button>
         )}
-        {testProgress !== null && (
-          <div className="mt-3">
-            <div className="flex justify-between text-xs mb-1" style={{ color: "#64748B" }}>
-              <span>Uploading…</span><span>{testProgress}%</span>
-            </div>
-            <div className="h-1.5 rounded-full" style={{ backgroundColor: "#334155" }}>
-              <div className="h-full rounded-full transition-all" style={{ width: `${testProgress}%`, backgroundColor: "#3B82F6" }} />
-            </div>
-          </div>
-        )}
+        <button
+          type="button"
+          onClick={onAdd}
+          disabled={!canAdd}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold disabled:opacity-30 transition-all"
+          style={{ backgroundColor: "#8B5CF620", color: "#A78BFA", border: "1px solid #8B5CF630" }}
+        >
+          {editMode ? <Check size={12} /> : <Plus size={12} />}
+          {editMode ? "Save" : "Add Question"}
+        </button>
       </div>
     </div>
   )
 }
 
-// ── Step 4: Film & Edit ───────────────────────────────────────────────────────
-
-function FilmEditStep({ form: _, onChange: __ }: { form: CourseForm; onChange: (f: CourseForm) => void }) {
-  const CHECKLIST = {
-    before: [
-      "Write a full script or detailed outline — don't improvise",
-      "Record a test clip and review before your full session",
-      "Clean your background or set up a virtual backdrop",
-      "Close all notifications on your computer",
-      "Fully charge all equipment — mic, camera, laptop",
-    ],
-    during: [
-      "Speak to one person, not a crowd — keep energy personal",
-      "Pause and re-record stumbles — don't power through mistakes",
-      "Keep each lesson under 10 minutes for better completion rates",
-      "Use screen capture tools (OBS, Loom, QuickTime) for screen demos",
-      "Review each recording immediately while your setup is still active",
-    ],
-  }
-
-  return (
-    <div className="space-y-6 max-w-2xl">
-      <div>
-        <h3 className="text-base font-semibold text-white mb-1">Film & Edit</h3>
-        <p className="text-sm" style={{ color: "#64748B" }}>
-          Use these best practices to produce polished, professional video content.
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {(["before", "during"] as const).map((phase) => (
-          <div key={phase} className="rounded-2xl p-5" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
-            <div className="flex items-center gap-2 mb-4">
-              {phase === "before"
-                ? <Scissors size={14} style={{ color: "#F59E0B" }} />
-                : <Camera  size={14} style={{ color: "#10B981" }} />}
-              <p className="text-sm font-semibold text-white">
-                {phase === "before" ? "Before Filming" : "While Filming"}
-              </p>
-            </div>
-            <ul className="space-y-3">
-              {CHECKLIST[phase].map((item) => (
-                <li key={item} className="flex items-start gap-2.5">
-                  <span className="flex-shrink-0 w-4 h-4 rounded-full flex items-center justify-center mt-0.5" style={{ backgroundColor: "#334155" }}>
-                    <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: "#64748B" }} />
-                  </span>
-                  <p className="text-xs leading-relaxed" style={{ color: "#94A3B8" }}>{item}</p>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
-      </div>
-
-      <div className="flex items-center gap-3 p-4 rounded-xl" style={{ backgroundColor: "#3B82F610", border: "1px solid #3B82F630" }}>
-        <Check size={14} style={{ color: "#3B82F6", flexShrink: 0 }} />
-        <p className="text-xs" style={{ color: "#94A3B8" }}>
-          Once you&apos;re comfortable with your setup, head to <strong className="text-white">Curriculum</strong> to upload your full course content.
-        </p>
-      </div>
-    </div>
-  )
-}
-
-// ── Step 5: Curriculum ────────────────────────────────────────────────────────
+// ── Step 3: Curriculum ────────────────────────────────────────────────────────
 
 function CurriculumTab({ form, onChange }: { form: CourseForm; onChange: (f: CourseForm) => void }) {
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -634,6 +439,137 @@ function CurriculumTab({ form, onChange }: { form: CourseForm; onChange: (f: Cou
   const [uploadTarget, setUploadTarget] = useState<{ sectionId: string; lessonId: string } | null>(null)
   const [uploadProgress, setUploadProgress] = useState<{ lessonId: string; percent: number } | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Resources
+  const [resourceOpenId, setResourceOpenId] = useState<string | null>(null)
+  const [linkUrl, setLinkUrl] = useState("")
+  const [linkName, setLinkName] = useState("")
+  const resourceFileRef = useRef<HTMLInputElement>(null)
+  const [resourceTarget, setResourceTarget] = useState<{ sectionId: string; lessonId: string } | null>(null)
+
+  // Knowledge Checks
+  const [lessonKCOpenId, setLessonKCOpenId] = useState<string | null>(null)
+  const [sectionKCOpenId, setSectionKCOpenId] = useState<string | null>(null)
+  const [sessionKCPartFormId, setSessionKCPartFormId] = useState<string | null>(null)
+  const EMPTY_KC_DRAFT: KCDraft = { question: "", options: ["", "", "", ""], correctIndex: 0 }
+  const [lessonKCQ, setLessonKCQ] = useState<KCDraft>(EMPTY_KC_DRAFT)
+  const [sessionKCQ, setSessionKCQ] = useState<KCDraft>(EMPTY_KC_DRAFT)
+  const [editingKCQ, setEditingKCQ] = useState<{
+    type: "lesson" | "session"
+    sectionId: string
+    lessonId: string
+    questionId: string
+    draft: KCDraft
+  } | null>(null)
+
+  // ── KC helpers ──────────────────────────────────────────────────────────────
+
+  function getLessonKC(sId: string, lId: string): LessonKnowledgeCheck | undefined {
+    return form.sections.find(s => s.id === sId)?.lessons.find(l => l.id === lId)?.lessonKC
+  }
+
+  function patchLessonKC(sId: string, lId: string, patch: Partial<LessonKnowledgeCheck>) {
+    onChange({
+      ...form,
+      sections: form.sections.map(s => s.id !== sId ? s : {
+        ...s,
+        lessons: s.lessons.map(l => l.id !== lId ? l : {
+          ...l,
+          lessonKC: { questions: [], passingScore: 80, isMandatory: false, ...l.lessonKC, ...patch },
+        }),
+      }),
+    })
+  }
+
+  function addLessonKCQuestion(sId: string, lId: string) {
+    const { question, options, correctIndex } = lessonKCQ
+    if (!question.trim() || options.some(o => !o.trim())) return
+    const q: QuizQuestion = { id: `lkc-${Date.now()}`, question: question.trim(), options: options.map(o => o.trim()), correctIndex }
+    patchLessonKC(sId, lId, { questions: [...(getLessonKC(sId, lId)?.questions ?? []), q] })
+    setLessonKCQ(EMPTY_KC_DRAFT)
+  }
+
+  function removeLessonKCQuestion(sId: string, lId: string, qId: string) {
+    const kc = getLessonKC(sId, lId)
+    if (!kc) return
+    patchLessonKC(sId, lId, { questions: kc.questions.filter(q => q.id !== qId) })
+  }
+
+  function removeLessonKC(sId: string, lId: string) {
+    onChange({
+      ...form,
+      sections: form.sections.map(s => s.id !== sId ? s : {
+        ...s,
+        lessons: s.lessons.map(l => l.id !== lId ? l : { ...l, lessonKC: undefined }),
+      }),
+    })
+  }
+
+  function getSessionKC(sId: string): SessionKnowledgeCheck | undefined {
+    return form.sections.find(s => s.id === sId)?.sessionKC
+  }
+
+  function patchSessionKC(sId: string, patch: Partial<SessionKnowledgeCheck>) {
+    const kc = getSessionKC(sId)
+    if (!kc) return
+    onChange({ ...form, sections: form.sections.map(s => s.id !== sId ? s : { ...s, sessionKC: { ...kc, ...patch } }) })
+  }
+
+  function initSessionKC(sId: string) {
+    const section = form.sections.find(s => s.id === sId)
+    if (!section || section.sessionKC) return
+    const parts: SessionKCPart[] = section.lessons.map(l => ({ lessonId: l.id, questions: [], passingScore: 80 }))
+    onChange({ ...form, sections: form.sections.map(s => s.id !== sId ? s : { ...s, sessionKC: { isMandatory: false, parts } }) })
+  }
+
+  function patchSessionKCPart(sId: string, lId: string, patch: Partial<SessionKCPart>) {
+    const kc = getSessionKC(sId)
+    if (!kc) return
+    patchSessionKC(sId, { parts: kc.parts.map(p => p.lessonId !== lId ? p : { ...p, ...patch }) })
+  }
+
+  function addSessionKCQuestion(sId: string, lId: string) {
+    const { question, options, correctIndex } = sessionKCQ
+    if (!question.trim() || options.some(o => !o.trim())) return
+    const q: QuizQuestion = { id: `skc-${Date.now()}`, question: question.trim(), options: options.map(o => o.trim()), correctIndex }
+    const kc = getSessionKC(sId)
+    if (!kc) return
+    const part = kc.parts.find(p => p.lessonId === lId)
+    patchSessionKCPart(sId, lId, { questions: [...(part?.questions ?? []), q] })
+    setSessionKCQ(EMPTY_KC_DRAFT)
+  }
+
+  function removeSessionKCQuestion(sId: string, lId: string, qId: string) {
+    const kc = getSessionKC(sId)
+    if (!kc) return
+    const part = kc.parts.find(p => p.lessonId === lId)
+    if (!part) return
+    patchSessionKCPart(sId, lId, { questions: part.questions.filter(q => q.id !== qId) })
+  }
+
+  function removeSessionKC(sId: string) {
+    onChange({ ...form, sections: form.sections.map(s => s.id !== sId ? s : { ...s, sessionKC: undefined }) })
+  }
+
+  function saveEditKCQuestion() {
+    if (!editingKCQ) return
+    const { type, sectionId, lessonId, questionId, draft } = editingKCQ
+    const { question, options, correctIndex } = draft
+    if (!question.trim() || options.some(o => !o.trim())) return
+    const updated: QuizQuestion = { id: questionId, question: question.trim(), options: options.map(o => o.trim()), correctIndex }
+    if (type === "lesson") {
+      const kc = getLessonKC(sectionId, lessonId)
+      if (!kc) return
+      patchLessonKC(sectionId, lessonId, { questions: kc.questions.map(q => q.id === questionId ? updated : q) })
+    } else {
+      const kc = getSessionKC(sectionId)
+      if (!kc) return
+      const part = kc.parts.find(p => p.lessonId === lessonId)
+      if (!part) return
+      patchSessionKCPart(sectionId, lessonId, { questions: part.questions.map(q => q.id === questionId ? updated : q) })
+    }
+    setEditingKCQ(null)
+  }
 
   function startEdit(id: string, title: string) { setEditingId(id); setEditValue(title) }
 
@@ -777,6 +713,37 @@ function CurriculumTab({ form, onChange }: { form: CourseForm; onChange: (f: Cou
     }, 180)
   }
 
+  function getLessonResources(sectionId: string, lessonId: string): LessonResource[] {
+    return form.sections.find(s => s.id === sectionId)?.lessons.find(l => l.id === lessonId)?.resources ?? []
+  }
+
+  function addFileResource(sectionId: string, lessonId: string, file: File) {
+    const id = `res-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 5)}`
+    const fileType: LessonResource["fileType"] =
+      file.name.toLowerCase().endsWith(".zip") || file.name.toLowerCase().endsWith(".tar") || file.name.toLowerCase().endsWith(".gz") ? "zip"
+      : file.type === "application/pdf" ? "pdf"
+      : file.type.startsWith("image/") ? "image"
+      : file.type.startsWith("text/") || /\.(md|doc|docx|txt)$/i.test(file.name) ? "text"
+      : "other"
+    const resource: LessonResource = {
+      id, type: "file", name: file.name, url: URL.createObjectURL(file), fileType,
+      size: file.size > 1024 * 1024 ? `${(file.size / 1024 / 1024).toFixed(1)} MB` : `${Math.max(1, Math.round(file.size / 1024))} KB`,
+    }
+    updateLesson(sectionId, lessonId, { resources: [...getLessonResources(sectionId, lessonId), resource] })
+  }
+
+  function addLinkResource(sectionId: string, lessonId: string) {
+    if (!linkUrl.trim()) return
+    const id = `res-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 5)}`
+    const resource: LessonResource = { id, type: "link", name: linkName.trim() || linkUrl.trim(), url: linkUrl.trim() }
+    updateLesson(sectionId, lessonId, { resources: [...getLessonResources(sectionId, lessonId), resource] })
+    setLinkUrl(""); setLinkName("")
+  }
+
+  function removeResource(sectionId: string, lessonId: string, resourceId: string) {
+    updateLesson(sectionId, lessonId, { resources: getLessonResources(sectionId, lessonId).filter(r => r.id !== resourceId) })
+  }
+
   function updateQuestions(sectionId: string, lessonId: string, questions: QuizQuestion[]) {
     updateLesson(sectionId, lessonId, { questions })
   }
@@ -807,6 +774,20 @@ function CurriculumTab({ form, onChange }: { form: CourseForm; onChange: (f: Cou
         accept="video/*"
         className="hidden"
         onChange={(e) => { handleVideoFileSelected(e.target.files?.[0]); e.target.value = "" }}
+      />
+      <input
+        ref={resourceFileRef}
+        type="file"
+        multiple
+        accept=".zip,.tar,.gz,.pdf,image/*,.txt,.md,.doc,.docx"
+        className="hidden"
+        onChange={(e) => {
+          const target = resourceTarget
+          if (!target) return
+          Array.from(e.target.files ?? []).forEach(f => addFileResource(target.sectionId, target.lessonId, f))
+          e.target.value = ""
+          setResourceTarget(null)
+        }}
       />
 
       <p className="text-xs pb-1" style={{ color: "#64748B" }}>
@@ -863,6 +844,24 @@ function CurriculumTab({ form, onChange }: { form: CourseForm; onChange: (f: Cou
             </span>
 
             <div className="flex items-center gap-0.5 flex-shrink-0">
+              {/* Session KC toggle */}
+              <button
+                type="button"
+                title="Session Knowledge Check"
+                onClick={() => {
+                  if (!section.sessionKC) initSessionKC(section.id)
+                  setSectionKCOpenId(prev => prev === section.id ? null : section.id)
+                }}
+                className="p-1 rounded hover:bg-white/5 transition-colors flex-shrink-0 relative"
+                style={{ color: section.sessionKC ? "#8B5CF6" : "#64748B" }}
+              >
+                <BrainCircuit size={14} />
+                {(section.sessionKC?.parts.reduce((a, p) => a + p.questions.length, 0) ?? 0) > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full flex items-center justify-center text-[8px] font-bold text-white" style={{ backgroundColor: "#8B5CF6" }}>
+                    {section.sessionKC!.parts.reduce((a, p) => a + p.questions.length, 0)}
+                  </span>
+                )}
+              </button>
               <button type="button" onClick={() => moveSectionUp(section.id)} disabled={si === 0}
                 className="p-1 rounded hover:bg-white/5 transition-colors disabled:opacity-20" style={{ color: "#64748B" }}>
                 <ChevronUp size={13} />
@@ -879,6 +878,122 @@ function CurriculumTab({ form, onChange }: { form: CourseForm; onChange: (f: Cou
               </button>
             </div>
           </div>
+
+          {/* Session KC panel */}
+          {sectionKCOpenId === section.id && section.sessionKC && (
+            <div className="px-4 py-4 space-y-3" style={{ backgroundColor: "#080D1A", borderBottom: "1px solid #334155" }}>
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-xs font-semibold" style={{ color: "#8B5CF6" }}>Session Knowledge Check</p>
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-1.5 text-xs select-none" style={{ color: "#94A3B8" }}>
+                    <Toggle
+                      checked={section.sessionKC.isMandatory}
+                      onChange={() => patchSessionKC(section.id, { isMandatory: !section.sessionKC!.isMandatory })}
+                    />
+                    Mandatory
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => { removeSessionKC(section.id); setSectionKCOpenId(null) }}
+                    className="p-1 rounded-lg transition-colors"
+                    style={{ color: "#475569" }}
+                    onMouseEnter={e => (e.currentTarget.style.color = "#EF4444")}
+                    onMouseLeave={e => (e.currentTarget.style.color = "#475569")}
+                  >
+                    <Trash2 size={13} />
+                  </button>
+                </div>
+              </div>
+              <p className="text-xs" style={{ color: "#475569" }}>
+                Shown before the section starts. Students who pass a part&apos;s check can skip that lesson; failed parts must be completed.
+                {section.sessionKC.isMandatory ? " (Mandatory — students cannot skip this check.)" : ""}
+              </p>
+
+              <div className="space-y-2">
+                {section.lessons.map((lesson, li) => {
+                  const part = section.sessionKC!.parts.find(p => p.lessonId === lesson.id)
+                  const partQs = part?.questions ?? []
+                  const partOpen = sessionKCPartFormId === lesson.id
+                  return (
+                    <div key={lesson.id} className="rounded-xl overflow-hidden" style={{ border: "1px solid #334155" }}>
+                      <div className="flex items-center gap-3 px-3 py-2.5" style={{ backgroundColor: "#1E293B" }}>
+                        <span className="text-xs font-bold flex-shrink-0" style={{ color: "#8B5CF6" }}>Part {li + 1}</span>
+                        <span className="text-xs text-white flex-1 min-w-0 truncate">{lesson.title}</span>
+                        <span className="text-xs flex-shrink-0" style={{ color: "#475569" }}>
+                          {partQs.length} Q{partQs.length !== 1 ? "s" : ""}
+                        </span>
+                        <span className="text-xs flex-shrink-0" style={{ color: "#64748B" }}>
+                          Pass {part?.passingScore ?? 80}%
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setSessionKCPartFormId(prev => prev === lesson.id ? null : lesson.id)}
+                          className="text-xs px-2 py-0.5 rounded-lg flex-shrink-0 transition-colors"
+                          style={{ backgroundColor: partOpen ? "#8B5CF620" : "#334155", color: partOpen ? "#A78BFA" : "#64748B" }}
+                        >
+                          {partOpen ? "Close" : "Edit"}
+                        </button>
+                      </div>
+                      {partOpen && (
+                        <div className="px-3 py-3 space-y-3" style={{ backgroundColor: "#0A0F1E" }}>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs" style={{ color: "#64748B" }}>Passing score</span>
+                            <input
+                              type="number" min={0} max={100}
+                              value={part?.passingScore ?? 80}
+                              onChange={e => patchSessionKCPart(section.id, lesson.id, { passingScore: Number(e.target.value) })}
+                              className="w-16 px-2 py-1 rounded-lg text-xs text-center outline-none"
+                              style={{ backgroundColor: "#1E293B", border: "1px solid #334155", color: "#F8FAFC" }}
+                            />
+                            <span className="text-xs" style={{ color: "#64748B" }}>%</span>
+                          </div>
+                          {partQs.map((q, qi) => {
+                            const isEditingThis = editingKCQ?.type === "session" && editingKCQ.sectionId === section.id && editingKCQ.lessonId === lesson.id && editingKCQ.questionId === q.id
+                            return isEditingThis ? (
+                              <KCQuestionForm
+                                key={q.id}
+                                draft={editingKCQ.draft}
+                                onChange={d => setEditingKCQ(prev => prev ? { ...prev, draft: d } : null)}
+                                onAdd={saveEditKCQuestion}
+                                onCancel={() => setEditingKCQ(null)}
+                                editMode
+                              />
+                            ) : (
+                              <div key={q.id} className="flex items-start gap-2 px-3 py-2 rounded-xl" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
+                                <span className="text-xs font-bold flex-shrink-0 mt-0.5" style={{ color: "#8B5CF6" }}>{qi + 1}.</span>
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-xs text-white">{q.question}</p>
+                                  <p className="text-[10px] mt-0.5" style={{ color: "#10B981" }}>✓ {q.options[q.correctIndex]}</p>
+                                </div>
+                                <button type="button"
+                                  onClick={() => setEditingKCQ({ type: "session", sectionId: section.id, lessonId: lesson.id, questionId: q.id, draft: { question: q.question, options: [...q.options], correctIndex: q.correctIndex } })}
+                                  className="p-1 rounded flex-shrink-0 transition-colors" style={{ color: "#475569" }}
+                                  onMouseEnter={e => (e.currentTarget.style.color = "#8B5CF6")}
+                                  onMouseLeave={e => (e.currentTarget.style.color = "#475569")}>
+                                  <Pencil size={11} />
+                                </button>
+                                <button type="button" onClick={() => removeSessionKCQuestion(section.id, lesson.id, q.id)}
+                                  className="p-1 rounded flex-shrink-0 transition-colors" style={{ color: "#475569" }}
+                                  onMouseEnter={e => (e.currentTarget.style.color = "#EF4444")}
+                                  onMouseLeave={e => (e.currentTarget.style.color = "#475569")}>
+                                  <X size={11} />
+                                </button>
+                              </div>
+                            )
+                          })}
+                          <KCQuestionForm
+                            draft={sessionKCQ}
+                            onChange={setSessionKCQ}
+                            onAdd={() => addSessionKCQuestion(section.id, lesson.id)}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
 
           {/* Lessons */}
           {section.expanded && (
@@ -935,6 +1050,39 @@ function CurriculumTab({ form, onChange }: { form: CourseForm; onChange: (f: Cou
                         style={{ color: lesson.isPreview ? "#3B82F6" : "#334155" }}
                       >
                         {lesson.isPreview ? <Eye size={13} /> : <EyeOff size={13} />}
+                      </button>
+
+                      <button
+                        type="button"
+                        title="Resources"
+                        onClick={() => setResourceOpenId(prev => prev === lesson.id ? null : lesson.id)}
+                        className="p-1.5 rounded-lg transition-colors flex-shrink-0 relative"
+                        style={{ color: resourceOpenId === lesson.id ? "#F59E0B" : (lesson.resources?.length ? "#F59E0B" : "#334155") }}
+                      >
+                        <Paperclip size={13} />
+                        {(lesson.resources?.length ?? 0) > 0 && (
+                          <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full flex items-center justify-center text-[8px] font-bold text-white"
+                            style={{ backgroundColor: "#F59E0B" }}>
+                            {lesson.resources!.length}
+                          </span>
+                        )}
+                      </button>
+
+                      {/* Lesson KC button */}
+                      <button
+                        type="button"
+                        title="Lesson Knowledge Check"
+                        onClick={() => setLessonKCOpenId(prev => prev === lesson.id ? null : lesson.id)}
+                        className="p-1.5 rounded-lg transition-colors flex-shrink-0 relative"
+                        style={{ color: lesson.lessonKC ? "#8B5CF6" : (lessonKCOpenId === lesson.id ? "#8B5CF6" : "#334155") }}
+                      >
+                        <BrainCircuit size={13} />
+                        {(lesson.lessonKC?.questions.length ?? 0) > 0 && (
+                          <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full flex items-center justify-center text-[8px] font-bold text-white"
+                            style={{ backgroundColor: "#8B5CF6" }}>
+                            {lesson.lessonKC!.questions.length}
+                          </span>
+                        )}
                       </button>
 
                       <div className="flex items-center gap-0.5 flex-shrink-0">
@@ -1007,6 +1155,190 @@ function CurriculumTab({ form, onChange }: { form: CourseForm; onChange: (f: Cou
                       </div>
                     )}
 
+                    {/* Resources panel */}
+                    {resourceOpenId === lesson.id && (
+                      <div className="px-4 pb-4 pt-3 space-y-3" style={{ backgroundColor: "#0A0F1E", borderTop: "1px solid #334155" }}>
+                        <p className="text-xs font-semibold" style={{ color: "#F59E0B" }}>Lesson Resources</p>
+
+                        {/* Existing resources */}
+                        {(lesson.resources ?? []).length > 0 && (
+                          <div className="space-y-1.5">
+                            {(lesson.resources ?? []).map(r => {
+                              const isGithub = r.type === "link" && r.url.includes("github.com")
+                              return (
+                                <div key={r.id} className="flex items-center gap-2.5 px-3 py-2 rounded-xl"
+                                  style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
+                                  {r.type === "link"
+                                    ? <Link2 size={13} style={{ color: isGithub ? "#94A3B8" : "#3B82F6", flexShrink: 0 }} />
+                                    : r.fileType === "zip"
+                                    ? <Archive size={13} style={{ color: "#F59E0B", flexShrink: 0 }} />
+                                    : r.fileType === "pdf"
+                                    ? <FileText size={13} style={{ color: "#EF4444", flexShrink: 0 }} />
+                                    : r.fileType === "image"
+                                    ? <ImageIcon size={13} style={{ color: "#10B981", flexShrink: 0 }} />
+                                    : <FileText size={13} style={{ color: "#64748B", flexShrink: 0 }} />}
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-xs text-white truncate">{r.name}</p>
+                                    {r.type === "link" && (
+                                      <p className="text-[10px] truncate" style={{ color: "#475569" }}>{r.url}</p>
+                                    )}
+                                    {r.size && (
+                                      <p className="text-[10px]" style={{ color: "#475569" }}>{r.size}</p>
+                                    )}
+                                  </div>
+                                  {r.type === "link" && (
+                                    <a href={r.url} target="_blank" rel="noopener noreferrer"
+                                      className="p-1 rounded-lg flex-shrink-0 transition-colors"
+                                      style={{ color: "#475569" }}
+                                      onMouseEnter={e => (e.currentTarget.style.color = "#3B82F6")}
+                                      onMouseLeave={e => (e.currentTarget.style.color = "#475569")}>
+                                      <ExternalLink size={11} />
+                                    </a>
+                                  )}
+                                  <button type="button"
+                                    onClick={() => removeResource(section.id, lesson.id, r.id)}
+                                    className="p-1 rounded-lg flex-shrink-0 transition-colors"
+                                    style={{ color: "#475569" }}
+                                    onMouseEnter={e => (e.currentTarget.style.color = "#EF4444")}
+                                    onMouseLeave={e => (e.currentTarget.style.color = "#475569")}>
+                                    <X size={11} />
+                                  </button>
+                                </div>
+                              )
+                            })}
+                          </div>
+                        )}
+
+                        {/* Add file */}
+                        <button
+                          type="button"
+                          onClick={() => { setResourceTarget({ sectionId: section.id, lessonId: lesson.id }); resourceFileRef.current?.click() }}
+                          className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-xs font-medium transition-colors"
+                          style={{ border: "1px dashed #334155", color: "#64748B" }}
+                          onMouseEnter={e => { e.currentTarget.style.borderColor = "#F59E0B"; e.currentTarget.style.color = "#F59E0B" }}
+                          onMouseLeave={e => { e.currentTarget.style.borderColor = "#334155"; e.currentTarget.style.color = "#64748B" }}
+                        >
+                          <Archive size={12} /> Upload file (ZIP, PDF, image, doc…)
+                        </button>
+
+                        {/* Add link */}
+                        <div className="space-y-1.5">
+                          <input
+                            value={linkName}
+                            onChange={e => setLinkName(e.target.value)}
+                            placeholder="Label (optional)"
+                            className="w-full px-3 py-2 rounded-xl text-xs outline-none placeholder-slate-600"
+                            style={{ backgroundColor: "#1E293B", border: "1px solid #334155", color: "#F8FAFC" }}
+                            onFocus={e => (e.currentTarget.style.borderColor = "#F59E0B")}
+                            onBlur={e => (e.currentTarget.style.borderColor = "#334155")}
+                          />
+                          <div className="flex items-center gap-2">
+                            <input
+                              value={linkUrl}
+                              onChange={e => setLinkUrl(e.target.value)}
+                              onKeyDown={e => { if (e.key === "Enter") addLinkResource(section.id, lesson.id) }}
+                              placeholder="https://github.com/… or any URL"
+                              className="flex-1 px-3 py-2 rounded-xl text-xs outline-none placeholder-slate-600"
+                              style={{ backgroundColor: "#1E293B", border: "1px solid #334155", color: "#F8FAFC" }}
+                              onFocus={e => (e.currentTarget.style.borderColor = "#F59E0B")}
+                              onBlur={e => (e.currentTarget.style.borderColor = "#334155")}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => addLinkResource(section.id, lesson.id)}
+                              disabled={!linkUrl.trim()}
+                              className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold flex-shrink-0 disabled:opacity-30"
+                              style={{ backgroundColor: "#F59E0B20", color: "#F59E0B", border: "1px solid #F59E0B30" }}
+                            >
+                              <Plus size={11} /> Add Link
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Lesson KC panel */}
+                    {lessonKCOpenId === lesson.id && (
+                      <div className="px-4 pb-4 pt-3 space-y-3" style={{ backgroundColor: "#0A0F1E", borderTop: "1px solid #334155" }}>
+                        <div className="flex items-center justify-between gap-3 flex-wrap">
+                          <p className="text-xs font-semibold" style={{ color: "#8B5CF6" }}>Lesson Knowledge Check</p>
+                          <div className="flex items-center gap-3 flex-wrap">
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-xs" style={{ color: "#64748B" }}>Passing score</span>
+                              <input
+                                type="number" min={0} max={100}
+                                value={lesson.lessonKC?.passingScore ?? 80}
+                                onChange={e => patchLessonKC(section.id, lesson.id, { passingScore: Number(e.target.value) })}
+                                className="w-14 px-2 py-1 rounded-lg text-xs text-center outline-none"
+                                style={{ backgroundColor: "#1E293B", border: "1px solid #334155", color: "#F8FAFC" }}
+                              />
+                              <span className="text-xs" style={{ color: "#64748B" }}>%</span>
+                            </div>
+                            <div className="flex items-center gap-1.5 text-xs select-none" style={{ color: "#94A3B8" }}>
+                              <Toggle
+                                checked={lesson.lessonKC?.isMandatory ?? false}
+                                onChange={() => patchLessonKC(section.id, lesson.id, { isMandatory: !(lesson.lessonKC?.isMandatory ?? false) })}
+                              />
+                              Mandatory
+                            </div>
+                            {lesson.lessonKC && (
+                              <button
+                                type="button"
+                                onClick={() => removeLessonKC(section.id, lesson.id)}
+                                className="text-xs px-2 py-1 rounded-lg transition-colors"
+                                style={{ backgroundColor: "#EF444420", color: "#EF4444", border: "1px solid #EF444430" }}
+                              >
+                                Remove KC
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                        <p className="text-xs" style={{ color: "#475569" }}>
+                          Students who pass can skip this lesson. Fail or skipped KC means the lesson must be completed.
+                          {lesson.lessonKC?.isMandatory ? " (Mandatory — students cannot bypass this check.)" : ""}
+                        </p>
+                        {(lesson.lessonKC?.questions ?? []).map((q, qi) => {
+                          const isEditingThis = editingKCQ?.type === "lesson" && editingKCQ.sectionId === section.id && editingKCQ.lessonId === lesson.id && editingKCQ.questionId === q.id
+                          return isEditingThis ? (
+                            <KCQuestionForm
+                              key={q.id}
+                              draft={editingKCQ.draft}
+                              onChange={d => setEditingKCQ(prev => prev ? { ...prev, draft: d } : null)}
+                              onAdd={saveEditKCQuestion}
+                              onCancel={() => setEditingKCQ(null)}
+                              editMode
+                            />
+                          ) : (
+                            <div key={q.id} className="flex items-start gap-2 px-3 py-2.5 rounded-xl" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
+                              <span className="text-xs font-bold flex-shrink-0 mt-0.5" style={{ color: "#8B5CF6" }}>{qi + 1}.</span>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-xs text-white">{q.question}</p>
+                                <p className="text-[10px] mt-0.5" style={{ color: "#10B981" }}>✓ {q.options[q.correctIndex]}</p>
+                              </div>
+                              <button type="button"
+                                onClick={() => setEditingKCQ({ type: "lesson", sectionId: section.id, lessonId: lesson.id, questionId: q.id, draft: { question: q.question, options: [...q.options], correctIndex: q.correctIndex } })}
+                                className="p-1 rounded flex-shrink-0 transition-colors" style={{ color: "#475569" }}
+                                onMouseEnter={e => (e.currentTarget.style.color = "#8B5CF6")}
+                                onMouseLeave={e => (e.currentTarget.style.color = "#475569")}>
+                                <Pencil size={11} />
+                              </button>
+                              <button type="button" onClick={() => removeLessonKCQuestion(section.id, lesson.id, q.id)}
+                                className="p-1 rounded flex-shrink-0 transition-colors" style={{ color: "#475569" }}
+                                onMouseEnter={e => (e.currentTarget.style.color = "#EF4444")}
+                                onMouseLeave={e => (e.currentTarget.style.color = "#475569")}>
+                                <X size={11} />
+                              </button>
+                            </div>
+                          )
+                        })}
+                        <KCQuestionForm
+                          draft={lessonKCQ}
+                          onChange={setLessonKCQ}
+                          onAdd={() => addLessonKCQuestion(section.id, lesson.id)}
+                        />
+                      </div>
+                    )}
+
                     {/* Rich Text Editor */}
                     {lesson.type === "text" && textOpen && (
                       <div className="px-4 pb-4" style={{ backgroundColor: "#0F172A", borderTop: "1px solid #334155" }}>
@@ -1023,38 +1355,6 @@ function CurriculumTab({ form, onChange }: { form: CourseForm; onChange: (f: Cou
                       <div className="px-4 pt-3 pb-4 space-y-3" style={{ backgroundColor: "#0F172A", borderTop: "1px solid #334155" }}>
                         <div className="rounded-xl p-4 space-y-4" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
                           <p className="text-xs font-semibold" style={{ color: "#8B5CF6" }}>Quiz Settings</p>
-
-                          <div>
-                            <FieldLabel>Question Mode</FieldLabel>
-                            <div className="flex items-center gap-1 p-1 rounded-xl w-fit" style={{ backgroundColor: "#0F172A" }}>
-                              {([{ key: "fixed" as const, label: "Fixed Questions" }, { key: "bank" as const, label: "Question Bank" }]).map(({ key, label }) => {
-                                const active = (lesson.quizMode ?? "fixed") === key
-                                return (
-                                  <button key={key} type="button" onClick={() => updateLesson(section.id, lesson.id, { quizMode: key })}
-                                    className="px-3.5 py-1.5 rounded-lg text-xs font-medium transition-colors"
-                                    style={{ backgroundColor: active ? "#8B5CF6" : "transparent", color: active ? "#FFFFFF" : "#64748B" }}>
-                                    {label}
-                                  </button>
-                                )
-                              })}
-                            </div>
-                            <p className="text-xs mt-1.5" style={{ color: "#475569" }}>
-                              {(lesson.quizMode ?? "fixed") === "bank"
-                                ? "Randomly pick questions from the pool each time a student takes this quiz."
-                                : "Show every question in order, every time."}
-                            </p>
-                          </div>
-
-                          {(lesson.quizMode ?? "fixed") === "bank" && (
-                            <QuizNumberInput
-                              label="Random questions to show"
-                              value={lesson.randomQuestionCount}
-                              onChange={(v) => updateLesson(section.id, lesson.id, { randomQuestionCount: v })}
-                              placeholder={questions.length ? `e.g. ${Math.min(5, questions.length)}` : "e.g. 5"}
-                              max={questions.length || undefined}
-                              caption={`Pool has ${questions.length} question${questions.length !== 1 ? "s" : ""} total.`}
-                            />
-                          )}
 
                           <div className="flex items-center justify-between pt-3" style={{ borderTop: "1px solid #334155" }}>
                             <div>
@@ -1073,8 +1373,8 @@ function CurriculumTab({ form, onChange }: { form: CourseForm; onChange: (f: Cou
                               value={lesson.minCorrectToPass}
                               onChange={(v) => updateLesson(section.id, lesson.id, { minCorrectToPass: v })}
                               placeholder="e.g. 3"
-                              max={(lesson.quizMode === "bank" ? lesson.randomQuestionCount : questions.length) || undefined}
-                              caption={`Out of ${lesson.quizMode === "bank" ? lesson.randomQuestionCount ?? "?" : questions.length} question${questions.length !== 1 ? "s" : ""} shown.`}
+                              max={questions.length || undefined}
+                              caption={`Out of ${questions.length} question${questions.length !== 1 ? "s" : ""} shown.`}
                             />
                           )}
                         </div>
@@ -1167,71 +1467,6 @@ function CurriculumTab({ form, onChange }: { form: CourseForm; onChange: (f: Cou
   )
 }
 
-// ── Step 6: Captions ──────────────────────────────────────────────────────────
-
-function CaptionsStep({ form, onChange }: { form: CourseForm; onChange: (f: CourseForm) => void }) {
-  return (
-    <div className="space-y-6 max-w-2xl">
-      <div>
-        <h3 className="text-base font-semibold text-white mb-1">Captions <span className="text-xs font-normal ml-1" style={{ color: "#475569" }}>(Optional)</span></h3>
-        <p className="text-sm leading-relaxed" style={{ color: "#64748B" }}>
-          Captions improve accessibility for deaf and hard-of-hearing learners, non-native speakers, and anyone in a noisy environment. Highly recommended but not required.
-        </p>
-      </div>
-
-      <div className="rounded-2xl p-5 space-y-4" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
-        <FieldLabel>
-          SRT / VTT Caption File URL{" "}
-          <span style={{ color: "#475569", fontWeight: 400 }}>(optional)</span>
-        </FieldLabel>
-        <TextInput
-          value={form.captionsSrtUrl ?? ""}
-          onChange={(v) => onChange({ ...form, captionsSrtUrl: v })}
-          placeholder="https://your-host.com/captions.srt"
-        />
-        <p className="text-xs" style={{ color: "#475569" }}>
-          Upload your .srt or .vtt file to a host (e.g. Amazon S3, Dropbox) and paste the URL here.
-        </p>
-      </div>
-
-      <div className="rounded-xl p-4" style={{ backgroundColor: "#0F172A", border: "1px solid #334155" }}>
-        <p className="text-xs" style={{ color: "#64748B" }}>
-          Per-lesson caption tracks can also be added in the{" "}
-          <strong className="text-white">Curriculum</strong> step by expanding each individual video lesson.
-        </p>
-      </div>
-    </div>
-  )
-}
-
-// ── Step 7: Accessibility ─────────────────────────────────────────────────────
-
-function AccessibilityStep({ form, onChange }: { form: CourseForm; onChange: (f: CourseForm) => void }) {
-  return (
-    <div className="space-y-6 max-w-2xl">
-      <div>
-        <h3 className="text-base font-semibold text-white mb-1">Accessibility <span className="text-xs font-normal ml-1" style={{ color: "#475569" }}>(Optional)</span></h3>
-        <p className="text-sm leading-relaxed" style={{ color: "#64748B" }}>
-          Help all students, including those with disabilities, access your content comfortably.
-        </p>
-      </div>
-
-      {[
-        { key: "hasTranscripts" as const, label: "Provide Transcripts", desc: "Text transcripts make your course accessible to deaf and hard-of-hearing learners." },
-        { key: "isKeyboardNavigable" as const, label: "Keyboard Navigable", desc: "Confirm the course player and quizzes can be fully navigated without a mouse." },
-      ].map(({ key, label, desc }) => (
-        <div key={key} className="flex items-center justify-between p-4 rounded-xl" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
-          <div>
-            <p className="text-sm font-medium text-white">{label}</p>
-            <p className="text-xs mt-0.5" style={{ color: "#64748B" }}>{desc}</p>
-          </div>
-          <Toggle checked={form[key]} onChange={() => onChange({ ...form, [key]: !form[key] })} />
-        </div>
-      ))}
-    </div>
-  )
-}
-
 // ── Step 8: Course Landing Page ───────────────────────────────────────────────
 
 function CourseLandingPageStep({ form, onChange }: { form: CourseForm; onChange: (f: CourseForm) => void }) {
@@ -1309,49 +1544,26 @@ function CourseLandingPageStep({ form, onChange }: { form: CourseForm; onChange:
         </div>
       </div>
 
-      <div>
-        <FieldLabel>Course Color</FieldLabel>
-        <div className="flex items-center gap-3">
-          {COLOR_SWATCHES.map((c) => (
-            <button
-              key={c}
-              type="button"
-              onClick={() => onChange({ ...form, color: c })}
-              className="w-8 h-8 rounded-full transition-all"
-              style={{ backgroundColor: c, boxShadow: form.color === c ? `0 0 0 2px #0F172A, 0 0 0 4px ${c}` : "none" }}
-            />
-          ))}
-        </div>
-      </div>
-
       <div style={{ borderTop: "1px solid #334155", paddingTop: 24 }}>
-        <p className="text-xs font-bold uppercase tracking-wider mb-4" style={{ color: "#475569" }}>Publishing</p>
+        <p className="text-xs font-bold uppercase tracking-wider mb-4" style={{ color: "#475569" }}>Featured Placement</p>
 
-        <div className="space-y-2 mb-5">
-          {STATUS_OPTIONS.map((opt) => (
-            <button key={opt.value} type="button" onClick={() => onChange({ ...form, status: opt.value })}
-              className="flex items-center gap-4 w-full p-4 rounded-xl text-left transition-all"
-              style={{
-                backgroundColor: "#1E293B",
-                border: `1px solid ${form.status === opt.value ? opt.color + "60" : "#334155"}`,
-                borderLeft: `3px solid ${form.status === opt.value ? opt.color : "#334155"}`,
-              }}>
-              <div className="w-4 h-4 rounded-full border-2 flex-shrink-0"
-                style={{ borderColor: form.status === opt.value ? opt.color : "#475569", backgroundColor: form.status === opt.value ? opt.color : "transparent" }} />
-              <div className="flex-1">
-                <p className="text-sm font-semibold" style={{ color: form.status === opt.value ? opt.color : "#F8FAFC" }}>{opt.label}</p>
-                <p className="text-xs mt-0.5" style={{ color: "#64748B" }}>{opt.desc}</p>
-              </div>
-            </button>
-          ))}
-        </div>
-
-        <div className="flex items-center justify-between p-4 rounded-xl" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
-          <div>
-            <p className="text-sm font-medium text-white">Featured Course</p>
-            <p className="text-xs mt-0.5" style={{ color: "#64748B" }}>Highlight this course on the platform homepage.</p>
+        <div className="p-4 rounded-xl" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-white">Featured Course</p>
+              <p className="text-xs mt-0.5" style={{ color: "#64748B" }}>Highlight this course on the platform homepage.</p>
+            </div>
+            <Toggle checked={form.featured} onChange={() => onChange({ ...form, featured: !form.featured })} />
           </div>
-          <Toggle checked={form.featured} onChange={() => onChange({ ...form, featured: !form.featured })} />
+
+          {form.featured && (
+            <div className="flex items-center justify-between gap-4 mt-4 pt-4" style={{ borderTop: "1px solid #334155" }}>
+              <p className="text-xs leading-relaxed" style={{ color: "#94A3B8" }}>
+                Featured courses are billed a homepage placement fee for the duration they remain featured.
+              </p>
+              <p className="text-sm font-semibold whitespace-nowrap" style={{ color: "#34D399" }}>{FEATURED_PLACEMENT_FEE}</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -1581,17 +1793,12 @@ export function CourseEditor({ initialForm, mode }: CourseEditorProps) {
 
       {/* Right: step content */}
       <div className="flex-1 min-w-0">
-        {currentStep === 1  && <IntendedLearnersStep  {...stepProps} />}
-        {currentStep === 2  && <CourseStructureStep   {...stepProps} />}
-        {currentStep === 3  && <SetupTestVideoStep    {...stepProps} />}
-        {currentStep === 4  && <FilmEditStep          {...stepProps} />}
-        {currentStep === 5  && <CurriculumTab         {...stepProps} />}
-        {currentStep === 6  && <CaptionsStep          {...stepProps} />}
-        {currentStep === 7  && <AccessibilityStep     {...stepProps} />}
-        {currentStep === 8  && <CourseLandingPageStep {...stepProps} />}
-        {currentStep === 9  && <PricingTab            {...stepProps} />}
-        {currentStep === 10 && <PromotionsStep        {...stepProps} />}
-        {currentStep === 11 && <CourseMessagesStep    {...stepProps} />}
+        {currentStep === 1 && <IntendedLearnersStep  {...stepProps} />}
+        {currentStep === 2 && <CurriculumTab         {...stepProps} />}
+        {currentStep === 3 && <CourseLandingPageStep {...stepProps} />}
+        {currentStep === 4 && <PricingTab            {...stepProps} />}
+        {currentStep === 5 && <PromotionsStep        {...stepProps} />}
+        {currentStep === 6 && <CourseMessagesStep    {...stepProps} />}
       </div>
     </div>
   )

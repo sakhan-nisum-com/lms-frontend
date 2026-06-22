@@ -5,6 +5,32 @@ export interface QuizQuestion {
   correctIndex: number   // 0–3
 }
 
+export interface LessonKnowledgeCheck {
+  questions: QuizQuestion[]
+  passingScore: number   // 0–100 percentage
+  isMandatory: boolean   // if true, student cannot bypass the KC
+}
+
+export interface SessionKCPart {
+  lessonId: string
+  questions: QuizQuestion[]
+  passingScore: number   // 0–100, per-part threshold
+}
+
+export interface SessionKnowledgeCheck {
+  isMandatory: boolean
+  parts: SessionKCPart[] // one entry per lesson in the section
+}
+
+export interface LessonResource {
+  id: string
+  type: "file" | "link"
+  name: string
+  url: string
+  fileType?: "zip" | "pdf" | "image" | "text" | "other"
+  size?: string
+}
+
 export interface Lesson {
   id: string
   title: string
@@ -19,6 +45,8 @@ export interface Lesson {
   randomQuestionCount?: number
   isMandatory?: boolean
   minCorrectToPass?: number
+  resources?: LessonResource[]
+  lessonKC?: LessonKnowledgeCheck
 }
 
 export interface Section {
@@ -26,6 +54,7 @@ export interface Section {
   title: string
   expanded: boolean
   lessons: Lesson[]
+  sessionKC?: SessionKnowledgeCheck
 }
 
 export interface CourseData {
@@ -37,6 +66,7 @@ export interface CourseData {
   rating: number
   reviews: number
   revenue: string
+  price: string
   status: "published" | "draft" | "review"
   lessons: number
   duration: string
@@ -55,6 +85,7 @@ export const INSTRUCTOR_COURSES: CourseData[] = [
     rating: 4.9,
     reviews: 342,
     revenue: "$3,612",
+    price: "$79.99",
     status: "published",
     lessons: 48,
     duration: "18h 30m",
@@ -106,6 +137,7 @@ export const INSTRUCTOR_COURSES: CourseData[] = [
     rating: 4.7,
     reviews: 218,
     revenue: "$2,628",
+    price: "$69.99",
     status: "published",
     lessons: 35,
     duration: "12h 15m",
@@ -147,6 +179,7 @@ export const INSTRUCTOR_COURSES: CourseData[] = [
     rating: 4.8,
     reviews: 97,
     revenue: "$1,629",
+    price: "$49.99",
     status: "published",
     lessons: 27,
     duration: "9h 45m",
@@ -183,6 +216,7 @@ export const INSTRUCTOR_COURSES: CourseData[] = [
     rating: 0,
     reviews: 0,
     revenue: "$0",
+    price: "$89.99",
     status: "draft",
     lessons: 12,
     duration: "6h 00m",
@@ -209,6 +243,7 @@ export const INSTRUCTOR_COURSES: CourseData[] = [
     rating: 0,
     reviews: 0,
     revenue: "$0",
+    price: "$74.99",
     status: "review",
     lessons: 31,
     duration: "14h 20m",
@@ -245,6 +280,7 @@ export const INSTRUCTOR_COURSES: CourseData[] = [
     rating: 4.6,
     reviews: 54,
     revenue: "$936",
+    price: "$59.99",
     status: "published",
     lessons: 22,
     duration: "8h 10m",

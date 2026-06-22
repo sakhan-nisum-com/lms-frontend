@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, use } from "react"
+import { useState, use, useEffect } from "react"
 import Link from "next/link"
 import { COURSES, STUDENT_PROFILE } from "@/lib/data/courses"
 import { useProgress } from "@/lib/hooks/useProgress"
@@ -11,6 +11,7 @@ import {
   HelpCircle, FileText, PenLine, Wifi, Video,
   BookmarkPlus, Share2, MessageSquare, Settings2,
   Volume2, Maximize2, Pause, SkipForward, RotateCcw,
+  BrainCircuit, AlertCircle, X,
 } from "lucide-react"
 import type { QuizQuestion } from "@/lib/data/courses"
 
@@ -30,9 +31,11 @@ const OPTION_LABELS = ["A", "B", "C", "D"]
 function QuizPlayer({
   questions,
   onComplete,
+  passingScore = 70,
 }: {
   questions: QuizQuestion[]
-  onComplete: () => void
+  onComplete: (passed: boolean) => void
+  passingScore?: number
 }) {
   const [current, setCurrent] = useState(0)
   const [selected, setSelected] = useState<(number | null)[]>(Array(questions.length).fill(null))
@@ -62,7 +65,7 @@ function QuizPlayer({
   if (submitted) {
     const score = questions.filter((q, i) => selected[i] === q.correctIndex).length
     const pct = Math.round((score / questions.length) * 100)
-    const passed = pct >= 70
+    const passed = pct >= passingScore
 
     return (
       <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
@@ -132,7 +135,7 @@ function QuizPlayer({
             <RotateCcw size={14} /> Try Again
           </button>
           <button
-            onClick={onComplete}
+            onClick={() => onComplete(passed)}
             className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white hover:opacity-90"
             style={{ backgroundColor: "#3B82F6" }}
           >
@@ -237,6 +240,16 @@ export default function LessonPlayerPage({
   const [noteText, setNoteText] = useState("")
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
+  // Knowledge check state
+  const [lessonKCResults, setLessonKCResults] = useState<Record<string, "passed" | "failed" | "skipped">>({})
+  const [sectionKCDone, setSectionKCDone] = useState<Record<string, string[]>>({})
+  const [sessionKCFlow, setSessionKCFlow] = useState<{
+    sectionId: string
+    partIndex: number
+    phase: "taking" | "results"
+    passedLessonIds: string[]
+  } | null>(null)
+
   const owned = course.progress !== undefined || isPurchased(course.id)
 
   if (!owned) {
@@ -294,8 +307,145 @@ export default function LessonPlayerPage({
     return { ...sec, done, total: lessons.length, pct: Math.round((done / lessons.length) * 100) }
   })
 
+  // KC derived state
+  const currentSection = course.sections.find(s => s.lessons.some(l => l.id === currentLesson?.id))
+  const lessonKCResult = lessonKCResults[currentLesson?.id]
+  const showLessonKCGate = !!currentLesson?.lessonKC && lessonKCResult === undefined
+  const skippableLessonIds = currentSection ? (sectionKCDone[currentSection.id] ?? []) : []
+
+  // Auto-start session KC when entering a section with an unseen KC
+  const sectionId = currentSection?.id ?? ""
+  const hasSessionKC = !!currentSection?.sessionKC
+  const sessionKCUnseen = hasSessionKC && sectionKCDone[sectionId] === undefined && sessionKCFlow === null && !showLessonKCGate
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  useEffect(() => {
+    if (sessionKCUnseen) setSessionKCFlow({ sectionId, partIndex: 0, phase: "taking", passedLessonIds: [] })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sectionId, sessionKCUnseen])
+
+  function finishSessionKC(passedIds: string[]) {
+    setSectionKCDone(prev => ({ ...prev, [sectionId]: passedIds }))
+    setSessionKCFlow(null)
+  }
+
   return (
     <div className="flex h-screen overflow-hidden" style={{ backgroundColor: "#0F172A" }}>
+
+      {/* ── Session KC Modal (full-screen) ── */}
+      {sessionKCFlow && currentSection?.sessionKC && (() => {
+        const kc = currentSection.sessionKC!
+        const part = kc.parts[sessionKCFlow.partIndex]
+        const partLesson = currentSection.lessons.find(l => l.id === part?.lessonId)
+        return (
+          <div className="fixed inset-0 z-50 flex flex-col" style={{ backgroundColor: "#0F172A" }}>
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 flex-shrink-0" style={{ backgroundColor: "#1E293B", borderBottom: "1px solid #334155" }}>
+              <div className="flex items-center gap-3">
+                <BrainCircuit size={18} style={{ color: "#8B5CF6" }} />
+                <div>
+                  <p className="text-xs font-semibold" style={{ color: "#8B5CF6" }}>Session Knowledge Check</p>
+                  <p className="text-sm font-bold text-white">{currentSection.title}</p>
+                </div>
+                {kc.isMandatory && (
+                  <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ backgroundColor: "#F59E0B20", color: "#F59E0B" }}>Mandatory</span>
+                )}
+              </div>
+              {!kc.isMandatory && (
+                <button onClick={() => finishSessionKC([])} className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-xl transition-colors" style={{ backgroundColor: "#334155", color: "#94A3B8" }}>
+                  <X size={12} /> Skip Check
+                </button>
+              )}
+            </div>
+
+            <div className="flex-1 overflow-y-auto">
+              <div className="max-w-2xl mx-auto px-6 py-8 space-y-5">
+                {sessionKCFlow.phase === "taking" && part ? (
+                  <>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-xs font-semibold mb-1" style={{ color: "#8B5CF6" }}>
+                          Part {sessionKCFlow.partIndex + 1} of {kc.parts.length}
+                        </p>
+                        <p className="text-sm text-white font-medium">{partLesson?.title}</p>
+                      </div>
+                      <div className="flex gap-1">
+                        {kc.parts.map((_, i) => (
+                          <div key={i} className="w-2 h-2 rounded-full" style={{ backgroundColor: i < sessionKCFlow.partIndex ? "#10B981" : i === sessionKCFlow.partIndex ? "#8B5CF6" : "#334155" }} />
+                        ))}
+                      </div>
+                    </div>
+                    {part.questions.length > 0 ? (
+                      <QuizPlayer
+                        questions={part.questions}
+                        passingScore={part.passingScore}
+                        onComplete={(passed) => {
+                          const newPassed = passed
+                            ? [...sessionKCFlow.passedLessonIds, part.lessonId]
+                            : sessionKCFlow.passedLessonIds
+                          const nextIdx = sessionKCFlow.partIndex + 1
+                          if (nextIdx < kc.parts.length) {
+                            setSessionKCFlow({ ...sessionKCFlow, partIndex: nextIdx, passedLessonIds: newPassed })
+                          } else {
+                            setSessionKCFlow({ ...sessionKCFlow, phase: "results", passedLessonIds: newPassed })
+                          }
+                        }}
+                      />
+                    ) : (
+                      <div className="text-center py-10" style={{ color: "#64748B" }}>
+                        <p className="text-sm">No questions for this part.</p>
+                        <button onClick={() => {
+                          const nextIdx = sessionKCFlow.partIndex + 1
+                          if (nextIdx < kc.parts.length) setSessionKCFlow({ ...sessionKCFlow, partIndex: nextIdx })
+                          else setSessionKCFlow({ ...sessionKCFlow, phase: "results" })
+                        }} className="mt-3 px-4 py-2 rounded-xl text-sm font-semibold text-white" style={{ backgroundColor: "#8B5CF6" }}>
+                          Next Part
+                        </button>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  /* Results phase */
+                  <div className="space-y-6">
+                    <div className="text-center">
+                      <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: "#8B5CF620" }}>
+                        <BrainCircuit size={28} style={{ color: "#8B5CF6" }} />
+                      </div>
+                      <h2 className="text-xl font-bold text-white mb-1">Check Complete</h2>
+                      <p className="text-sm" style={{ color: "#64748B" }}>Here&apos;s what you can skip:</p>
+                    </div>
+                    <div className="space-y-2">
+                      {kc.parts.map((p, i) => {
+                        const passed = sessionKCFlow.passedLessonIds.includes(p.lessonId)
+                        const ln = currentSection.lessons.find(l => l.id === p.lessonId)
+                        return (
+                          <div key={p.lessonId} className="flex items-center gap-3 px-4 py-3 rounded-xl" style={{ backgroundColor: "#1E293B", border: `1px solid ${passed ? "#10B98140" : "#334155"}` }}>
+                            {passed
+                              ? <CheckCircle2 size={16} style={{ color: "#10B981", flexShrink: 0 }} />
+                              : <AlertCircle size={16} style={{ color: "#EF4444", flexShrink: 0 }} />}
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs font-medium text-white truncate">Part {i + 1} — {ln?.title}</p>
+                              <p className="text-xs mt-0.5" style={{ color: passed ? "#10B981" : "#EF4444" }}>
+                                {passed ? "Passed — lesson can be skipped" : "Not passed — lesson required"}
+                              </p>
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                    <button
+                      onClick={() => finishSessionKC(sessionKCFlow.passedLessonIds)}
+                      className="w-full py-3 rounded-xl text-sm font-bold text-white hover:opacity-90 transition-all"
+                      style={{ backgroundColor: "#8B5CF6" }}
+                    >
+                      Start Learning →
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )
+      })()}
 
       {/* ── Left Sidebar: Curriculum ── */}
       <aside
@@ -389,7 +539,15 @@ export default function LessonPlayerPage({
                         <p className="text-xs font-medium leading-snug" style={{ textDecoration: done ? "line-through" : "none", opacity: done ? 0.6 : 1 }}>
                           {lesson.title}
                         </p>
-                        <p className="text-xs mt-0.5" style={{ color: "#475569" }}>{lesson.duration}</p>
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                          <p className="text-xs" style={{ color: "#475569" }}>{lesson.duration}</p>
+                          {skippableLessonIds.includes(lesson.id) && (
+                            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ backgroundColor: "#8B5CF620", color: "#A78BFA" }}>SKIP</span>
+                          )}
+                          {lesson.lessonKC && !lessonKCResults[lesson.id] && (
+                            <BrainCircuit size={10} style={{ color: "#8B5CF6", flexShrink: 0 }} />
+                          )}
+                        </div>
                       </div>
                     </Link>
                   )
@@ -447,11 +605,63 @@ export default function LessonPlayerPage({
         <div className="flex-1 overflow-y-auto">
           <div className="max-w-4xl mx-auto px-6 py-6 space-y-6">
 
+            {/* Lesson KC Gate */}
+            {showLessonKCGate && currentLesson?.lessonKC && (
+              <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: "#1E293B", border: "1px solid #8B5CF640" }}>
+                <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom: "1px solid #334155", backgroundColor: "#8B5CF610" }}>
+                  <div className="flex items-center gap-3">
+                    <BrainCircuit size={18} style={{ color: "#8B5CF6" }} />
+                    <div>
+                      <p className="text-xs font-semibold" style={{ color: "#8B5CF6" }}>Lesson Knowledge Check</p>
+                      <p className="text-sm text-white">Do you already know this? Pass to skip the lesson.</p>
+                    </div>
+                  </div>
+                  {!currentLesson.lessonKC.isMandatory && (
+                    <button
+                      onClick={() => setLessonKCResults(prev => ({ ...prev, [currentLesson.id]: "skipped" }))}
+                      className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-xl transition-colors flex-shrink-0"
+                      style={{ backgroundColor: "#334155", color: "#94A3B8" }}
+                    >
+                      <X size={12} /> Skip Check
+                    </button>
+                  )}
+                </div>
+                <div className="p-6">
+                  <QuizPlayer
+                    questions={currentLesson.lessonKC.questions}
+                    passingScore={currentLesson.lessonKC.passingScore}
+                    onComplete={(passed) => {
+                      setLessonKCResults(prev => ({ ...prev, [currentLesson.id]: passed ? "passed" : "failed" }))
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Passed KC — offer skip or continue */}
+            {lessonKCResult === "passed" && nextLesson && (
+              <div className="flex items-center gap-4 px-5 py-4 rounded-2xl" style={{ backgroundColor: "#10B98115", border: "1px solid #10B98140" }}>
+                <CheckCircle2 size={20} style={{ color: "#10B981", flexShrink: 0 }} />
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-white">You already know this!</p>
+                  <p className="text-xs mt-0.5" style={{ color: "#64748B" }}>You passed the knowledge check — this lesson is optional for you.</p>
+                </div>
+                <Link
+                  href={`/student/courses/${id}/learn/${nextLesson.id}`}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold text-white flex-shrink-0 hover:opacity-90"
+                  style={{ backgroundColor: "#10B981" }}
+                >
+                  Skip Lesson <SkipForward size={14} />
+                </Link>
+              </div>
+            )}
+
             {/* Video player or Quiz */}
-            {currentLesson?.type === "quiz" && currentLesson.questions && currentLesson.questions.length > 0 ? (
+            {!showLessonKCGate && (currentLesson?.type === "quiz" && currentLesson.questions && currentLesson.questions.length > 0 ? (
               <QuizPlayer
                 questions={currentLesson.questions}
-                onComplete={() => setMarkedComplete(true)}
+                onComplete={() => markComplete(currentLesson.id, true)}
+                passingScore={70}
               />
             ) : (
             <div
@@ -503,7 +713,7 @@ export default function LessonPlayerPage({
                 </>
               )}
             </div>
-            )}
+            ))}
 
             {/* Lesson header */}
             <div className="flex items-start justify-between gap-4 flex-wrap">

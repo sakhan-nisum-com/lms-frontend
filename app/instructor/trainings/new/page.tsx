@@ -11,16 +11,17 @@ import {
   Copy,
   DollarSign,
   Film,
-  Flag,
+  FileText,
   Globe,
   GripVertical,
+  ImageIcon,
   Link2,
   Lock,
+  Paperclip,
   Pencil,
   Play,
   Plus,
   Save,
-  Search,
   Target,
   Trash2,
   Video,
@@ -28,14 +29,12 @@ import {
   Zap,
 } from "lucide-react"
 import { InstructorPageShell } from "@/components/instructor/InstructorPageShell"
-import { INSTRUCTOR_COURSES } from "@/lib/data/instructor-courses"
-import type { AssignmentTemplate, KnowledgeCheckTemplate } from "@/lib/data/live-session"
+import type { AssignmentTemplate, AttachmentFile, KnowledgeCheckTemplate } from "@/lib/data/live-session"
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
-type ActivityType = "course" | "workshop" | "milestone"
+type ActivityType = "workshop"
 
-interface CourseActivity    { id: string; type: "course";    title: string; courseId?: number; sectionId?: string }
 interface WorkshopActivity  {
   id: string; type: "workshop"; title: string
   scheduledAt?: string; meetUrl?: string
@@ -44,12 +43,11 @@ interface WorkshopActivity  {
   checks: KnowledgeCheckTemplate[]
   assignments: AssignmentTemplate[]
 }
-interface MilestoneActivity { id: string; type: "milestone"; title: string; description?: string; dueDate?: string }
-type Activity = CourseActivity | WorkshopActivity | MilestoneActivity
+type Activity = WorkshopActivity
 
 interface AnyActivityPatch {
-  title?: string; courseId?: number; sectionId?: string
-  scheduledAt?: string; meetUrl?: string; description?: string; dueDate?: string
+  title?: string
+  scheduledAt?: string; meetUrl?: string
   sessionType?: "live" | "recorded"; videoUrl?: string
   checks?: KnowledgeCheckTemplate[]
   assignments?: AssignmentTemplate[]
@@ -68,18 +66,12 @@ interface TrainingForm {
 // ── Constants ─────────────────────────────────────────────────────────────────
 
 const ACTIVITY_META: Record<ActivityType, { label: string; color: string; bg: string }> = {
-  course:    { label: "Module",    color: "#3B82F6", bg: "#3B82F615" },
-  workshop:  { label: "Live",      color: "#10B981", bg: "#10B98115" },
-  milestone: { label: "Milestone", color: "#8B5CF6", bg: "#8B5CF615" },
+  workshop: { label: "Live", color: "#10B981", bg: "#10B98115" },
 }
 
 const ADD_OPTIONS: { type: ActivityType; emoji: string; label: string; desc: string }[] = [
-  { type: "course",    emoji: "🔗", label: "Link Course Module",    desc: "Attach a published course or specific section" },
-  { type: "workshop",  emoji: "📅", label: "Live Workshop / Q&A",   desc: "Schedule a Zoom or Google Meet session"       },
-  { type: "milestone", emoji: "🚀", label: "Milestone / Assignment", desc: "Capstone project or practical submission"     },
+  { type: "workshop", emoji: "📅", label: "Live Workshop / Q&A", desc: "Schedule a Zoom or Google Meet session" },
 ]
-
-const PUBLISHED = INSTRUCTOR_COURSES.filter(c => c.status === "published")
 
 const DEFAULT_FORM: TrainingForm = {
   trainingTitle: "Untitled Training Program",
@@ -144,7 +136,6 @@ export default function CreateTrainingPage() {
   const [editWeekTitle, setEditWeekTitle]   = useState("")
   const [titleEditing, setTitleEditing]     = useState(false)
   const [titleValue, setTitleValue]         = useState(DEFAULT_FORM.trainingTitle)
-  const [courseSearch, setCourseSearch]     = useState("")
   const [token, setToken]             = useState("")
   const [copied, setCopied]           = useState(false)
   const expiryInputRef = useRef<HTMLInputElement>(null)
@@ -163,6 +154,7 @@ export default function CreateTrainingPage() {
     description: string
     dueDate: string
     maxPoints: string
+    attachments: AttachmentFile[]
   } | null>(null)
 
   useEffect(() => {
@@ -222,15 +214,7 @@ export default function CreateTrainingPage() {
   // ── Activity helpers ──────────────────────────────────────────────────────────
   function addActivity(wId: string, type: ActivityType) {
     const id = uid("a")
-    let activity: Activity
-    if (type === "course") {
-      const first = PUBLISHED[0]
-      activity = { id, type, title: first?.title ?? "Linked Course", courseId: first?.id }
-    } else if (type === "workshop") {
-      activity = { id, type, title: "Live Workshop Session", scheduledAt: "", meetUrl: "", sessionType: "live", checks: [], assignments: [] }
-    } else {
-      activity = { id, type, title: "Capstone Milestone", description: "", dueDate: "" }
-    }
+    const activity: Activity = { id, type, title: "Live Workshop Session", scheduledAt: "", meetUrl: "", sessionType: "live", checks: [], assignments: [] }
     updateWeeks(form.weeks.map(w => w.id === wId ? { ...w, activities: [...w.activities, activity] } : w))
     setSelectedId(id)
     setDropdownWeekId(null)
@@ -491,18 +475,6 @@ export default function CreateTrainingPage() {
                         {new Date((activity as WorkshopActivity).scheduledAt!).toLocaleDateString()}
                       </span>
                     )}
-                    {activity.type === "milestone" && (activity as MilestoneActivity).dueDate && (
-                      <span className="text-xs flex-shrink-0 flex items-center gap-1" style={{ color: "#8B5CF6" }}>
-                        <Flag size={10} />
-                        Due {new Date((activity as MilestoneActivity).dueDate!).toLocaleDateString()}
-                      </span>
-                    )}
-                    {activity.type === "course" && (activity as CourseActivity).courseId && (
-                      <span className="text-xs flex-shrink-0" style={{ color: "#3B82F6" }}>
-                        {INSTRUCTOR_COURSES.find(c => c.id === (activity as CourseActivity).courseId)?.category ?? ""}
-                      </span>
-                    )}
-
                     {/* Reorder + delete (stop click propagating to row selection) */}
                     <div
                       className="flex items-center gap-0.5 flex-shrink-0"
@@ -607,8 +579,7 @@ export default function CreateTrainingPage() {
           {/* ── Activity Editor (shows when activity selected) ── */}
           {selectedActivity && (() => {
             const meta = ACTIVITY_META[selectedActivity.type]
-            const TypeIcon = selectedActivity.type === "course" ? Link2
-              : selectedActivity.type === "workshop" ? Video : Flag
+            const TypeIcon = Video
             return (
               <PanelCard accent={`${meta.color}50`}>
                 <PanelHeader
@@ -650,85 +621,6 @@ export default function CreateTrainingPage() {
                       onBlur={e => (e.currentTarget.style.borderColor = "#334155")}
                     />
                   </div>
-
-                  {/* ─── Course: searchable picker + section select ─── */}
-                  {selectedActivity.type === "course" && (
-                    <>
-                      <div>
-                        <FieldLabel>Published Course</FieldLabel>
-                        <div
-                          className="flex items-center gap-2 px-3 py-2 rounded-xl mb-2"
-                          style={{ backgroundColor: "#0F172A", border: "1px solid #334155" }}
-                        >
-                          <Search size={12} style={{ color: "#475569" }} />
-                          <input
-                            value={courseSearch}
-                            onChange={e => setCourseSearch(e.target.value)}
-                            placeholder="Search your courses…"
-                            className="bg-transparent outline-none text-xs flex-1 placeholder-slate-600"
-                            style={{ color: "#F8FAFC" }}
-                          />
-                        </div>
-                        <div className="space-y-1.5 max-h-52 overflow-y-auto pr-0.5">
-                          {PUBLISHED
-                            .filter(c => c.title.toLowerCase().includes(courseSearch.toLowerCase()))
-                            .map(c => {
-                              const active = (selectedActivity as CourseActivity).courseId === c.id
-                              return (
-                                <button
-                                  key={c.id}
-                                  type="button"
-                                  onClick={() => {
-                                    patchActivity(selectedActivity.id, { courseId: c.id, title: c.title })
-                                    setCourseSearch("")
-                                  }}
-                                  className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-left transition-all"
-                                  style={{
-                                    backgroundColor: active ? "#3B82F615" : "#0F172A",
-                                    border: `1px solid ${active ? "#3B82F640" : "#1E293B"}`,
-                                  }}
-                                >
-                                  <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: c.color }} />
-                                  <div className="flex-1 min-w-0">
-                                    <p className="text-xs font-medium text-white truncate">{c.title}</p>
-                                    <p className="text-xs mt-0.5" style={{ color: "#475569" }}>{c.category}</p>
-                                  </div>
-                                  {active && <Check size={12} style={{ color: "#3B82F6", flexShrink: 0 }} />}
-                                </button>
-                              )
-                            })}
-                          {PUBLISHED.filter(c => c.title.toLowerCase().includes(courseSearch.toLowerCase())).length === 0 && (
-                            <p className="text-xs text-center py-3" style={{ color: "#475569" }}>No matching courses</p>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Section select */}
-                      {(selectedActivity as CourseActivity).courseId && (() => {
-                        const course = INSTRUCTOR_COURSES.find(c => c.id === (selectedActivity as CourseActivity).courseId)
-                        if (!course?.sections.length) return null
-                        return (
-                          <div>
-                            <FieldLabel>
-                              Focus Section{" "}
-                              <span style={{ color: "#475569", fontWeight: 400 }}>(optional)</span>
-                            </FieldLabel>
-                            <select
-                              value={(selectedActivity as CourseActivity).sectionId ?? ""}
-                              onChange={e => patchActivity(selectedActivity.id, { sectionId: e.target.value || undefined })}
-                              className="w-full px-3 py-2.5 rounded-xl text-sm outline-none appearance-none"
-                              style={{ backgroundColor: "#0F172A", border: "1px solid #334155", color: "#F8FAFC" }}
-                            >
-                              <option value="">All sections</option>
-                              {course.sections.map(s => (
-                                <option key={s.id} value={s.id}>{s.title}</option>
-                              ))}
-                            </select>
-                          </div>
-                        )
-                      })()}
-                    </>
-                  )}
 
                   {/* ─── Workshop: session type + url + checks ─── */}
                   {selectedActivity.type === "workshop" && (() => {
@@ -975,7 +867,7 @@ export default function CreateTrainingPage() {
                             {!assignmentDraft && (
                               <button
                                 type="button"
-                                onClick={() => setAssignmentDraft({ title: "", description: "", dueDate: "", maxPoints: "" })}
+                                onClick={() => setAssignmentDraft({ title: "", description: "", dueDate: "", maxPoints: "", attachments: [] })}
                                 className="flex items-center gap-1 text-xs font-semibold flex-shrink-0"
                                 style={{ color: "#8B5CF6" }}
                               >
@@ -1001,11 +893,19 @@ export default function CreateTrainingPage() {
                                   </span>
                                   <div className="flex-1 min-w-0">
                                     <p className="text-xs text-white truncate">{asgn.title || `Assignment ${ai + 1}`}</p>
-                                    {asgn.dueDate && (
-                                      <p className="text-[10px] mt-0.5" style={{ color: "#475569" }}>
-                                        Due {new Date(asgn.dueDate).toLocaleDateString()} {asgn.maxPoints ? `· ${asgn.maxPoints} pts` : ""}
-                                      </p>
-                                    )}
+                                    <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                                      {asgn.dueDate && (
+                                        <p className="text-[10px]" style={{ color: "#475569" }}>
+                                          Due {new Date(asgn.dueDate).toLocaleDateString()}{asgn.maxPoints ? ` · ${asgn.maxPoints} pts` : ""}
+                                        </p>
+                                      )}
+                                      {asgn.attachments && asgn.attachments.length > 0 && (
+                                        <span className="flex items-center gap-1 text-[10px]" style={{ color: "#8B5CF6" }}>
+                                          <Paperclip size={9} />
+                                          {asgn.attachments.length} file{asgn.attachments.length > 1 ? "s" : ""}
+                                        </span>
+                                      )}
+                                    </div>
                                   </div>
                                   <button
                                     type="button"
@@ -1074,6 +974,66 @@ export default function CreateTrainingPage() {
                                   />
                                 </div>
                               </div>
+                              {/* File attachments */}
+                              <div>
+                                <label
+                                  className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg cursor-pointer transition-colors text-xs"
+                                  style={{ border: "1px dashed #334155", color: "#64748B" }}
+                                  onMouseEnter={e => { e.currentTarget.style.borderColor = "#8B5CF6"; e.currentTarget.style.color = "#A78BFA" }}
+                                  onMouseLeave={e => { e.currentTarget.style.borderColor = "#334155"; e.currentTarget.style.color = "#64748B" }}
+                                >
+                                  <Paperclip size={12} />
+                                  Attach files (image, PDF, text)
+                                  <input
+                                    type="file"
+                                    multiple
+                                    accept="image/*,.pdf,.txt,.md,.doc,.docx"
+                                    className="hidden"
+                                    onChange={e => {
+                                      const files = Array.from(e.target.files ?? [])
+                                      const newFiles: AttachmentFile[] = files.map(f => ({
+                                        id: uid("att"),
+                                        name: f.name,
+                                        fileType: f.type.startsWith("image/") ? "image"
+                                          : f.type === "application/pdf" ? "pdf"
+                                          : (f.type.startsWith("text/") || f.name.endsWith(".md") || f.name.endsWith(".doc") || f.name.endsWith(".docx")) ? "text"
+                                          : "other",
+                                        size: f.size > 1024 * 1024
+                                          ? `${(f.size / 1024 / 1024).toFixed(1)} MB`
+                                          : `${Math.max(1, Math.round(f.size / 1024))} KB`,
+                                      }))
+                                      setAssignmentDraft(d => d ? { ...d, attachments: [...d.attachments, ...newFiles] } : d)
+                                      e.target.value = ""
+                                    }}
+                                  />
+                                </label>
+                                {assignmentDraft.attachments.length > 0 && (
+                                  <div className="mt-2 space-y-1">
+                                    {assignmentDraft.attachments.map(f => (
+                                      <div key={f.id} className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg" style={{ backgroundColor: "#0F172A", border: "1px solid #334155" }}>
+                                        {f.fileType === "image"
+                                          ? <ImageIcon size={11} style={{ color: "#10B981", flexShrink: 0 }} />
+                                          : f.fileType === "pdf"
+                                          ? <FileText size={11} style={{ color: "#EF4444", flexShrink: 0 }} />
+                                          : <FileText size={11} style={{ color: "#3B82F6", flexShrink: 0 }} />}
+                                        <span className="flex-1 text-[10px] truncate" style={{ color: "#94A3B8" }}>{f.name}</span>
+                                        <span className="text-[10px] flex-shrink-0" style={{ color: "#475569" }}>{f.size}</span>
+                                        <button
+                                          type="button"
+                                          onClick={() => setAssignmentDraft(d => d ? { ...d, attachments: d.attachments.filter(a => a.id !== f.id) } : d)}
+                                          className="flex-shrink-0 p-0.5 rounded transition-colors"
+                                          style={{ color: "#475569" }}
+                                          onMouseEnter={e => (e.currentTarget.style.color = "#EF4444")}
+                                          onMouseLeave={e => (e.currentTarget.style.color = "#475569")}
+                                        >
+                                          <X size={10} />
+                                        </button>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+
                               <div className="flex items-center gap-2 pt-1">
                                 <button
                                   type="button"
@@ -1085,6 +1045,7 @@ export default function CreateTrainingPage() {
                                       description: assignmentDraft.description,
                                       dueDate: assignmentDraft.dueDate || undefined,
                                       maxPoints: assignmentDraft.maxPoints ? Number(assignmentDraft.maxPoints) : undefined,
+                                      attachments: assignmentDraft.attachments.length ? assignmentDraft.attachments : undefined,
                                     })
                                   }}
                                   disabled={!assignmentDraft.title.trim()}
@@ -1120,36 +1081,6 @@ export default function CreateTrainingPage() {
                     )
                   })()}
 
-                  {/* ─── Milestone: description + due date ─── */}
-                  {selectedActivity.type === "milestone" && (
-                    <>
-                      <div>
-                        <FieldLabel>Submission Brief</FieldLabel>
-                        <textarea
-                          rows={3}
-                          value={(selectedActivity as MilestoneActivity).description ?? ""}
-                          onChange={e => patchActivity(selectedActivity.id, { description: e.target.value })}
-                          placeholder="Describe what learners need to submit…"
-                          className="w-full px-3 py-2.5 rounded-xl text-sm outline-none resize-none placeholder-slate-600"
-                          style={{ backgroundColor: "#0F172A", border: "1px solid #334155", color: "#F8FAFC" }}
-                          onFocus={e => (e.currentTarget.style.borderColor = "#8B5CF6")}
-                          onBlur={e => (e.currentTarget.style.borderColor = "#334155")}
-                        />
-                      </div>
-                      <div>
-                        <FieldLabel>Due Date</FieldLabel>
-                        <input
-                          type="date"
-                          value={(selectedActivity as MilestoneActivity).dueDate ?? ""}
-                          onChange={e => patchActivity(selectedActivity.id, { dueDate: e.target.value })}
-                          className="w-full px-3 py-2.5 rounded-xl text-sm outline-none"
-                          style={{ backgroundColor: "#0F172A", border: "1px solid #334155", color: "#F8FAFC" }}
-                          onFocus={e => (e.currentTarget.style.borderColor = "#8B5CF6")}
-                          onBlur={e => (e.currentTarget.style.borderColor = "#334155")}
-                        />
-                      </div>
-                    </>
-                  )}
                 </div>
               </PanelCard>
             )

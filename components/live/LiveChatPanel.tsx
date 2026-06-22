@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { Send, Users, ThumbsUp, Check, ChevronDown, ChevronUp, MessageSquare } from "lucide-react"
+import { Send, Users, ThumbsUp, Check, ChevronDown, ChevronUp, MessageSquare, PanelRightClose } from "lucide-react"
 import {
   INITIAL_QA_ITEMS,
   MOCK_PARTICIPANTS,
@@ -14,13 +14,14 @@ import {
 interface LiveChatPanelProps {
   sessionTitle: string
   participantCount: number
+  onClose?: () => void
 }
 
 function formatTime(d: Date): string {
   return d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true })
 }
 
-export function LiveChatPanel({ participantCount }: LiveChatPanelProps) {
+export function LiveChatPanel({ participantCount, onClose }: LiveChatPanelProps) {
   const [activeTab, setActiveTab] = useState<"chat" | "qa">("chat")
   const [messages, setMessages] = useState<ChatMessage[]>(buildInitialMessages)
   const [inputValue, setInputValue] = useState("")
@@ -110,18 +111,31 @@ export function LiveChatPanel({ participantCount }: LiveChatPanelProps) {
           <MessageSquare size={14} style={{ color: "#3B82F6" }} />
           Live Chat
         </span>
-        <button
-          type="button"
-          onClick={() => setShowParticipants((v) => !v)}
-          className="flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-lg transition-colors"
-          style={{
-            backgroundColor: showParticipants ? "#3B82F620" : "#334155",
-            color: showParticipants ? "#60A5FA" : "#94A3B8",
-          }}
-        >
-          <Users size={12} />
-          {participantCount}
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => setShowParticipants((v) => !v)}
+            className="flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-lg transition-colors"
+            style={{
+              backgroundColor: showParticipants ? "#3B82F620" : "#334155",
+              color: showParticipants ? "#60A5FA" : "#94A3B8",
+            }}
+          >
+            <Users size={12} />
+            {participantCount}
+          </button>
+          {onClose && (
+            <button
+              type="button"
+              onClick={onClose}
+              className="p-1.5 rounded-lg transition-colors hover:bg-white/5"
+              style={{ color: "#64748B" }}
+              title="Close chat"
+            >
+              <PanelRightClose size={14} />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Tabs */}

@@ -130,7 +130,12 @@ function CourseCard({ course }: { course: (typeof COURSES)[0] }) {
         </div>
 
         <div className="flex items-center justify-between pt-3" style={{ borderTop: "1px solid #334155" }}>
-          <span className="text-sm font-bold text-white">{course.revenue}</span>
+          <div>
+            <span className="text-sm font-bold text-white">{course.price}</span>
+            <p className="text-xs mt-0.5" style={{ color: "#475569" }}>
+              Revenue: <span style={{ color: "#64748B" }}>{course.revenue}</span>
+            </p>
+          </div>
           {course.rating > 0 ? (
             <span className="flex items-center gap-1 text-xs font-medium" style={{ color: "#F59E0B" }}>
               <Star size={12} fill="#F59E0B" />

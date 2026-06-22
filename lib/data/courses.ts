@@ -11,6 +11,23 @@ export type CourseCategory =
   | "Security"
   | "Product"
 
+export interface LessonKnowledgeCheck {
+  questions: QuizQuestion[]
+  passingScore: number
+  isMandatory: boolean
+}
+
+export interface SessionKCPart {
+  lessonId: string
+  questions: QuizQuestion[]
+  passingScore: number
+}
+
+export interface SessionKnowledgeCheck {
+  isMandatory: boolean
+  parts: SessionKCPart[]
+}
+
 export interface Lesson {
   id: string
   title: string
@@ -20,12 +37,14 @@ export interface Lesson {
   locked: boolean
   videoId?: string
   questions?: QuizQuestion[]
+  lessonKC?: LessonKnowledgeCheck
 }
 
 export interface Section {
   id: string
   title: string
   lessons: Lesson[]
+  sessionKC?: SessionKnowledgeCheck
 }
 
 export interface Course {
@@ -214,10 +233,33 @@ export const COURSES: Course[] = [
       {
         id: "s2",
         title: "Next.js App Router",
+        sessionKC: {
+          isMandatory: false,
+          parts: [
+            { lessonId: "l-c1-2-3", passingScore: 100, questions: [
+              { id: "skc-1", question: "What does the Next.js App Router replace?", options: ["pages/ directory", "src/ directory", "public/ directory", "styles/ directory"], correctIndex: 0 },
+            ]},
+            { lessonId: "l-c1-2-4", passingScore: 80, questions: [
+              { id: "skc-2", question: "Which function is used to fetch data in a Server Component?", options: ["useEffect", "getServerSideProps", "Direct async/await in the component", "fetch inside useCallback"], correctIndex: 2 },
+            ]},
+            { lessonId: "l-c1-2-5", passingScore: 80, questions: [
+              { id: "skc-3", question: "What does React Suspense enable in Next.js?", options: ["Static generation only", "Streaming HTML to the client progressively", "Client-side data fetching", "Route pre-fetching"], correctIndex: 1 },
+            ]},
+          ],
+        },
         lessons: [
           { id: "l-c1-2-1", title: "App Router Architecture", duration: "28:10", type: "video", completed: true, locked: false, videoId: "Tn6-PIqc4UM" },
           { id: "l-c1-2-2", title: "Server vs Client Components", duration: "35:05", type: "video", completed: true, locked: false, videoId: "Tn6-PIqc4UM" },
-          { id: "l-c1-2-3", title: "Server Components Deep Dive", duration: "24:18", type: "video", completed: false, locked: false, videoId: "Tn6-PIqc4UM" },
+          { id: "l-c1-2-3", title: "Server Components Deep Dive", duration: "24:18", type: "video", completed: false, locked: false, videoId: "Tn6-PIqc4UM",
+            lessonKC: {
+              passingScore: 100,
+              isMandatory: false,
+              questions: [
+                { id: "lkc-1", question: "Where do React Server Components run?", options: ["In the browser only", "On the server only", "Both server and browser", "In a Web Worker"], correctIndex: 1 },
+                { id: "lkc-2", question: "Can a Server Component use useState?", options: ["Yes, always", "Only with 'use client'", "No — hooks are not available", "Only in development"], correctIndex: 2 },
+              ],
+            },
+          },
           { id: "l-c1-2-4", title: "Data Fetching Patterns", duration: "42:30", type: "video", completed: false, locked: false, videoId: "Tn6-PIqc4UM" },
           { id: "l-c1-2-5", title: "Streaming & Suspense", duration: "29:55", type: "video", completed: false, locked: false, videoId: "Tn6-PIqc4UM" },
           { id: "l-c1-2-1", title: "App Router Architecture", duration: "28:10", type: "video", completed: true, locked: false },

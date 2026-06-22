@@ -135,7 +135,7 @@ export default function LiveSessionPage({
       {/* ── Header ──────────────────────────────────────────────────────────── */}
       <header
         className="flex items-center justify-between px-4 flex-shrink-0 gap-4"
-        style={{ height: 56, backgroundColor: "#1E293B", borderBottom: "1px solid #334155" }}
+        style={{ height: 56, backgroundColor: "#1E293B", borderBottom: "1px solid #334155", position: "relative", zIndex: 10 }}
       >
         {/* Back */}
         <Link
@@ -220,6 +220,7 @@ export default function LiveSessionPage({
             <LiveChatPanel
               sessionTitle={event.title}
               participantCount={participantCount}
+              onClose={() => setChatVisible(false)}
             />
           </div>
         )}
@@ -228,7 +229,7 @@ export default function LiveSessionPage({
       {/* ── Bottom toolbar ───────────────────────────────────────────────────── */}
       <footer
         className="flex items-center justify-between px-4 sm:px-6 flex-shrink-0 gap-2"
-        style={{ height: 56, backgroundColor: "#1E293B", borderTop: "1px solid #334155" }}
+        style={{ height: 56, backgroundColor: "#1E293B", borderTop: "1px solid #334155", position: "relative", zIndex: 10 }}
       >
         {/* Raise Hand */}
         <button
