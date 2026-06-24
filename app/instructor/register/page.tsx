@@ -63,7 +63,7 @@ export default function InstructorRegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex" style={{ backgroundColor: "#0F172A" }}>
+    <div className="flex" style={{ backgroundColor: "#0F172A", minHeight: "calc(100vh - var(--app-header-height, 150px))" }}>
       {/* Left Panel */}
       <div
         className="hidden lg:flex flex-col justify-between w-[420px] shrink-0 p-10"

@@ -353,7 +353,7 @@ export default function StudentDashboardPage() {
             <div>
               <div className="flex items-center justify-between mb-3">
                 <h2 className="text-base font-semibold text-white">Due Soon</h2>
-                <Link href="/student/assignments" className="flex items-center gap-1 text-xs" style={{ color: "#3B82F6" }}>
+                <Link href="/student/courses" className="flex items-center gap-1 text-xs" style={{ color: "#3B82F6" }}>
                   All <ChevronRight size={14} />
                 </Link>
               </div>
@@ -364,9 +364,10 @@ export default function StudentDashboardPage() {
                   const diff = Math.ceil((due.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
                   const urgency = diff <= 3 ? "#EF4444" : diff <= 7 ? "#F59E0B" : "#94A3B8"
                   return (
-                    <div
+                    <Link
                       key={a.id}
-                      className="rounded-xl p-3"
+                      href={`/student/courses/${a.courseId}?tab=assignments`}
+                      className="block rounded-xl p-3"
                       style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
                     >
                       <p className="text-xs font-semibold text-white truncate">{a.title}</p>
@@ -377,7 +378,7 @@ export default function StudentDashboardPage() {
                           {diff === 0 ? "Due today" : diff < 0 ? "Overdue" : `Due in ${diff}d`}
                         </span>
                       </div>
-                    </div>
+                    </Link>
                   )
                 })}
               </div>

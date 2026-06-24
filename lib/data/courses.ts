@@ -1,3 +1,6 @@
+import type { SubmissionFormat, AssignmentMCQQuestion } from "./assignmentShared"
+export type { SubmissionFormat, AssignmentMCQQuestion }
+
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export type CourseLevel = "Beginner" | "Intermediate" | "Advanced"
@@ -106,13 +109,48 @@ export interface Assignment {
   type: "project" | "essay" | "practical" | "report" | "presentation"
   attachments?: string[]
   feedback?: string
+  submissionFormat: SubmissionFormat
+  mcqQuestions?: AssignmentMCQQuestion[]
 }
 
-export interface QuizQuestion {
+export interface MCQQuestion {
   id: string
+  type?: "mcq"
   question: string
   options: string[]
   correctIndex: number
+  explanation?: string
+}
+
+export interface TrueFalseQuestion {
+  id: string
+  type: "true-false"
+  question: string
+  correctAnswer: boolean
+  explanation?: string
+}
+
+export interface MultiSelectQuestion {
+  id: string
+  type: "multi-select"
+  question: string
+  options: string[]
+  correctIndexes: number[]
+  explanation?: string
+}
+
+export interface ShortAnswerQuestion {
+  id: string
+  type: "short-answer"
+  question: string
+  acceptedAnswers: string[]
+  explanation?: string
+}
+
+export type QuizQuestion = MCQQuestion | TrueFalseQuestion | MultiSelectQuestion | ShortAnswerQuestion
+
+export function getQuestionType(q: QuizQuestion): "mcq" | "true-false" | "multi-select" | "short-answer" {
+  return q.type ?? "mcq"
 }
 
 export interface Quiz {
@@ -149,8 +187,10 @@ export interface Certificate {
 
 export interface DiscussionThread {
   id: string
-  courseId: string
-  courseName: string
+  courseId?: string
+  courseName?: string
+  trainingId?: string
+  trainingName?: string
   title: string
   body: string
   author: string
@@ -856,6 +896,7 @@ export const ASSIGNMENTS: Assignment[] = [
     maxGrade: 100,
     type: "project",
     attachments: ["starter-code.zip", "requirements.pdf"],
+    submissionFormat: "file",
   },
   {
     id: "a2",
@@ -871,6 +912,7 @@ export const ASSIGNMENTS: Assignment[] = [
     type: "project",
     attachments: ["api-spec.yaml"],
     feedback: "Good use of generics. Consider using discriminated unions for the error types.",
+    submissionFormat: "file",
   },
   {
     id: "a3",
@@ -887,6 +929,7 @@ export const ASSIGNMENTS: Assignment[] = [
     type: "report",
     feedback:
       "Strong architecture. WebSocket handling was well thought out. Missing: read receipts system and message persistence strategy. Good capacity estimates.",
+    submissionFormat: "text",
   },
   {
     id: "a4",
@@ -899,6 +942,7 @@ export const ASSIGNMENTS: Assignment[] = [
     status: "pending",
     maxGrade: 100,
     type: "report",
+    submissionFormat: "text",
   },
   {
     id: "a5",
@@ -914,6 +958,7 @@ export const ASSIGNMENTS: Assignment[] = [
     maxGrade: 100,
     type: "report",
     feedback: "Excellent analysis. Lighthouse scores improved significantly. Well-documented with before/after metrics.",
+    submissionFormat: "text",
   },
   {
     id: "a6",
@@ -929,6 +974,7 @@ export const ASSIGNMENTS: Assignment[] = [
     maxGrade: 100,
     type: "report",
     feedback: "Good base design. The caching layer was well implemented. Consider bloom filters for URL existence checks.",
+    submissionFormat: "text",
   },
   {
     id: "a7",
@@ -941,6 +987,7 @@ export const ASSIGNMENTS: Assignment[] = [
     status: "pending",
     maxGrade: 100,
     type: "project",
+    submissionFormat: "file",
   },
   {
     id: "a8",
@@ -954,6 +1001,65 @@ export const ASSIGNMENTS: Assignment[] = [
     maxGrade: 100,
     type: "practical",
     attachments: ["housing-dataset.csv"],
+    submissionFormat: "file",
+  },
+  {
+    id: "a9",
+    courseId: "c2",
+    courseName: "TypeScript for Professional Developers",
+    title: "TypeScript Type System Checkpoint",
+    description: "A short knowledge checkpoint on generics, conditional types, and utility types covered so far.",
+    dueDate: "2025-06-22",
+    status: "pending",
+    maxGrade: 100,
+    type: "essay",
+    submissionFormat: "mcq",
+    mcqQuestions: [
+      {
+        id: "a9-q1",
+        question: "Which utility type makes all properties of T optional?",
+        options: ["Required<T>", "Partial<T>", "Readonly<T>", "Pick<T>"],
+        correctIndex: 1,
+      },
+      {
+        id: "a9-q2",
+        question: "What does `keyof T` produce?",
+        options: ["The values of T", "A union of T's property names", "A copy of T", "The prototype of T"],
+        correctIndex: 1,
+      },
+      {
+        id: "a9-q3",
+        question: "Which syntax defines a conditional type?",
+        options: ["T extends U ? X : Y", "T instanceof U", "T as U", "T satisfies U"],
+        correctIndex: 0,
+      },
+    ],
+  },
+  {
+    id: "a10",
+    courseId: "c3",
+    courseName: "System Design for Engineers",
+    title: "System Design Concepts Checkpoint",
+    description: "A short knowledge checkpoint on scalability, consistency, and distributed systems fundamentals.",
+    dueDate: "2025-06-28",
+    status: "pending",
+    maxGrade: 100,
+    type: "essay",
+    submissionFormat: "mcq",
+    mcqQuestions: [
+      {
+        id: "a10-q1",
+        question: "Which technique distributes incoming requests across multiple servers?",
+        options: ["Load balancing", "Vertical scaling", "Caching", "Sharding"],
+        correctIndex: 0,
+      },
+      {
+        id: "a10-q2",
+        question: "What is the main trade-off described by the CAP theorem?",
+        options: ["Cost vs. performance", "Consistency, Availability, and Partition tolerance", "Compute vs. storage", "Latency vs. throughput"],
+        correctIndex: 1,
+      },
+    ],
   },
 ]
 
@@ -1018,6 +1124,21 @@ export const QUIZZES: Quiz[] = [
         ],
         correctIndex: 1,
       },
+      {
+        id: "qq5b",
+        type: "true-false",
+        question: "Server Components can use React hooks like useState and useEffect.",
+        correctAnswer: false,
+        explanation: "Server Components render on the server and have no interactivity, so stateful hooks like useState and useEffect only work in Client Components.",
+      },
+      {
+        id: "qq5c",
+        type: "multi-select",
+        question: "Which of the following are valid ways to trigger a re-render in React? (Select all that apply)",
+        options: ["Calling a state setter from useState", "Mutating a state object in place", "Parent component re-rendering", "Receiving new props"],
+        correctIndexes: [0, 2, 3],
+        explanation: "Mutating state directly does not trigger a re-render — React relies on reference checks, so you must call the setter function with a new value.",
+      },
     ],
   },
   {
@@ -1060,6 +1181,13 @@ export const QUIZZES: Quiz[] = [
           "Through window.__SERVER_DATA__",
         ],
         correctIndex: 1,
+      },
+      {
+        id: "qq8b",
+        type: "short-answer",
+        question: "Which special file name marks a route segment as a Server Action boundary file? (Hint: it's a directive string, not a file name)",
+        acceptedAnswers: ["use server", "'use server'", "\"use server\""],
+        explanation: "Adding the \"use server\" directive at the top of a file or function marks it as a Server Action that can be called from the client.",
       },
     ],
   },
@@ -1143,6 +1271,21 @@ export const QUIZZES: Quiz[] = [
           "Technical necessity",
         ],
         correctIndex: 1,
+      },
+      {
+        id: "qq12b",
+        type: "true-false",
+        question: "Under GDPR, consent must be freely given, specific, informed, and unambiguous.",
+        correctAnswer: true,
+        explanation: "GDPR Article 4(11) defines valid consent as a freely given, specific, informed, and unambiguous indication of the data subject's wishes.",
+      },
+      {
+        id: "qq12c",
+        type: "multi-select",
+        question: "Which of these are data subject rights under GDPR? (Select all that apply)",
+        options: ["Right to access", "Right to erasure", "Right to unlimited data retention", "Right to data portability"],
+        correctIndexes: [0, 1, 3],
+        explanation: "GDPR grants individuals the right to access, erasure, and portability of their data — there is no \"right to unlimited retention\"; in fact GDPR limits how long data may be kept.",
       },
     ],
   },
@@ -1319,6 +1462,42 @@ export const DISCUSSIONS: DiscussionThread[] = [
     tags: ["cookies", "analytics", "consent"],
     lastReplyAt: "2025-06-05",
     lastReplyBy: "Dr. Elena Vasquez (Instructor)",
+  },
+  {
+    id: "d7",
+    trainingId: "tt1",
+    trainingName: "Software Engineering Excellence",
+    title: "Best resources for practicing system design interviews?",
+    body: "Looking for additional practice beyond the capstone — any recommended resources for system design interview prep that pair well with this track?",
+    author: "Sam Rivera",
+    authorAvatar: "SR",
+    authorRole: "student",
+    createdAt: "2025-06-09",
+    replies: 9,
+    views: 201,
+    isPinned: false,
+    isSolved: false,
+    tags: ["system-design", "interview-prep"],
+    lastReplyAt: "2025-06-10",
+    lastReplyBy: "Jordan Lee",
+  },
+  {
+    id: "d8",
+    trainingId: "tt5",
+    trainingName: "Frontend Web Development",
+    title: "📌 Cohort kickoff — introduce yourself!",
+    body: "Welcome to the Frontend Web Development track! Drop a note below with your background and what you're hoping to build by the end of this track.",
+    author: "Sarah Chen",
+    authorAvatar: "SC",
+    authorRole: "instructor",
+    createdAt: "2025-05-01",
+    replies: 34,
+    views: 980,
+    isPinned: true,
+    isSolved: false,
+    tags: ["welcome", "introductions"],
+    lastReplyAt: "2025-06-08",
+    lastReplyBy: "Taylor Reid",
   },
 ]
 

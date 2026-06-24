@@ -3,14 +3,15 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
-  LayoutDashboard, BookOpen, Compass, Map, ClipboardList, Brain,
+  LayoutDashboard, BookOpen, Compass, Map,
   BarChart3, Award, MessageSquare, Users, Calendar, UserCircle,
   Settings, LogOut, ChevronLeft, ChevronRight, GraduationCap,
-  Radio, Video, Wrench, GraduationCap as Training, CalendarCheck,
+  Radio, GraduationCap as Training, UserCog, Megaphone,
+  ShieldAlert, DollarSign,
 } from "lucide-react"
 import { useState } from "react"
 
-type Role = "student" | "tutor"
+type Role = "student" | "tutor" | "admin"
 
 interface NavItem {
   label: string
@@ -36,9 +37,9 @@ const studentGroups: NavGroup[] = [
   {
     label: "MY LEARNING",
     items: [
+      { label: "My Learning", href: "/student/my-learning", icon: LayoutDashboard },
       { label: "My Courses", href: "/student/courses", icon: BookOpen },
       { label: "My Trainings", href: "/student/my-trainings", icon: Training },
-      { label: "My Workshops", href: "/student/my-workshops", icon: CalendarCheck },
       { label: "Learning Paths", href: "/student/learning-paths", icon: Map },
       { label: "Explore Catalog", href: "/student/explore", icon: Compass },
     ],
@@ -47,16 +48,7 @@ const studentGroups: NavGroup[] = [
     label: "LIVE & CONTENT",
     items: [
       { label: "Live Classes", href: "/student/live", icon: Radio, badge: "LIVE", badgeColor: "#EF4444", liveIndicator: true },
-      { label: "Videos", href: "/student/videos", icon: Video },
-      { label: "Workshops", href: "/student/workshops", icon: Wrench, badge: "3", badgeColor: "#10B981" },
       { label: "Trainings", href: "/student/trainings", icon: Training },
-    ],
-  },
-  {
-    label: "ASSESSMENTS",
-    items: [
-      { label: "Assignments", href: "/student/assignments", icon: ClipboardList, badge: "3", badgeColor: "#F59E0B" },
-      { label: "Quizzes & Exams", href: "/student/quizzes", icon: Brain, badge: "1", badgeColor: "#8B5CF6" },
     ],
   },
   {
@@ -100,6 +92,7 @@ const tutorGroups: NavGroup[] = [
     items: [
       { label: "My Courses", href: "/tutor/courses", icon: BookOpen },
       { label: "Students", href: "/tutor/students", icon: Users },
+      { label: "Study Groups", href: "/tutor/study-groups", icon: Users },
     ],
   },
   {
@@ -116,6 +109,61 @@ const tutorGroups: NavGroup[] = [
   },
 ]
 
+const adminGroups: NavGroup[] = [
+  {
+    label: "OVERVIEW",
+    items: [
+      { label: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
+    ],
+  },
+  {
+    label: "PEOPLE",
+    items: [
+      { label: "Users", href: "/admin/users", icon: UserCog },
+    ],
+  },
+  {
+    label: "CONTENT",
+    items: [
+      { label: "Courses", href: "/admin/courses", icon: BookOpen },
+      { label: "Trainings", href: "/admin/trainings", icon: Training },
+    ],
+  },
+  {
+    label: "COMMUNITY",
+    items: [
+      { label: "Discussions", href: "/admin/discussions", icon: MessageSquare },
+      { label: "Study Groups", href: "/admin/study-groups", icon: Users },
+    ],
+  },
+  {
+    label: "FINANCE",
+    items: [
+      { label: "Payments", href: "/admin/transactions", icon: DollarSign },
+      { label: "Certificates", href: "/admin/certificates", icon: Award },
+    ],
+  },
+  {
+    label: "COMMUNICATION",
+    items: [
+      { label: "Announcements", href: "/admin/announcements", icon: Megaphone },
+    ],
+  },
+  {
+    label: "INSIGHTS",
+    items: [
+      { label: "Reports", href: "/admin/reports", icon: BarChart3 },
+      { label: "Audit Log", href: "/admin/audit-log", icon: ShieldAlert },
+    ],
+  },
+  {
+    label: "ACCOUNT",
+    items: [
+      { label: "Settings", href: "/admin/settings", icon: Settings },
+    ],
+  },
+]
+
 interface SidebarProps {
   role: Role
 }
@@ -123,7 +171,7 @@ interface SidebarProps {
 export function Sidebar({ role }: SidebarProps) {
   const pathname = usePathname()
   const [collapsed, setCollapsed] = useState(false)
-  const groups = role === "student" ? studentGroups : tutorGroups
+  const groups = role === "student" ? studentGroups : role === "tutor" ? tutorGroups : adminGroups
 
   return (
     <aside
@@ -159,7 +207,7 @@ export function Sidebar({ role }: SidebarProps) {
             className="text-xs font-semibold uppercase tracking-widest px-2 py-0.5 rounded"
             style={{ color: "#3B82F6", backgroundColor: "#1D4ED815" }}
           >
-            {role === "student" ? "Student" : "Instructor"}
+            {role === "student" ? "Student" : role === "tutor" ? "Instructor" : "Admin"}
           </span>
         </div>
       )}

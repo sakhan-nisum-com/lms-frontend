@@ -8,7 +8,7 @@ import { useState } from "react"
 export default function LoginPage() {
   const router = useRouter()
   const [showPw, setShowPw] = useState(false)
-  const [role, setRole] = useState<"student" | "tutor">("student")
+  const [role, setRole] = useState<"student" | "tutor" | "admin">("student")
   const [loading, setLoading] = useState(false)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -18,13 +18,15 @@ export default function LoginPage() {
     setLoading(true)
     // Simulate auth — redirect based on role
     setTimeout(() => {
-      router.push(role === "student" ? "/student/dashboard" : "/tutor/dashboard")
+      const destination =
+        role === "student" ? "/student/dashboard" : role === "tutor" ? "/tutor/dashboard" : "/admin/dashboard"
+      router.push(destination)
     }, 800)
   }
 
   return (
     <div style={{
-      minHeight: "100vh", backgroundColor: "#0f172a",
+      minHeight: "calc(100vh - var(--app-header-height, 150px))", backgroundColor: "#0f172a",
       display: "flex", alignItems: "center", justifyContent: "center",
       padding: "24px", position: "relative",
     }}>
@@ -54,7 +56,7 @@ export default function LoginPage() {
 
           {/* Role toggle */}
           <div style={{ display: "flex", backgroundColor: "#0f172a", borderRadius: 12, padding: 4, marginBottom: 28, gap: 4 }}>
-            {(["student", "tutor"] as const).map((r) => (
+            {(["student", "tutor", "admin"] as const).map((r) => (
               <button
                 key={r}
                 onClick={() => setRole(r)}
@@ -65,7 +67,7 @@ export default function LoginPage() {
                   color: role === r ? "#fff" : "#64748b",
                 }}
               >
-                {r === "student" ? "Student" : "Instructor"}
+                {r === "student" ? "Student" : r === "tutor" ? "Instructor" : "Admin"}
               </button>
             ))}
           </div>
@@ -198,6 +200,12 @@ export default function LoginPage() {
               style={{ fontSize: 12, color: "#8B5CF6", textDecoration: "none", padding: "5px 12px", borderRadius: 8, border: "1px solid #8B5CF630", backgroundColor: "#8B5CF610" }}
             >
               → Tutor Dashboard
+            </Link>
+            <Link
+              href="/admin/dashboard"
+              style={{ fontSize: 12, color: "#F59E0B", textDecoration: "none", padding: "5px 12px", borderRadius: 8, border: "1px solid #F59E0B30", backgroundColor: "#F59E0B10" }}
+            >
+              → Admin Dashboard
             </Link>
           </div>
         </div>

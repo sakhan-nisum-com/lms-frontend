@@ -6,7 +6,7 @@ import Link from "next/link"
 
 interface TopbarProps {
   userName?: string
-  role?: "student" | "tutor"
+  role?: "student" | "tutor" | "admin"
 }
 
 const notifications = [
@@ -31,7 +31,7 @@ const notifications = [
     title: "Assignment due in 2 days",
     body: "Build a Blog App with App Router — due Jun 17",
     time: "2h",
-    href: "/student/assignments",
+    href: "/student/courses/c1?tab=assignments",
     unread: true,
   },
   {
@@ -43,7 +43,7 @@ const notifications = [
     title: "Quiz is now available",
     body: "Module 2: App Router Architecture — 25 min, 2 attempts",
     time: "5h",
-    href: "/student/quizzes",
+    href: "/student/courses/c1?tab=quizzes",
     unread: true,
   },
   {
@@ -204,7 +204,7 @@ export function Topbar({ userName = "Alex Johnson", role = "student" }: TopbarPr
               {/* Footer */}
               <div className="px-4 py-2.5" style={{ borderTop: "1px solid #334155" }}>
                 <Link
-                  href="/student/schedule"
+                  href={role === "admin" ? "/admin/audit-log" : "/student/schedule"}
                   onClick={() => setNotifOpen(false)}
                   className="block text-center text-xs font-semibold py-1.5"
                   style={{ color: "#3B82F6" }}
@@ -246,11 +246,17 @@ export function Topbar({ userName = "Alex Johnson", role = "student" }: TopbarPr
                 <p className="text-sm font-bold text-white">{userName}</p>
                 <p className="text-xs mt-0.5" style={{ color: "#64748B" }}>alex.johnson@techcorp.com</p>
               </div>
-              {[
-                { label: "My Profile", href: "/student/profile" },
-                { label: "Settings", href: "/student/settings" },
-                { label: "Certificates", href: "/student/certificates" },
-              ].map(({ label, href }) => (
+              {(role === "admin"
+                ? [
+                    { label: "Settings", href: "/admin/settings" },
+                    { label: "Audit Log", href: "/admin/audit-log" },
+                  ]
+                : [
+                    { label: "My Profile", href: "/student/profile" },
+                    { label: "Settings", href: "/student/settings" },
+                    { label: "Certificates", href: "/student/certificates" },
+                  ]
+              ).map(({ label, href }) => (
                 <Link
                   key={label}
                   href={href}
