@@ -6,7 +6,7 @@ import {
   LayoutDashboard, BookOpen, Compass, Map, ClipboardList, Brain,
   BarChart3, Award, MessageSquare, Users, Calendar, UserCircle,
   Settings, LogOut, ChevronLeft, ChevronRight, GraduationCap,
-  Radio, Video, Wrench, GraduationCap as Training, CalendarCheck,
+  Radio, Video, Wrench, GraduationCap as Training, CalendarCheck, PackageOpen,
 } from "lucide-react"
 import { useState } from "react"
 
@@ -41,6 +41,7 @@ const studentGroups: NavGroup[] = [
       { label: "My Workshops", href: "/student/my-workshops", icon: CalendarCheck },
       { label: "Learning Paths", href: "/student/learning-paths", icon: Map },
       { label: "Explore Catalog", href: "/student/explore", icon: Compass },
+      { label: "SCORM Courses", href: "/student/scorm", icon: PackageOpen },
     ],
   },
   {

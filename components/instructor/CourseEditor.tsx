@@ -67,6 +67,8 @@ export interface CourseForm {
 interface CourseEditorProps {
   initialForm: CourseForm
   mode: "new" | "edit"
+  onExportSCORM?: (form: CourseForm) => Promise<void>
+  scormExporting?: boolean
 }
 
 type StepId = 1 | 2 | 3 | 4 | 5 | 6
@@ -1155,6 +1157,23 @@ function CurriculumTab({ form, onChange }: { form: CourseForm; onChange: (f: Cou
                       </div>
                     )}
 
+                    {/* Video URL input (for testing) */}
+                    {lesson.type === "video" && (
+                      <div className="px-4 py-3" style={{ backgroundColor: "#0A0F1E", borderTop: "1px solid #334155" }}>
+                        <label className="block text-xs font-semibold mb-2" style={{ color: "#64748B" }}>Video URL (for testing)</label>
+                        <input
+                          value={lesson.videoUrl || ""}
+                          onChange={(e) => updateLesson(section.id, lesson.id, { videoUrl: e.target.value })}
+                          placeholder="https://example.com/video.mp4"
+                          className="w-full px-3 py-2 rounded-lg text-xs outline-none placeholder-slate-600"
+                          style={{ backgroundColor: "#1E293B", border: "1px solid #334155", color: "#F8FAFC" }}
+                          onFocus={(e) => (e.currentTarget.style.borderColor = "#3B82F6")}
+                          onBlur={(e) => (e.currentTarget.style.borderColor = "#334155")}
+                        />
+                        <p className="text-[10px] mt-1.5" style={{ color: "#475569" }}>Paste a public video URL (MP4). For testing: https://commondatastorage.googleapis.com/gtv-videos-library/sample/BigBuckBunny.mp4</p>
+                      </div>
+                    )}
+
                     {/* Resources panel */}
                     {resourceOpenId === lesson.id && (
                       <div className="px-4 pb-4 pt-3 space-y-3" style={{ backgroundColor: "#0A0F1E", borderTop: "1px solid #334155" }}>
@@ -1724,7 +1743,7 @@ function CourseMessagesStep({ form, onChange }: { form: CourseForm; onChange: (f
 
 // ── Main export ───────────────────────────────────────────────────────────────
 
-export function CourseEditor({ initialForm, mode }: CourseEditorProps) {
+export function CourseEditor({ initialForm, mode, onExportSCORM, scormExporting }: CourseEditorProps) {
   const [form, setForm] = useState<CourseForm>(initialForm)
   const [currentStep, setCurrentStep] = useState<StepId>(1)
 
@@ -1780,13 +1799,28 @@ export function CourseEditor({ initialForm, mode }: CourseEditorProps) {
               })}
             </div>
           ))}
-          <div className="px-3 pb-3 pt-2" style={{ borderTop: "1px solid #334155" }}>
+          <div className="px-3 pb-3 pt-2 space-y-2" style={{ borderTop: "1px solid #334155" }}>
             <span
-              className="text-[10px] font-medium px-2 py-0.5 rounded-full"
+              className="text-[10px] font-medium px-2 py-0.5 rounded-full block"
               style={{ backgroundColor: mode === "edit" ? "#3B82F615" : "#10B98115", color: mode === "edit" ? "#60A5FA" : "#34D399" }}
             >
               {mode === "edit" ? "Editing" : "New Course"}
             </span>
+            {mode === "edit" && onExportSCORM && (
+              <button
+                onClick={() => onExportSCORM(form)}
+                disabled={scormExporting}
+                className="w-full flex items-center justify-center gap-2 px-2 py-2 rounded-lg text-xs font-medium transition-colors"
+                style={{
+                  backgroundColor: scormExporting ? "#475569" : "#10B98115",
+                  color: scormExporting ? "#94A3B8" : "#34D399",
+                  border: "1px solid #10B98130",
+                  cursor: scormExporting ? "not-allowed" : "pointer",
+                }}
+              >
+                {scormExporting ? "Exporting..." : "↓ SCORM"}
+              </button>
+            )}
           </div>
         </div>
       </nav>

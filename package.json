@@ -10,8 +10,10 @@
   },
   "dependencies": {
     "@chakra-ui/react": "^3.36.0",
+    "@types/jszip": "^3.4.0",
     "@types/quill": "^2.0.14",
     "framer-motion": "^12.40.0",
+    "jszip": "^3.10.1",
     "lucide-react": "^1.17.0",
     "next": "16.2.9",
     "quill": "^2.0.3",

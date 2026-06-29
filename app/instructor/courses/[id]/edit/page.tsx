@@ -1,11 +1,12 @@
 "use client"
 
 import { use, useState } from "react"
-import { Save, Send } from "lucide-react"
+import { Save, Send, Download } from "lucide-react"
 import { InstructorPageShell } from "@/components/instructor/InstructorPageShell"
 import { CourseEditor } from "@/components/instructor/CourseEditor"
 import type { CourseForm } from "@/components/instructor/CourseEditor"
 import { INSTRUCTOR_COURSES } from "@/lib/data/instructor-courses"
+import { exportCourseAsSCORM } from "@/lib/scorm-export"
 
 function buildInitialForm(id: number): CourseForm {
   const course = INSTRUCTOR_COURSES.find((c) => c.id === id)
@@ -79,10 +80,40 @@ export default function EditCoursePage({ params }: { params: Promise<{ id: strin
   const courseId = parseInt(id, 10)
   const course = INSTRUCTOR_COURSES.find((c) => c.id === courseId)
   const [saved, setSaved] = useState(false)
+  const [scormExporting, setScormExporting] = useState(false)
 
   function handleSave() {
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
+  }
+
+  async function handleSCORMExport(form: CourseForm) {
+    if (!form.title.trim()) {
+      alert("Please enter a course title before exporting")
+      return
+    }
+    if (form.sections.length === 0) {
+      alert("Please add at least one section with lessons before exporting")
+      return
+    }
+
+    setScormExporting(true)
+    try {
+      const blob = await exportCourseAsSCORM(form)
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      a.download = `${form.title}-scorm.zip`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
+    } catch (error) {
+      console.error("SCORM export failed:", error)
+      alert("Failed to export course as SCORM. Check console for details.")
+    } finally {
+      setScormExporting(false)
+    }
   }
 
   const isPublished = course?.status === "published"
@@ -117,7 +148,12 @@ export default function EditCoursePage({ params }: { params: Promise<{ id: strin
         </div>
       }
     >
-      <CourseEditor initialForm={buildInitialForm(courseId)} mode="edit" />
+      <CourseEditor
+        initialForm={buildInitialForm(courseId)}
+        mode="edit"
+        onExportSCORM={handleSCORMExport}
+        scormExporting={scormExporting}
+      />
     </InstructorPageShell>
   )
 }
