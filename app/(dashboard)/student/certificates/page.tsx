@@ -55,19 +55,19 @@ function CertificateDetail({
 
       {/* Left: the certificate document */}
       <div>
-        <div className="rounded-2xl p-8" style={{ backgroundColor: "#F8FAFC" }}>
+        <div className="rounded-2xl p-8" style={{ backgroundColor: "var(--text-primary)" }}>
           <div className="flex items-start justify-between mb-10 flex-wrap gap-4">
             <div className="flex items-center gap-2">
               <div className="flex items-center justify-center w-8 h-8 rounded-lg flex-shrink-0" style={{ backgroundColor: "#3B82F6" }}>
                 <GraduationCap size={16} color="#fff" />
               </div>
-              <span className="font-bold text-base" style={{ color: "#0F172A" }}>LearnFlow</span>
+              <span className="font-bold text-base" style={{ color: "var(--bg-surface-muted)" }}>LearnFlow</span>
             </div>
-            <div className="text-right text-xs leading-relaxed" style={{ color: "#64748B" }}>
+            <div className="text-right text-xs leading-relaxed" style={{ color: "var(--text-tertiary)" }}>
               <p className="flex items-center justify-end gap-1.5">
-                Certificate no: <strong style={{ color: "#0F172A" }}>{cert.credentialId}</strong>
+                Certificate no: <strong style={{ color: "var(--bg-surface-muted)" }}>{cert.credentialId}</strong>
                 <button onClick={() => onCopy(cert.credentialId)} className="inline-flex">
-                  {copiedId === cert.credentialId ? <Check size={11} style={{ color: "#10B981" }} /> : <Copy size={11} style={{ color: "#94A3B8" }} />}
+                  {copiedId === cert.credentialId ? <Check size={11} style={{ color: "#10B981" }} /> : <Copy size={11} style={{ color: "var(--text-secondary)" }} />}
                 </button>
               </p>
               <p>Certificate url: {cert.verificationUrl.replace("https://", "")}</p>
@@ -75,26 +75,26 @@ function CertificateDetail({
             </div>
           </div>
 
-          <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "#64748B" }}>
+          <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "var(--text-tertiary)" }}>
             Certificate of Completion
           </p>
-          <h2 className="text-3xl sm:text-4xl font-black leading-tight mb-6" style={{ color: "#0F172A" }}>
+          <h2 className="text-3xl sm:text-4xl font-black leading-tight mb-6" style={{ color: "var(--bg-surface-muted)" }}>
             {cert.courseName}
           </h2>
-          <p className="text-sm mb-10" style={{ color: "#334155" }}>
-            Instructors&nbsp; <strong style={{ color: "#0F172A" }}>{cert.instructorName}</strong>
+          <p className="text-sm mb-10" style={{ color: "var(--border-default)" }}>
+            Instructors&nbsp; <strong style={{ color: "var(--bg-surface-muted)" }}>{cert.instructorName}</strong>
           </p>
 
-          <h3 className="text-2xl sm:text-3xl font-black mb-4" style={{ color: "#0F172A" }}>
+          <h3 className="text-2xl sm:text-3xl font-black mb-4" style={{ color: "var(--bg-surface-muted)" }}>
             {studentName}
           </h3>
-          <div className="flex items-center gap-8 text-sm flex-wrap" style={{ color: "#334155" }}>
-            <p>Date&nbsp; <strong style={{ color: "#0F172A" }}>{cert.issuedDate}</strong></p>
-            <p>Length&nbsp; <strong style={{ color: "#0F172A" }}>{course.totalDuration}</strong></p>
+          <div className="flex items-center gap-8 text-sm flex-wrap" style={{ color: "var(--border-default)" }}>
+            <p>Date&nbsp; <strong style={{ color: "var(--bg-surface-muted)" }}>{cert.issuedDate}</strong></p>
+            <p>Length&nbsp; <strong style={{ color: "var(--bg-surface-muted)" }}>{course.totalDuration}</strong></p>
           </div>
         </div>
 
-        <p className="text-xs leading-relaxed mt-4" style={{ color: "#64748B" }}>
+        <p className="text-xs leading-relaxed mt-4" style={{ color: "var(--text-tertiary)" }}>
           This certificate above verifies that {studentName} successfully completed the course {cert.courseName} on{" "}
           {cert.issuedDate} as taught by {cert.instructorName} on LearnFlow. The certificate indicates the entire
           course was completed as validated by the learner. The course length represents the total hours of video
@@ -102,8 +102,8 @@ function CertificateDetail({
         </p>
 
         {/* Skills */}
-        <div className="rounded-2xl p-5 mt-4" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
-          <h3 className="text-sm font-bold text-white mb-3">Skills Demonstrated</h3>
+        <div className="rounded-2xl p-5 mt-4 shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
+          <h3 className="text-sm font-bold mb-3" style={{ color: "var(--text-primary)" }}>Skills Demonstrated</h3>
           <div className="flex flex-wrap gap-2">
             {cert.skills.map((skill) => (
               <span
@@ -121,34 +121,34 @@ function CertificateDetail({
       {/* Right: recipient + course sidebar */}
       <div className="space-y-5">
         <div>
-          <p className="text-xs font-semibold mb-2" style={{ color: "#64748B" }}>Certificate Recipient:</p>
+          <p className="text-xs font-semibold mb-2" style={{ color: "var(--text-tertiary)" }}>Certificate Recipient:</p>
           <div className="flex items-center gap-2">
-            <div className="flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold text-white flex-shrink-0" style={{ backgroundColor: "#3B82F6" }}>
+            <div className="flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold text-white flex-shrink-0" style={{ backgroundColor: "var(--accent)" }}>
               {studentAvatar}
             </div>
-            <span className="text-sm font-semibold text-white">{studentName}</span>
+            <span className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>{studentName}</span>
           </div>
         </div>
 
         <div>
-          <p className="text-xs font-semibold mb-2" style={{ color: "#64748B" }}>About the Course:</p>
-          <div className="rounded-xl overflow-hidden mb-3" style={{ border: "1px solid #334155" }}>
+          <p className="text-xs font-semibold mb-2" style={{ color: "var(--text-tertiary)" }}>About the Course:</p>
+          <div className="rounded-xl overflow-hidden mb-3" style={{ border: "1px solid var(--border-default)" }}>
             <CourseThumbnail course={course} heightClass="h-28" />
           </div>
-          <p className="text-sm font-bold text-white leading-snug mb-1">{course.title}</p>
-          <p className="text-xs mb-2" style={{ color: "#64748B" }}>{course.instructor}</p>
+          <p className="text-sm font-bold leading-snug mb-1" style={{ color: "var(--text-primary)" }}>{course.title}</p>
+          <p className="text-xs mb-2" style={{ color: "var(--text-tertiary)" }}>{course.instructor}</p>
           <div className="flex items-center gap-1 mb-1.5">
             <span className="text-xs font-bold" style={{ color: "#F59E0B" }}>{course.rating}</span>
             <Star size={11} fill="#F59E0B" style={{ color: "#F59E0B" }} />
-            <span className="text-xs" style={{ color: "#64748B" }}>({course.reviewCount.toLocaleString()})</span>
+            <span className="text-xs" style={{ color: "var(--text-tertiary)" }}>({course.reviewCount.toLocaleString()})</span>
           </div>
-          <p className="text-xs mb-3" style={{ color: "#64748B" }}>
+          <p className="text-xs mb-3" style={{ color: "var(--text-tertiary)" }}>
             {course.totalDuration} total · {totalLessons} lectures
           </p>
           {isPaid && (
             <div className="flex items-center gap-2 mb-1">
-              <span className="text-base font-bold text-white">${course.price}</span>
-              {originalPrice && <span className="text-xs line-through" style={{ color: "#475569" }}>${originalPrice}</span>}
+              <span className="text-base font-bold" style={{ color: "var(--text-primary)" }}>${course.price}</span>
+              {originalPrice && <span className="text-xs line-through" style={{ color: "var(--text-muted)" }}>${originalPrice}</span>}
             </div>
           )}
         </div>
@@ -156,19 +156,19 @@ function CertificateDetail({
         <div className="flex items-center gap-2">
           <button
             className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-semibold"
-            style={{ backgroundColor: "#1E293B", color: "#CBD5E1", border: "1px solid #334155" }}
+            style={{ backgroundColor: "var(--bg-surface)", color: "#CBD5E1", border: "1px solid var(--border-default)" }}
           >
             <Download size={13} /> Download
           </button>
           <button
             className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-semibold"
-            style={{ backgroundColor: "#1E293B", color: "#CBD5E1", border: "1px solid #334155" }}
+            style={{ backgroundColor: "var(--bg-surface)", color: "#CBD5E1", border: "1px solid var(--border-default)" }}
           >
             <Share2 size={13} /> Share
           </button>
         </div>
 
-        <Link href={`/student/courses/${course.id}`} className="block text-xs font-semibold" style={{ color: "#3B82F6" }}>
+        <Link href={`/student/courses/${course.id}`} className="block text-xs font-semibold" style={{ color: "var(--accent)" }}>
           ← Back to course
         </Link>
       </div>
@@ -228,19 +228,19 @@ function CertificatesContent() {
 
     return (
       <div className="space-y-6 max-w-5xl">
-        <Link href="/student/certificates" className="inline-flex items-center gap-1.5 text-xs font-semibold" style={{ color: "#3B82F6" }}>
+        <Link href="/student/certificates" className="inline-flex items-center gap-1.5 text-xs font-semibold" style={{ color: "var(--accent)" }}>
           <ChevronLeft size={13} /> All certificates
         </Link>
 
         {cert && course ? (
           <CertificateDetail cert={cert} course={course} studentName={p.name} studentAvatar={p.avatar} copiedId={copiedId} onCopy={handleCopy} />
         ) : (
-          <div className="rounded-2xl p-10 text-center" style={{ backgroundColor: "#1E293B", border: "1px dashed #334155" }}>
-            <Award size={32} className="mx-auto mb-3" style={{ color: "#334155" }} />
-            <p className="text-sm font-medium text-white">
+          <div className="rounded-2xl p-10 text-center" style={{ backgroundColor: "var(--bg-surface)", border: "1px dashed var(--border-default)" }}>
+            <Award size={32} className="mx-auto mb-3" style={{ color: "var(--border-default)" }} />
+            <p className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
               {course ? `No certificate yet for "${course.title}"` : "Certificate not found"}
             </p>
-            <p className="text-xs mt-1" style={{ color: "#64748B" }}>
+            <p className="text-xs mt-1" style={{ color: "var(--text-tertiary)" }}>
               Finish every lesson in this course to earn its certificate.
             </p>
           </div>
@@ -258,8 +258,8 @@ function CertificatesContent() {
 
       {/* Header */}
         <div>
-          <h1 className="text-2xl font-bold text-white">My Certificates</h1>
-          <p className="text-sm mt-1" style={{ color: "#94A3B8" }}>
+          <h1 className="text-2xl font-bold" style={{ color: "var(--text-primary)" }}>My Certificates</h1>
+          <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>
             {certificates.length} certificates earned · Verifiable credentials on your profile
           </p>
         </div>
@@ -271,9 +271,9 @@ function CertificatesContent() {
             { label: "Skills Demonstrated", value: certificates.reduce((s, c) => s + c.skills.length, 0), color: "#3B82F6" },
             { label: "Avg Grade", value: certificates.length ? `${Math.round(certificates.reduce((s, c) => s + c.grade, 0) / certificates.length)}%` : "—", color: "#10B981" },
           ].map(({ label, value, color }) => (
-            <div key={label} className="rounded-xl p-4" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
+            <div key={label} className="rounded-xl p-4 shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
               <p className="text-2xl font-bold" style={{ color }}>{value}</p>
-              <p className="text-xs mt-1" style={{ color: "#94A3B8" }}>{label}</p>
+              <p className="text-xs mt-1" style={{ color: "var(--text-secondary)" }}>{label}</p>
             </div>
           ))}
         </div>
@@ -283,20 +283,20 @@ function CertificatesContent() {
           {/* Certificate list */}
           <div className="space-y-3">
             {certificates.length === 0 && (
-              <div className="rounded-2xl p-6 text-center" style={{ backgroundColor: "#1E293B", border: "1px dashed #334155" }}>
-                <Award size={28} className="mx-auto mb-2" style={{ color: "#334155" }} />
-                <p className="text-sm font-medium text-white">No certificates yet</p>
-                <p className="text-xs mt-1" style={{ color: "#64748B" }}>Finish every lesson in a course to earn its certificate.</p>
+              <div className="rounded-2xl p-6 text-center" style={{ backgroundColor: "var(--bg-surface)", border: "1px dashed var(--border-default)" }}>
+                <Award size={28} className="mx-auto mb-2" style={{ color: "var(--border-default)" }} />
+                <p className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>No certificates yet</p>
+                <p className="text-xs mt-1" style={{ color: "var(--text-tertiary)" }}>Finish every lesson in a course to earn its certificate.</p>
               </div>
             )}
 
             {certificates.map((cert) => (
               <button
                 key={cert.id}
-                className="w-full rounded-2xl p-4 text-left transition-all"
+                className="w-full rounded-2xl p-4 text-left transition-all shadow-sm"
                 style={{
-                  backgroundColor: "#1E293B",
-                  border: `1px solid ${selected?.id === cert.id ? cert.thumbnailColor + "60" : "#334155"}`,
+                  backgroundColor: "var(--bg-surface)",
+                  border: `1px solid ${selected?.id === cert.id ? cert.thumbnailColor + "60" : "var(--border-default)"}`,
                 }}
                 onClick={() => setSelectedId(cert.id)}
               >
@@ -308,8 +308,8 @@ function CertificatesContent() {
                     {cert.thumbnail}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-white truncate">{cert.courseName}</p>
-                    <p className="text-xs mt-0.5" style={{ color: "#64748B" }}>Issued {cert.issuedDate}</p>
+                    <p className="text-sm font-bold truncate" style={{ color: "var(--text-primary)" }}>{cert.courseName}</p>
+                    <p className="text-xs mt-0.5" style={{ color: "var(--text-tertiary)" }}>Issued {cert.issuedDate}</p>
                     <div className="flex items-center gap-1.5 mt-1">
                       <Award size={11} style={{ color: "#F59E0B" }} />
                       <span className="text-xs font-semibold" style={{ color: "#F59E0B" }}>{cert.grade}% grade</span>
@@ -326,19 +326,19 @@ function CertificatesContent() {
             {inProgress.length > 0 && (
               <div
                 className="rounded-2xl p-4 opacity-60"
-                style={{ backgroundColor: "#1E293B", border: "1px dashed #334155" }}
+                style={{ backgroundColor: "var(--bg-surface)", border: "1px dashed var(--border-default)" }}
               >
-                <p className="text-xs font-semibold mb-2" style={{ color: "#64748B" }}>IN PROGRESS</p>
+                <p className="text-xs font-semibold mb-2" style={{ color: "var(--text-tertiary)" }}>IN PROGRESS</p>
                 {inProgress.map(({ course, progressPct }) => (
                   <div key={course.id} className="flex items-center gap-2 mb-2 last:mb-0">
                     <span>{course.thumbnail}</span>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs text-white truncate">{course.title}</p>
-                      <div className="h-1 rounded-full mt-1" style={{ backgroundColor: "#334155" }}>
+                      <p className="text-xs truncate" style={{ color: "var(--text-primary)" }}>{course.title}</p>
+                      <div className="h-1 rounded-full mt-1" style={{ backgroundColor: "var(--border-default)" }}>
                         <div className="h-full rounded-full" style={{ width: `${progressPct}%`, backgroundColor: course.thumbnailColor }} />
                       </div>
                     </div>
-                    <span className="text-xs flex-shrink-0" style={{ color: "#64748B" }}>{progressPct}%</span>
+                    <span className="text-xs flex-shrink-0" style={{ color: "var(--text-tertiary)" }}>{progressPct}%</span>
                   </div>
                 ))}
               </div>

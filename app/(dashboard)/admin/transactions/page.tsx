@@ -7,10 +7,10 @@ import type { TransactionStatus } from "@/lib/data/transactions"
 import { Search, DollarSign, RotateCcw, AlertTriangle, Clock, Download, TrendingUp, TrendingDown } from "lucide-react"
 
 const statusColors: Record<TransactionStatus, React.CSSProperties> = {
-  completed: { backgroundColor: "#10B98120", color: "#34D399" },
-  refunded: { backgroundColor: "#F59E0B20", color: "#FCD34D" },
-  pending: { backgroundColor: "#3B82F620", color: "#60A5FA" },
-  failed: { backgroundColor: "#EF444420", color: "#F87171" },
+  completed: { backgroundColor: "var(--success-bg)", color: "var(--success)" },
+  refunded: { backgroundColor: "var(--warning-bg)", color: "var(--warning)" },
+  pending: { backgroundColor: "var(--accent-subtle)", color: "var(--accent)" },
+  failed: { backgroundColor: "var(--danger-bg)", color: "var(--danger)" },
 }
 
 // Prior months are illustrative trend data; the current month is computed
@@ -68,14 +68,14 @@ export default function AdminTransactionsPage() {
       <div className="space-y-6 max-w-6xl">
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
-            <h1 className="text-2xl font-bold text-white">Payments</h1>
-            <p className="text-sm mt-1" style={{ color: "#94A3B8" }}>
+            <h1 className="text-2xl font-bold" style={{ color: "var(--text-primary)" }}>Payments</h1>
+            <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>
               Every payment received, plus monthly revenue and losses trends.
             </p>
           </div>
           <button
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold"
-            style={{ backgroundColor: "#334155", color: "#CBD5E1" }}
+            style={{ backgroundColor: "var(--border-default)", color: "var(--text-secondary)" }}
           >
             <Download size={15} /> Export CSV
           </button>
@@ -83,49 +83,49 @@ export default function AdminTransactionsPage() {
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {stats.map(({ label, value, icon: Icon, color }) => (
-            <div key={label} className="rounded-2xl p-5" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
-              <div className="flex items-center justify-center w-10 h-10 rounded-xl mb-3" style={{ backgroundColor: `${color}20` }}>
+            <div key={label} className="rounded-2xl p-5 shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
+              <div className="flex items-center justify-center w-10 h-10 rounded-xl mb-3" style={{ backgroundColor: `${color}18` }}>
                 <Icon size={20} style={{ color }} />
               </div>
-              <div className="text-2xl font-bold text-white">{value}</div>
-              <div className="text-xs mt-0.5" style={{ color: "#64748B" }}>{label}</div>
+              <div className="text-2xl font-bold" style={{ color: "var(--text-primary)" }}>{value}</div>
+              <div className="text-xs mt-0.5" style={{ color: "var(--text-tertiary)" }}>{label}</div>
             </div>
           ))}
         </div>
 
         {/* Revenue & losses trend */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          <div className="rounded-2xl p-5" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
+          <div className="rounded-2xl p-5 shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
             <div className="flex items-center justify-between mb-5">
-              <h2 className="text-sm font-semibold text-white">Monthly Revenue</h2>
-              <span className="flex items-center gap-1 text-xs font-semibold" style={{ color: "#34D399" }}>
+              <h2 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Monthly Revenue</h2>
+              <span className="flex items-center gap-1 text-xs font-semibold" style={{ color: "var(--success)" }}>
                 <TrendingUp size={13} /> Received payments
               </span>
             </div>
             <div className="flex items-end justify-between gap-2" style={{ height: 110 }}>
               {revenueTrend.map((r) => (
                 <div key={r.month} className="flex-1 flex flex-col items-center gap-1.5">
-                  <span className="text-xs font-semibold" style={{ color: "#94A3B8" }}>${r.value.toLocaleString()}</span>
-                  <div className="w-full rounded-md" style={{ height: `${(r.value / maxRevenue) * 75}px`, backgroundColor: r.month === CURRENT_MONTH ? "#10B981" : "#10B98180", minHeight: 4 }} />
-                  <span className="text-xs" style={{ color: "#64748B" }}>{r.month}</span>
+                  <span className="text-xs font-semibold" style={{ color: "var(--text-secondary)" }}>${r.value.toLocaleString()}</span>
+                  <div className="w-full rounded-md" style={{ height: `${(r.value / maxRevenue) * 75}px`, backgroundColor: r.month === CURRENT_MONTH ? "var(--success)" : "#10B98180", minHeight: 4 }} />
+                  <span className="text-xs" style={{ color: "var(--text-tertiary)" }}>{r.month}</span>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="rounded-2xl p-5" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
+          <div className="rounded-2xl p-5 shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
             <div className="flex items-center justify-between mb-5">
-              <h2 className="text-sm font-semibold text-white">Monthly Losses</h2>
-              <span className="flex items-center gap-1 text-xs font-semibold" style={{ color: "#F87171" }}>
+              <h2 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Monthly Losses</h2>
+              <span className="flex items-center gap-1 text-xs font-semibold" style={{ color: "var(--danger)" }}>
                 <TrendingDown size={13} /> Refunds + failed
               </span>
             </div>
             <div className="flex items-end justify-between gap-2" style={{ height: 110 }}>
               {lossesTrend.map((l) => (
                 <div key={l.month} className="flex-1 flex flex-col items-center gap-1.5">
-                  <span className="text-xs font-semibold" style={{ color: "#94A3B8" }}>${l.value.toLocaleString()}</span>
-                  <div className="w-full rounded-md" style={{ height: `${(l.value / maxLoss) * 75}px`, backgroundColor: l.month === CURRENT_MONTH ? "#EF4444" : "#EF444480", minHeight: 4 }} />
-                  <span className="text-xs" style={{ color: "#64748B" }}>{l.month}</span>
+                  <span className="text-xs font-semibold" style={{ color: "var(--text-secondary)" }}>${l.value.toLocaleString()}</span>
+                  <div className="w-full rounded-md" style={{ height: `${(l.value / maxLoss) * 75}px`, backgroundColor: l.month === CURRENT_MONTH ? "var(--danger)" : "#EF444480", minHeight: 4 }} />
+                  <span className="text-xs" style={{ color: "var(--text-tertiary)" }}>{l.month}</span>
                 </div>
               ))}
             </div>
@@ -134,20 +134,20 @@ export default function AdminTransactionsPage() {
 
         <div className="flex items-center gap-3 flex-wrap">
           <div className="relative flex-1 min-w-[220px] max-w-sm">
-            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "#64748B" }} />
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "var(--text-tertiary)" }} />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by user or course..."
               className="w-full pl-9 pr-4 py-2.5 text-sm rounded-lg outline-none"
-              style={{ backgroundColor: "#1E293B", border: "1px solid #334155", color: "#F8FAFC" }}
+              style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)", color: "var(--text-primary)" }}
             />
           </div>
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as "all" | TransactionStatus)}
             className="px-3 py-2.5 rounded-lg text-sm outline-none"
-            style={{ backgroundColor: "#1E293B", border: "1px solid #334155", color: "#F8FAFC" }}
+            style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)", color: "var(--text-primary)" }}
           >
             <option value="all">All statuses</option>
             <option value="completed">Completed</option>
@@ -157,12 +157,12 @@ export default function AdminTransactionsPage() {
           </select>
         </div>
 
-        <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
+        <div className="rounded-2xl overflow-hidden shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
           <table className="w-full text-sm">
             <thead>
-              <tr style={{ borderBottom: "1px solid #334155" }}>
+              <tr style={{ borderBottom: "1px solid var(--border-default)" }}>
                 {["Transaction", "User", "Course", "Amount", "Method", "Date", "Status", "Actions"].map((h) => (
-                  <th key={h} className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: "#64748B" }}>
+                  <th key={h} className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-tertiary)" }}>
                     {h}
                   </th>
                 ))}
@@ -173,18 +173,18 @@ export default function AdminTransactionsPage() {
                 <tr
                   key={t.id}
                   className="transition-colors"
-                  style={{ borderBottom: i < filtered.length - 1 ? "1px solid #334155" : "none" }}
-                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#334155")}
+                  style={{ borderBottom: i < filtered.length - 1 ? "1px solid var(--border-default)" : "none" }}
+                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "var(--bg-surface-muted)")}
                   onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
                 >
-                  <td className="px-5 py-4 font-mono text-xs" style={{ color: "#64748B" }}>{t.id}</td>
-                  <td className="px-5 py-4 font-medium text-white">{t.userName}</td>
-                  <td className="px-5 py-4" style={{ color: "#94A3B8" }}>{t.courseName}</td>
-                  <td className="px-5 py-4 font-semibold" style={{ color: t.status === "refunded" ? "#F87171" : "#F8FAFC" }}>
+                  <td className="px-5 py-4 font-mono text-xs" style={{ color: "var(--text-tertiary)" }}>{t.id}</td>
+                  <td className="px-5 py-4 font-medium" style={{ color: "var(--text-primary)" }}>{t.userName}</td>
+                  <td className="px-5 py-4" style={{ color: "var(--text-secondary)" }}>{t.courseName}</td>
+                  <td className="px-5 py-4 font-semibold" style={{ color: t.status === "refunded" ? "var(--danger)" : "var(--text-primary)" }}>
                     {t.status === "refunded" ? "-" : ""}${t.amount}
                   </td>
-                  <td className="px-5 py-4 capitalize" style={{ color: "#94A3B8" }}>{t.method}</td>
-                  <td className="px-5 py-4" style={{ color: "#94A3B8" }}>{t.date}</td>
+                  <td className="px-5 py-4 capitalize" style={{ color: "var(--text-secondary)" }}>{t.method}</td>
+                  <td className="px-5 py-4" style={{ color: "var(--text-secondary)" }}>{t.date}</td>
                   <td className="px-5 py-4">
                     <span className="px-2 py-0.5 rounded-full text-xs font-semibold capitalize" style={statusColors[t.status]}>
                       {t.status}
@@ -195,7 +195,7 @@ export default function AdminTransactionsPage() {
                       <button
                         onClick={() => refund(t.id)}
                         className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-lg"
-                        style={{ backgroundColor: "#F59E0B20", color: "#FCD34D" }}
+                        style={{ backgroundColor: "var(--warning-bg)", color: "var(--warning)" }}
                       >
                         <RotateCcw size={12} /> Refund
                       </button>
@@ -205,7 +205,7 @@ export default function AdminTransactionsPage() {
               ))}
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={8} className="px-5 py-10 text-center text-sm" style={{ color: "#475569" }}>
+                  <td colSpan={8} className="px-5 py-10 text-center text-sm" style={{ color: "var(--text-muted)" }}>
                     No transactions match these filters.
                   </td>
                 </tr>

@@ -1,0 +1,164 @@
+{
+  "studentWorkshops": {
+    "title": "ورش العمل",
+    "subtitle": "جلسات تطبيقية مكثفة مع مدربين متخصصين",
+    "myWorkshops": "ورش عملي",
+    "stats": {
+      "upcoming": "القادمة",
+      "registered": "المسجَّلة",
+      "completed": "المكتملة"
+    },
+    "allKinds": "جميع الأنواع",
+    "filters": {
+      "all": "الكل",
+      "registered": "المسجَّلة"
+    },
+    "searchPlaceholder": "ابحث في ورش العمل...",
+    "noResultsTitle": "لا توجد ورش عمل",
+    "kindMeta": {
+      "live": "ورشة مباشرة",
+      "lab": "معمل تطبيقي",
+      "in-person": "حضوري",
+      "panel": "حلقة نقاشية",
+      "hackathon": "هاكاثون"
+    },
+    "card": {
+      "registered": "مسجَّل",
+      "seats": "{attendees}/{maxAttendees} مقعد",
+      "onlyLeft": "تبقّى {count} فقط!",
+      "spotsAvailable": "{count} مقعد متاح",
+      "speakersOnPanel": "{count} متحدثين في الحلقة",
+      "topPrize": "الجائزة الأولى: {reward}",
+      "handsOnExercises": "{count} تمارين تطبيقية",
+      "free": "مجاني",
+      "startsIn": "تبدأ بعد",
+      "started": "بدأت!",
+      "details": "التفاصيل",
+      "registerFree": "سجّل مجانًا",
+      "registerPrice": "سجّل — ${price}"
+    }
+  },
+  "studentWorkshopDetail": {
+    "backToWorkshops": "العودة إلى ورش العمل",
+    "share": "مشاركة",
+    "registered": "مسجَّل",
+    "registeredExclaim": "✓ تم التسجيل!",
+    "youAreRegistered": "✓ أنت مسجَّل!",
+    "onlySpotsLeft": "تبقّى {count} مقعد فقط",
+    "seatsFilled": "{attendees}/{maxAttendees} مقعد مشغول",
+    "onlyLeft": "تبقّى {count} فقط!",
+    "spotsAvailable": "{count} مقعد متاح",
+    "free": "مجاني",
+    "registerFree": "سجّل — مجاني",
+    "registerPrice": "سجّل — ${price}",
+    "tabs": {
+      "overview": "نظرة عامة",
+      "assignment": "المهمة",
+      "assignmentBadge": "تستحق في 20 يونيو",
+      "peerReview": "تقييم الزملاء",
+      "peerReviewBadge": "{count} مستحقة",
+      "live": "الجلسة المباشرة",
+      "progress": "التقدم والدرجات"
+    },
+    "aboutThis": "عن هذا {kind}",
+    "environmentSetup": "البيئة والإعداد",
+    "handsOnExercises": "التمارين التطبيقية",
+    "exercisesDone": "{done}/{total} مكتمل",
+    "venue": "الموقع",
+    "mapPreview": "معاينة الخريطة",
+    "whatToBring": "ما يجب إحضاره",
+    "speakerLineup": "قائمة المتحدثين",
+    "askThePanel": "اسأل الحلقة النقاشية",
+    "questionPlaceholder": "اكتب سؤالك…",
+    "submittedQuestion": "تم الإرسال: \"{question}\"",
+    "eventTimeline": "الجدول الزمني للفعالية",
+    "prizes": "الجوائز",
+    "judgingCriteria": "معايير التحكيم",
+    "workshopAgenda": "أجندة الورشة",
+    "registeredAlready": "{count} مسجَّل بالفعل",
+    "liveSessionDuration": "جلسة مباشرة لمدة {duration}",
+    "hostedBy": "استضافة",
+    "moderator": "مقدّم الحلقة",
+    "instructor": "المدرّب",
+    "findATeam": "ابحث عن فريق",
+    "findATeamDesc": "هل تشارك بمفردك؟ سنطابقك مع مشاركين مسجَّلين آخرين قبل الانطلاق.",
+    "joinTeamMatching": "انضم لمطابقة الفِرق",
+    "studentsAlsoBought": "اشترى الطلاب أيضًا",
+    "recommendedForYou": "موصى به لك"
+  },
+  "studentVideos": {
+    "title": "مكتبة الفيديو",
+    "subtitle": "{count} فيديو ضمن {categories} فئات",
+    "searchPlaceholder": "ابحث عن فيديوهات أو مدربين...",
+    "continueWatching": "متابعة المشاهدة",
+    "trendingNow": "الأكثر رواجًا الآن",
+    "allVideos": "جميع الفيديوهات",
+    "results": "النتائج ({count})",
+    "minutesWatched": "{watched} / {duration} دقيقة تمت مشاهدتها · {progress}%",
+    "noResultsTitle": "لا توجد فيديوهات",
+    "noResultsSubtitle": "جرّب كلمات مختلفة أو فئة أخرى",
+    "free": "مجاني",
+    "categories": {
+      "All": "الكل",
+      "React": "React",
+      "TypeScript": "TypeScript",
+      "System Design": "تصميم الأنظمة",
+      "DevOps": "DevOps",
+      "Security": "الأمان",
+      "Data Science": "علوم البيانات",
+      "UI/UX": "تجربة وواجهة المستخدم",
+      "Career": "المسار المهني"
+    },
+    "levels": {
+      "Beginner": "مبتدئ",
+      "Intermediate": "متوسط",
+      "Advanced": "متقدم"
+    }
+  },
+  "studentVideoPlayer": {
+    "videoLibrary": "مكتبة الفيديو",
+    "goToCourse": "الانتقال إلى الدورة",
+    "videoContent": "محتوى الفيديو — {title}",
+    "views": "{count} مشاهدة",
+    "save": "حفظ",
+    "share": "مشاركة",
+    "tabs": {
+      "playlist": "قائمة التشغيل",
+      "transcript": "النص المكتوب",
+      "comments": "التعليقات"
+    },
+    "minutesShort": "{count} دقيقة",
+    "commentPlaceholder": "أضف تعليقًا…"
+  },
+  "studentLive": {
+    "title": "الفصول المباشرة",
+    "subtitle": "انضم إلى الجلسات المباشرة وشاهد التسجيلات وتعلّم في الوقت الفعلي",
+    "liveNowBadge": "{count} مباشر الآن",
+    "liveNow": "مباشر الآن",
+    "watching": "{count} يشاهدون",
+    "minutes": "{count} دقيقة",
+    "tabs": {
+      "all": "الكل",
+      "live": "مباشر",
+      "upcoming": "القادمة",
+      "recordings": "التسجيلات"
+    },
+    "searchPlaceholder": "ابحث في الجلسات...",
+    "todaysSchedule": "جدول اليوم",
+    "comingUp": "القادم",
+    "pastRecordings": "التسجيلات السابقة",
+    "seeAllInLibrary": "عرض الكل في مكتبة الفيديو",
+    "joinLiveSession": "انضم إلى الجلسة المباشرة",
+    "registerAt": "سجّل — {time}",
+    "live": "مباشر"
+  },
+  "studentLiveRoom": {
+    "back": "رجوع",
+    "instructorSharingScreen": "المدرّب يشارك الشاشة",
+    "host": "المضيف",
+    "recording": "جارٍ التسجيل",
+    "chat": "المحادثة",
+    "people": "الأشخاص ({count})",
+    "messagePlaceholder": "اكتب رسالة…"
+  }
+}

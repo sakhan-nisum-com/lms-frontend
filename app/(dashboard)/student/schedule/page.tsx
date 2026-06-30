@@ -82,8 +82,8 @@ export default function SchedulePage() {
         {/* Header */}
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
-            <h1 className="text-2xl font-bold text-white">Schedule</h1>
-            <p className="text-sm mt-1" style={{ color: "#94A3B8" }}>
+            <h1 className="text-2xl font-bold" style={{ color: "var(--text-primary)" }}>Schedule</h1>
+            <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>
               {upcomingEvents.length} upcoming events · June 2025
             </p>
           </div>
@@ -92,8 +92,8 @@ export default function SchedulePage() {
         {/* Today's events */}
         {todayEvents.length > 0 && (
           <div
-            className="rounded-2xl p-4"
-            style={{ backgroundColor: "#1E293B", border: "1px solid #3B82F640" }}
+            className="rounded-2xl p-4 shadow-sm"
+            style={{ backgroundColor: "var(--bg-surface)", border: "1px solid #3B82F640" }}
           >
             <p className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: "#60A5FA" }}>TODAY — JUNE 12</p>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -101,7 +101,7 @@ export default function SchedulePage() {
                 <div
                   key={event.id}
                   className="rounded-xl p-3 flex items-start gap-3"
-                  style={{ backgroundColor: "#0F172A", border: `1px solid ${event.color}40` }}
+                  style={{ backgroundColor: "var(--bg-surface-muted)", border: `1px solid ${event.color}40` }}
                 >
                   <div
                     className="flex items-center justify-center w-8 h-8 rounded-lg flex-shrink-0"
@@ -110,8 +110,8 @@ export default function SchedulePage() {
                     {eventTypeIcon(event.type)}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-semibold text-white truncate">{event.title}</p>
-                    <p className="text-xs mt-0.5" style={{ color: "#64748B" }}>
+                    <p className="text-xs font-semibold truncate" style={{ color: "var(--text-primary)" }}>{event.title}</p>
+                    <p className="text-xs mt-0.5" style={{ color: "var(--text-tertiary)" }}>
                       {getHour(event.startTime)} – {getHour(event.endTime)}
                     </p>
                     {event.meetLink && (
@@ -119,7 +119,7 @@ export default function SchedulePage() {
                         <Link
                           href={`/student/live-session/${event.id}`}
                           className="flex items-center gap-1 text-xs mt-1 font-medium"
-                          style={{ color: "#10B981" }}
+                          style={{ color: "var(--success)" }}
                         >
                           <Video size={10} /> Join in LMS
                         </Link>
@@ -129,7 +129,7 @@ export default function SchedulePage() {
                           target="_blank"
                           rel="noopener noreferrer"
                           className="flex items-center gap-1 text-xs mt-1"
-                          style={{ color: "#3B82F6" }}
+                          style={{ color: "var(--accent)" }}
                         >
                           <ExternalLink size={10} /> Join meeting
                         </a>
@@ -146,22 +146,22 @@ export default function SchedulePage() {
 
           {/* Calendar */}
           <div className="lg:col-span-2">
-            <div className="rounded-2xl p-5" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
+            <div className="rounded-2xl p-5 shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
               {/* Month nav */}
               <div className="flex items-center justify-between mb-5">
-                <h2 className="text-base font-bold text-white">
+                <h2 className="text-base font-bold" style={{ color: "var(--text-primary)" }}>
                   {MONTHS[currentMonth.month]} {currentMonth.year}
                 </h2>
                 <div className="flex gap-1">
                   <button
                     className="p-1.5 rounded-lg"
-                    style={{ backgroundColor: "#334155", color: "#94A3B8" }}
+                    style={{ backgroundColor: "var(--border-default)", color: "var(--text-secondary)" }}
                   >
                     <ChevronLeft size={15} />
                   </button>
                   <button
                     className="p-1.5 rounded-lg"
-                    style={{ backgroundColor: "#334155", color: "#94A3B8" }}
+                    style={{ backgroundColor: "var(--border-default)", color: "var(--text-secondary)" }}
                   >
                     <ChevronRight size={15} />
                   </button>
@@ -171,7 +171,7 @@ export default function SchedulePage() {
               {/* Day headers */}
               <div className="grid grid-cols-7 mb-2">
                 {DAYS.map((d) => (
-                  <div key={d} className="text-center text-xs font-semibold py-1" style={{ color: "#475569" }}>
+                  <div key={d} className="text-center text-xs font-semibold py-1" style={{ color: "var(--text-muted)" }}>
                     {d}
                   </div>
                 ))}
@@ -188,14 +188,14 @@ export default function SchedulePage() {
                       className="rounded-lg p-1.5 min-h-16 cursor-pointer transition-colors"
                       style={{
                         backgroundColor: isToday ? "#3B82F620" : day ? "transparent" : "transparent",
-                        border: `1px solid ${isToday ? "#3B82F6" : "transparent"}`,
+                        border: `1px solid ${isToday ? "var(--accent)" : "transparent"}`,
                       }}
                     >
                       {day && (
                         <>
                           <span
                             className="text-xs font-semibold"
-                            style={{ color: isToday ? "#60A5FA" : day < today ? "#475569" : "#94A3B8" }}
+                            style={{ color: isToday ? "#60A5FA" : day < today ? "var(--text-muted)" : "var(--text-secondary)" }}
                           >
                             {day}
                           </span>
@@ -215,7 +215,7 @@ export default function SchedulePage() {
                               </div>
                             ))}
                             {dayEvents.length > 2 && (
-                              <div className="text-xs" style={{ color: "#475569", fontSize: 9 }}>
+                              <div className="text-xs" style={{ color: "var(--text-muted)", fontSize: 9 }}>
                                 +{dayEvents.length - 2} more
                               </div>
                             )}
@@ -228,7 +228,7 @@ export default function SchedulePage() {
               </div>
 
               {/* Legend */}
-              <div className="flex flex-wrap gap-3 mt-4 pt-4" style={{ borderTop: "1px solid #334155" }}>
+              <div className="flex flex-wrap gap-3 mt-4 pt-4" style={{ borderTop: "1px solid var(--border-default)" }}>
                 {[
                   { type: "live-session", color: "#3B82F6", label: "Live Session" },
                   { type: "assignment-due", color: "#F59E0B", label: "Assignment Due" },
@@ -236,7 +236,7 @@ export default function SchedulePage() {
                   { type: "exam", color: "#EF4444", label: "Exam" },
                   { type: "workshop", color: "#10B981", label: "Workshop" },
                 ].map(({ color, label }) => (
-                  <div key={label} className="flex items-center gap-1.5 text-xs" style={{ color: "#94A3B8" }}>
+                  <div key={label} className="flex items-center gap-1.5 text-xs" style={{ color: "var(--text-secondary)" }}>
                     <div className="w-2.5 h-2.5 rounded" style={{ backgroundColor: color }} />
                     {label}
                   </div>
@@ -247,7 +247,7 @@ export default function SchedulePage() {
 
           {/* Right: Upcoming events list */}
           <div>
-            <h2 className="text-sm font-bold text-white mb-3">Upcoming Events</h2>
+            <h2 className="text-sm font-bold mb-3" style={{ color: "var(--text-primary)" }}>Upcoming Events</h2>
             <div className="space-y-2">
               {upcomingEvents.map((event) => {
                 const day = parseInt(event.date.split("-")[2])
@@ -255,10 +255,10 @@ export default function SchedulePage() {
                 return (
                   <div
                     key={event.id}
-                    className="rounded-xl p-3"
+                    className="rounded-xl p-3 shadow-sm"
                     style={{
-                      backgroundColor: "#1E293B",
-                      border: `1px solid ${isToday ? event.color + "40" : "#334155"}`,
+                      backgroundColor: "var(--bg-surface)",
+                      border: `1px solid ${isToday ? event.color + "40" : "var(--border-default)"}`,
                     }}
                   >
                     <div className="flex items-start gap-2.5">
@@ -269,8 +269,8 @@ export default function SchedulePage() {
                         {eventTypeIcon(event.type)}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs font-semibold text-white leading-snug">{event.title}</p>
-                        <p className="text-xs mt-0.5 truncate" style={{ color: "#64748B" }}>{event.courseName}</p>
+                        <p className="text-xs font-semibold leading-snug" style={{ color: "var(--text-primary)" }}>{event.title}</p>
+                        <p className="text-xs mt-0.5 truncate" style={{ color: "var(--text-tertiary)" }}>{event.courseName}</p>
                         <div className="flex items-center gap-2 mt-1.5 flex-wrap">
                           <span
                             className="text-xs px-1.5 py-0.5 rounded"
@@ -278,7 +278,7 @@ export default function SchedulePage() {
                           >
                             {eventTypeLabel[event.type] ?? event.type}
                           </span>
-                          <span className="text-xs flex items-center gap-0.5" style={{ color: "#475569" }}>
+                          <span className="text-xs flex items-center gap-0.5" style={{ color: "var(--text-muted)" }}>
                             <Clock size={10} />
                             {isToday ? "Today" : `Jun ${day}`} · {getHour(event.startTime)}
                           </span>
@@ -288,7 +288,7 @@ export default function SchedulePage() {
                             <Link
                               href={`/student/live-session/${event.id}`}
                               className="flex items-center gap-1 text-xs mt-1.5 font-medium"
-                              style={{ color: "#10B981" }}
+                              style={{ color: "var(--success)" }}
                             >
                               <Video size={10} /> Join in LMS
                             </Link>
@@ -298,7 +298,7 @@ export default function SchedulePage() {
                               target="_blank"
                               rel="noopener noreferrer"
                               className="flex items-center gap-1 text-xs mt-1.5"
-                              style={{ color: "#3B82F6" }}
+                              style={{ color: "var(--accent)" }}
                             >
                               <ExternalLink size={10} /> Join meeting
                             </a>

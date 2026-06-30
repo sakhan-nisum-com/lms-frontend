@@ -57,9 +57,9 @@ export function CourseQuizzes({ quizzes }: { quizzes: Quiz[] }) {
 
   if (quizzes.length === 0) {
     return (
-      <div className="rounded-2xl p-10 text-center" style={{ backgroundColor: "#1E293B", border: "1px dashed #334155" }}>
-        <Brain size={36} className="mx-auto mb-3" style={{ color: "#334155" }} />
-        <p className="text-sm" style={{ color: "#475569" }}>No quizzes or exams for this course yet.</p>
+      <div className="rounded-2xl p-10 text-center shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px dashed var(--border-default)" }}>
+        <Brain size={36} className="mx-auto mb-3" style={{ color: "var(--border-default)" }} />
+        <p className="text-sm" style={{ color: "var(--text-muted)" }}>No quizzes or exams for this course yet.</p>
       </div>
     )
   }
@@ -156,13 +156,13 @@ export function CourseQuizzes({ quizzes }: { quizzes: Quiz[] }) {
         {/* Quiz header */}
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-bold text-white">{activeQuiz.title}</h2>
-            <p className="text-sm" style={{ color: "#64748B" }}>{activeQuiz.description}</p>
+            <h2 className="text-xl font-bold" style={{ color: "var(--text-primary)" }}>{activeQuiz.title}</h2>
+            <p className="text-sm" style={{ color: "var(--text-tertiary)" }}>{activeQuiz.description}</p>
           </div>
           <button
             onClick={() => setActiveQuiz(null)}
             className="p-2 rounded-lg"
-            style={{ backgroundColor: "#1E293B", color: "#94A3B8" }}
+            style={{ backgroundColor: "var(--bg-surface)", color: "var(--text-secondary)" }}
           >
             <X size={16} />
           </button>
@@ -171,24 +171,24 @@ export function CourseQuizzes({ quizzes }: { quizzes: Quiz[] }) {
         {/* Results */}
         {submitted ? (
           <div
-            className="rounded-2xl p-8 text-center"
-            style={{ backgroundColor: "#1E293B", border: `1px solid ${passed ? "#10B98140" : "#EF444440"}` }}
+            className="rounded-2xl p-8 text-center shadow-sm"
+            style={{ backgroundColor: "var(--bg-surface)", border: `1px solid ${passed ? "#10B98140" : "#EF444440"}` }}
           >
             <div
               className="w-20 h-20 rounded-full flex items-center justify-center text-3xl font-black mx-auto mb-4"
-              style={{ backgroundColor: passed ? "#10B98120" : "#EF444420", color: passed ? "#10B981" : "#EF4444" }}
+              style={{ backgroundColor: passed ? "#10B98120" : "#EF444420", color: passed ? "var(--success)" : "var(--danger)" }}
             >
               {score}%
             </div>
-            <h2 className="text-xl font-bold text-white mb-1">{passed ? "Passed! 🎉" : "Not Passed"}</h2>
-            <p className="text-sm mb-4" style={{ color: "#94A3B8" }}>
+            <h2 className="text-xl font-bold mb-1" style={{ color: "var(--text-primary)" }}>{passed ? "Passed! 🎉" : "Not Passed"}</h2>
+            <p className="text-sm mb-4" style={{ color: "var(--text-secondary)" }}>
               {passed ? "Great work! You've passed this quiz." : `You need ${activeQuiz.passingScore}% to pass. Try again!`}
             </p>
             <div className="flex justify-center gap-3">
               <button
                 onClick={() => setActiveQuiz(null)}
                 className="px-4 py-2 rounded-xl text-sm font-semibold"
-                style={{ backgroundColor: "#334155", color: "#94A3B8" }}
+                style={{ backgroundColor: "var(--border-default)", color: "var(--text-secondary)" }}
               >
                 Back to Quizzes
               </button>
@@ -196,7 +196,7 @@ export function CourseQuizzes({ quizzes }: { quizzes: Quiz[] }) {
                 <button
                   onClick={() => { setAnswers({}); setFlagged(new Set()); setSubmitted(false); setCurrentQ(0); setSecondsLeft(activeQuiz.timeLimit * 60) }}
                   className="px-4 py-2 rounded-xl text-sm font-semibold"
-                  style={{ backgroundColor: "#3B82F6", color: "#fff" }}
+                  style={{ backgroundColor: "var(--accent)", color: "#fff" }}
                 >
                   Try Again
                 </button>
@@ -205,13 +205,13 @@ export function CourseQuizzes({ quizzes }: { quizzes: Quiz[] }) {
 
             {/* Answer review */}
             <div className="mt-6 text-left space-y-4">
-              <p className="text-xs font-bold uppercase tracking-wider" style={{ color: "#475569" }}>Answer Review</p>
+              <p className="text-xs font-bold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Answer Review</p>
               {activeQuiz.questions.map((q, i) => {
                 const correct = isQuestionCorrect(q)
                 const userAnswer = answers[q.id]
                 return (
-                  <div key={q.id} className="rounded-xl p-4" style={{ backgroundColor: "#0F172A", border: `1px solid ${correct ? "#10B98130" : "#EF444430"}` }}>
-                    <p className="text-sm font-medium text-white mb-2">Q{i + 1}. {q.question}</p>
+                  <div key={q.id} className="rounded-xl p-4" style={{ backgroundColor: "var(--bg-surface-muted)", border: `1px solid ${correct ? "#10B98130" : "#EF444430"}` }}>
+                    <p className="text-sm font-medium mb-2" style={{ color: "var(--text-primary)" }}>Q{i + 1}. {q.question}</p>
                     <div className="space-y-1.5">
                       {!q.type && q.options.map((opt, idx) => {
                         const isCorrect = idx === q.correctIndex
@@ -221,9 +221,9 @@ export function CourseQuizzes({ quizzes }: { quizzes: Quiz[] }) {
                             key={idx}
                             className="px-3 py-2 rounded-lg text-xs"
                             style={{
-                              backgroundColor: isCorrect ? "#10B98115" : isUser && !correct ? "#EF444415" : "#1E293B",
-                              color: isCorrect ? "#10B981" : isUser && !correct ? "#EF4444" : "#94A3B8",
-                              border: `1px solid ${isCorrect ? "#10B98130" : isUser && !correct ? "#EF444430" : "#334155"}`,
+                              backgroundColor: isCorrect ? "#10B98115" : isUser && !correct ? "#EF444415" : "var(--bg-surface)",
+                              color: isCorrect ? "var(--success)" : isUser && !correct ? "var(--danger)" : "var(--text-secondary)",
+                              border: `1px solid ${isCorrect ? "#10B98130" : isUser && !correct ? "#EF444430" : "var(--border-default)"}`,
                             }}
                           >
                             {isCorrect && "✓ "}{isUser && !correct && "✗ "}{opt}
@@ -240,9 +240,9 @@ export function CourseQuizzes({ quizzes }: { quizzes: Quiz[] }) {
                             key={idx}
                             className="px-3 py-2 rounded-lg text-xs"
                             style={{
-                              backgroundColor: isCorrect ? "#10B98115" : wrongPick ? "#EF444415" : "#1E293B",
-                              color: isCorrect ? "#10B981" : wrongPick ? "#EF4444" : "#94A3B8",
-                              border: `1px solid ${isCorrect ? "#10B98130" : wrongPick ? "#EF444430" : "#334155"}`,
+                              backgroundColor: isCorrect ? "#10B98115" : wrongPick ? "#EF444415" : "var(--bg-surface)",
+                              color: isCorrect ? "var(--success)" : wrongPick ? "var(--danger)" : "var(--text-secondary)",
+                              border: `1px solid ${isCorrect ? "#10B98130" : wrongPick ? "#EF444430" : "var(--border-default)"}`,
                             }}
                           >
                             {isCorrect && "✓ "}{wrongPick && "✗ "}{opt}
@@ -260,9 +260,9 @@ export function CourseQuizzes({ quizzes }: { quizzes: Quiz[] }) {
                                 key={String(val)}
                                 className="flex-1 px-3 py-2 rounded-lg text-xs text-center"
                                 style={{
-                                  backgroundColor: isCorrect ? "#10B98115" : isUser && !correct ? "#EF444415" : "#1E293B",
-                                  color: isCorrect ? "#10B981" : isUser && !correct ? "#EF4444" : "#94A3B8",
-                                  border: `1px solid ${isCorrect ? "#10B98130" : isUser && !correct ? "#EF444430" : "#334155"}`,
+                                  backgroundColor: isCorrect ? "#10B98115" : isUser && !correct ? "#EF444415" : "var(--bg-surface)",
+                                  color: isCorrect ? "var(--success)" : isUser && !correct ? "var(--danger)" : "var(--text-secondary)",
+                                  border: `1px solid ${isCorrect ? "#10B98130" : isUser && !correct ? "#EF444430" : "var(--border-default)"}`,
                                 }}
                               >
                                 {isCorrect && "✓ "}{isUser && !correct && "✗ "}{val ? "True" : "False"}
@@ -278,14 +278,14 @@ export function CourseQuizzes({ quizzes }: { quizzes: Quiz[] }) {
                             className="px-3 py-2 rounded-lg text-xs"
                             style={{
                               backgroundColor: correct ? "#10B98115" : "#EF444415",
-                              color: correct ? "#10B981" : "#EF4444",
+                              color: correct ? "var(--success)" : "var(--danger)",
                               border: `1px solid ${correct ? "#10B98130" : "#EF444430"}`,
                             }}
                           >
                             Your answer: {typeof userAnswer === "string" && userAnswer.trim() ? userAnswer : "(blank)"}
                           </div>
                           {!correct && (
-                            <div className="px-3 py-2 rounded-lg text-xs" style={{ backgroundColor: "#10B98115", color: "#10B981", border: "1px solid #10B98130" }}>
+                            <div className="px-3 py-2 rounded-lg text-xs" style={{ backgroundColor: "#10B98115", color: "var(--success)", border: "1px solid #10B98130" }}>
                               Accepted: {q.acceptedAnswers.join(" / ")}
                             </div>
                           )}
@@ -293,8 +293,8 @@ export function CourseQuizzes({ quizzes }: { quizzes: Quiz[] }) {
                       )}
                     </div>
                     {q.explanation && (
-                      <p className="text-xs mt-2.5 leading-relaxed" style={{ color: "#64748B" }}>
-                        <strong style={{ color: "#94A3B8" }}>Explanation: </strong>{q.explanation}
+                      <p className="text-xs mt-2.5 leading-relaxed" style={{ color: "var(--text-tertiary)" }}>
+                        <strong style={{ color: "var(--text-secondary)" }}>Explanation: </strong>{q.explanation}
                       </p>
                     )}
                   </div>
@@ -306,21 +306,21 @@ export function CourseQuizzes({ quizzes }: { quizzes: Quiz[] }) {
           <>
             {/* Progress */}
             <div
-              className="rounded-2xl p-4"
-              style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
+              className="rounded-2xl p-4 shadow-sm"
+              style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
             >
-              <div className="flex items-center justify-between mb-2 text-xs" style={{ color: "#64748B" }}>
+              <div className="flex items-center justify-between mb-2 text-xs" style={{ color: "var(--text-tertiary)" }}>
                 <span>Question {currentQ + 1} of {activeQuiz.questions.length}</span>
-                <span className="flex items-center gap-1 font-semibold" style={{ color: secondsLeft !== null && secondsLeft <= 60 ? "#EF4444" : "#64748B" }}>
+                <span className="flex items-center gap-1 font-semibold" style={{ color: secondsLeft !== null && secondsLeft <= 60 ? "var(--danger)" : "var(--text-tertiary)" }}>
                   <Clock size={11} /> {secondsLeft !== null ? formatTime(secondsLeft) : `${activeQuiz.timeLimit}:00`} left
                 </span>
               </div>
-              <div className="h-1.5 rounded-full mb-3" style={{ backgroundColor: "#334155" }}>
+              <div className="h-1.5 rounded-full mb-3" style={{ backgroundColor: "var(--border-default)" }}>
                 <div
                   className="h-full rounded-full transition-all"
                   style={{
                     width: `${((currentQ + 1) / activeQuiz.questions.length) * 100}%`,
-                    backgroundColor: "#3B82F6",
+                    backgroundColor: "var(--accent)",
                   }}
                 />
               </div>
@@ -337,15 +337,15 @@ export function CourseQuizzes({ quizzes }: { quizzes: Quiz[] }) {
                       onClick={() => setCurrentQ(i)}
                       className="relative flex items-center justify-center w-7 h-7 rounded-lg text-xs font-bold transition-colors"
                       style={{
-                        backgroundColor: isCurrent ? "#3B82F6" : answeredQ ? "#10B98120" : "#0F172A",
-                        color: isCurrent ? "#fff" : answeredQ ? "#10B981" : "#64748B",
-                        border: `1px solid ${isCurrent ? "#3B82F6" : answeredQ ? "#10B98130" : "#334155"}`,
+                        backgroundColor: isCurrent ? "var(--accent)" : answeredQ ? "#10B98120" : "var(--bg-surface-muted)",
+                        color: isCurrent ? "#fff" : answeredQ ? "var(--success)" : "var(--text-tertiary)",
+                        border: `1px solid ${isCurrent ? "var(--accent)" : answeredQ ? "#10B98130" : "var(--border-default)"}`,
                       }}
                     >
                       {i + 1}
                       {isFlagged && (
-                        <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full flex items-center justify-center" style={{ backgroundColor: "#F59E0B" }}>
-                          <Flag size={7} fill="#0F172A" style={{ color: "#0F172A" }} />
+                        <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full flex items-center justify-center" style={{ backgroundColor: "var(--warning)" }}>
+                          <Flag size={7} fill="var(--bg-surface-muted)" style={{ color: "var(--bg-surface-muted)" }} />
                         </span>
                       )}
                     </button>
@@ -357,17 +357,17 @@ export function CourseQuizzes({ quizzes }: { quizzes: Quiz[] }) {
             {/* Question */}
             {question && (
               <div
-                className="rounded-2xl p-6"
-                style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
+                className="rounded-2xl p-6 shadow-sm"
+                style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
               >
                 <div className="flex items-start justify-between gap-3 mb-5">
-                  <h2 className="text-base font-semibold text-white flex-1">{question.question}</h2>
+                  <h2 className="text-base font-semibold flex-1" style={{ color: "var(--text-primary)" }}>{question.question}</h2>
                   <button
                     onClick={() => toggleFlag(question.id)}
                     className="flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-lg flex-shrink-0"
                     style={{
-                      backgroundColor: flagged.has(question.id) ? "#F59E0B20" : "#334155",
-                      color: flagged.has(question.id) ? "#F59E0B" : "#64748B",
+                      backgroundColor: flagged.has(question.id) ? "#F59E0B20" : "var(--border-default)",
+                      color: flagged.has(question.id) ? "var(--warning)" : "var(--text-tertiary)",
                     }}
                   >
                     <Flag size={12} fill={flagged.has(question.id) ? "#F59E0B" : "none"} />
@@ -385,17 +385,17 @@ export function CourseQuizzes({ quizzes }: { quizzes: Quiz[] }) {
                           key={idx}
                           className="w-full text-left px-4 py-3.5 rounded-xl text-sm transition-all"
                           style={{
-                            backgroundColor: selected ? "#3B82F620" : "#0F172A",
-                            border: `1px solid ${selected ? "#3B82F6" : "#334155"}`,
-                            color: selected ? "#60A5FA" : "#CBD5E1",
+                            backgroundColor: selected ? "#3B82F620" : "var(--bg-surface-muted)",
+                            border: `1px solid ${selected ? "var(--accent)" : "var(--border-default)"}`,
+                            color: selected ? "#60A5FA" : "var(--text-secondary)",
                           }}
                           onClick={() => handleSelectMCQ(question.id, idx)}
                         >
                           <span
                             className="inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold mr-3"
                             style={{
-                              backgroundColor: selected ? "#3B82F6" : "#334155",
-                              color: selected ? "#fff" : "#94A3B8",
+                              backgroundColor: selected ? "var(--accent)" : "var(--border-default)",
+                              color: selected ? "#fff" : "var(--text-secondary)",
                             }}
                           >
                             {String.fromCharCode(65 + idx)}
@@ -410,7 +410,7 @@ export function CourseQuizzes({ quizzes }: { quizzes: Quiz[] }) {
                 {/* Multi-select */}
                 {question.type === "multi-select" && (
                   <div className="space-y-3">
-                    <p className="text-xs -mt-2 mb-1" style={{ color: "#64748B" }}>Select all that apply</p>
+                    <p className="text-xs -mt-2 mb-1" style={{ color: "var(--text-tertiary)" }}>Select all that apply</p>
                     {question.options.map((opt, idx) => {
                       const current = answers[question.id]
                       const selected = Array.isArray(current) && current.includes(idx)
@@ -419,16 +419,16 @@ export function CourseQuizzes({ quizzes }: { quizzes: Quiz[] }) {
                           key={idx}
                           className="w-full text-left px-4 py-3.5 rounded-xl text-sm transition-all flex items-center gap-3"
                           style={{
-                            backgroundColor: selected ? "#3B82F620" : "#0F172A",
-                            border: `1px solid ${selected ? "#3B82F6" : "#334155"}`,
-                            color: selected ? "#60A5FA" : "#CBD5E1",
+                            backgroundColor: selected ? "#3B82F620" : "var(--bg-surface-muted)",
+                            border: `1px solid ${selected ? "var(--accent)" : "var(--border-default)"}`,
+                            color: selected ? "#60A5FA" : "var(--text-secondary)",
                           }}
                           onClick={() => handleToggleMultiSelect(question.id, idx)}
                         >
                           {selected ? (
-                            <CheckSquare size={18} style={{ color: "#3B82F6", flexShrink: 0 }} />
+                            <CheckSquare size={18} style={{ color: "var(--accent)", flexShrink: 0 }} />
                           ) : (
-                            <Square size={18} style={{ color: "#475569", flexShrink: 0 }} />
+                            <Square size={18} style={{ color: "var(--text-muted)", flexShrink: 0 }} />
                           )}
                           {opt}
                         </button>
@@ -447,13 +447,13 @@ export function CourseQuizzes({ quizzes }: { quizzes: Quiz[] }) {
                           key={String(val)}
                           className="flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl text-sm font-semibold transition-all"
                           style={{
-                            backgroundColor: selected ? "#3B82F620" : "#0F172A",
-                            border: `1px solid ${selected ? "#3B82F6" : "#334155"}`,
-                            color: selected ? "#60A5FA" : "#CBD5E1",
+                            backgroundColor: selected ? "#3B82F620" : "var(--bg-surface-muted)",
+                            border: `1px solid ${selected ? "var(--accent)" : "var(--border-default)"}`,
+                            color: selected ? "#60A5FA" : "var(--text-secondary)",
                           }}
                           onClick={() => handleSelectTrueFalse(question.id, val)}
                         >
-                          <Circle size={14} fill={selected ? "#3B82F6" : "none"} style={{ color: selected ? "#3B82F6" : "#475569" }} />
+                          <Circle size={14} fill={selected ? "#3B82F6" : "none"} style={{ color: selected ? "var(--accent)" : "var(--text-muted)" }} />
                           {val ? "True" : "False"}
                         </button>
                       )
@@ -469,7 +469,7 @@ export function CourseQuizzes({ quizzes }: { quizzes: Quiz[] }) {
                     onChange={(e) => handleShortAnswerChange(question.id, e.target.value)}
                     placeholder="Type your answer…"
                     className="w-full px-4 py-3.5 rounded-xl text-sm outline-none"
-                    style={{ backgroundColor: "#0F172A", border: "1px solid #334155", color: "#F8FAFC" }}
+                    style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)", color: "var(--text-primary)" }}
                   />
                 )}
               </div>
@@ -481,19 +481,19 @@ export function CourseQuizzes({ quizzes }: { quizzes: Quiz[] }) {
                 onClick={() => setCurrentQ(Math.max(0, currentQ - 1))}
                 disabled={currentQ === 0}
                 className="px-4 py-2 rounded-xl text-sm font-semibold disabled:opacity-40"
-                style={{ backgroundColor: "#334155", color: "#94A3B8" }}
+                style={{ backgroundColor: "var(--border-default)", color: "var(--text-secondary)" }}
               >
                 Previous
               </button>
-              <span className="text-xs" style={{ color: "#64748B" }}>
+              <span className="text-xs" style={{ color: "var(--text-tertiary)" }}>
                 {activeQuiz.questions.filter((q) => isAnswered(answers[q.id])).length}/{activeQuiz.questions.length} answered
-                {flagged.size > 0 && <span style={{ color: "#F59E0B" }}> · {flagged.size} flagged</span>}
+                {flagged.size > 0 && <span style={{ color: "var(--warning)" }}> · {flagged.size} flagged</span>}
               </span>
               {currentQ < activeQuiz.questions.length - 1 ? (
                 <button
                   onClick={() => setCurrentQ(currentQ + 1)}
                   className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold"
-                  style={{ backgroundColor: "#3B82F6", color: "#fff" }}
+                  style={{ backgroundColor: "var(--accent)", color: "#fff" }}
                 >
                   Next <ArrowRight size={14} />
                 </button>
@@ -502,7 +502,7 @@ export function CourseQuizzes({ quizzes }: { quizzes: Quiz[] }) {
                   onClick={handleSubmit}
                   disabled={activeQuiz.questions.some((q) => !isAnswered(answers[q.id]))}
                   className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold disabled:opacity-40"
-                  style={{ backgroundColor: "#10B981", color: "#fff" }}
+                  style={{ backgroundColor: "var(--success)", color: "#fff" }}
                 >
                   Submit Quiz
                 </button>
@@ -524,28 +524,28 @@ export function CourseQuizzes({ quizzes }: { quizzes: Quiz[] }) {
           { label: "Available", value: counts.available, color: "#F59E0B" },
           { label: "Avg Score", value: `${Math.round(avgScore)}%`, color: "#8B5CF6" },
         ].map(({ label, value, color }) => (
-          <div key={label} className="rounded-xl p-4" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
+          <div key={label} className="rounded-xl p-4 shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
             <p className="text-xl font-bold" style={{ color }}>{value}</p>
-            <p className="text-xs mt-0.5" style={{ color: "#94A3B8" }}>{label}</p>
+            <p className="text-xs mt-0.5" style={{ color: "var(--text-secondary)" }}>{label}</p>
           </div>
         ))}
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-1 rounded-xl p-1" style={{ backgroundColor: "#1E293B", border: "1px solid #334155", display: "inline-flex" }}>
+      <div className="flex items-center gap-1 rounded-xl p-1" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)", display: "inline-flex" }}>
         {(["all", "available", "completed", "locked"] as Tab[]).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium capitalize transition-all"
             style={{
-              backgroundColor: tab === t ? "#3B82F6" : "transparent",
-              color: tab === t ? "#fff" : "#94A3B8",
+              backgroundColor: tab === t ? "var(--accent)" : "transparent",
+              color: tab === t ? "#fff" : "var(--text-secondary)",
             }}
           >
             {t}
             <span className="text-xs px-1.5 py-0.5 rounded-full"
-              style={{ backgroundColor: tab === t ? "rgba(255,255,255,0.2)" : "#33415540", color: tab === t ? "#fff" : "#64748B" }}>
+              style={{ backgroundColor: tab === t ? "rgba(255,255,255,0.2)" : "#33415540", color: tab === t ? "#fff" : "var(--text-tertiary)" }}>
               {counts[t]}
             </span>
           </button>
@@ -559,13 +559,13 @@ export function CourseQuizzes({ quizzes }: { quizzes: Quiz[] }) {
           const passed = quiz.bestScore !== undefined && quiz.bestScore >= quiz.passingScore
           const scoreColor = quiz.bestScore !== undefined
             ? quiz.bestScore >= quiz.passingScore ? "#10B981" : "#EF4444"
-            : "#94A3B8"
+            : "var(--text-secondary)"
 
           return (
             <div
               key={quiz.id}
-              className="rounded-2xl p-5"
-              style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
+              className="rounded-2xl p-5 shadow-sm"
+              style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
             >
               <div className="flex items-start justify-between gap-3 mb-3">
                 <div className="flex-1">
@@ -577,11 +577,11 @@ export function CourseQuizzes({ quizzes }: { quizzes: Quiz[] }) {
                       {sc.label}
                     </span>
                     {quiz.dueDate && (
-                      <span className="text-xs" style={{ color: "#64748B" }}>Due {quiz.dueDate}</span>
+                      <span className="text-xs" style={{ color: "var(--text-tertiary)" }}>Due {quiz.dueDate}</span>
                     )}
                   </div>
-                  <h3 className="text-sm font-bold text-white mb-0.5">{quiz.title}</h3>
-                  <p className="text-xs" style={{ color: "#64748B" }}>{quiz.description}</p>
+                  <h3 className="text-sm font-bold mb-0.5" style={{ color: "var(--text-primary)" }}>{quiz.title}</h3>
+                  <p className="text-xs" style={{ color: "var(--text-tertiary)" }}>{quiz.description}</p>
                 </div>
                 {quiz.bestScore !== undefined && (
                   <div
@@ -594,7 +594,7 @@ export function CourseQuizzes({ quizzes }: { quizzes: Quiz[] }) {
                 )}
               </div>
 
-              <div className="flex items-center gap-4 mb-4 text-xs" style={{ color: "#64748B" }}>
+              <div className="flex items-center gap-4 mb-4 text-xs" style={{ color: "var(--text-tertiary)" }}>
                 <span className="flex items-center gap-1"><Brain size={11} />{quiz.questions.length} questions</span>
                 <span className="flex items-center gap-1"><Clock size={11} />{quiz.timeLimit} min</span>
                 <span className="flex items-center gap-1">
@@ -606,15 +606,15 @@ export function CourseQuizzes({ quizzes }: { quizzes: Quiz[] }) {
               {/* Score bar */}
               {quiz.bestScore !== undefined && (
                 <div className="mb-4">
-                  <div className="h-1.5 rounded-full" style={{ backgroundColor: "#334155" }}>
+                  <div className="h-1.5 rounded-full" style={{ backgroundColor: "var(--border-default)" }}>
                     <div
                       className="h-full rounded-full"
                       style={{ width: `${quiz.bestScore}%`, backgroundColor: scoreColor }}
                     />
                   </div>
-                  <div className="flex justify-between mt-1 text-xs" style={{ color: "#475569" }}>
+                  <div className="flex justify-between mt-1 text-xs" style={{ color: "var(--text-muted)" }}>
                     <span>0%</span>
-                    <span style={{ color: "#64748B" }}>Pass: {quiz.passingScore}%</span>
+                    <span style={{ color: "var(--text-tertiary)" }}>Pass: {quiz.passingScore}%</span>
                     <span>100%</span>
                   </div>
                 </div>
@@ -625,8 +625,8 @@ export function CourseQuizzes({ quizzes }: { quizzes: Quiz[] }) {
                 disabled={quiz.status === "locked" || quiz.questions.length === 0 || quiz.attempts >= quiz.maxAttempts}
                 className="w-full py-2.5 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                 style={{
-                  backgroundColor: quiz.status === "locked" ? "#33415550" : quiz.status === "completed" ? "#8B5CF620" : "#3B82F6",
-                  color: quiz.status === "locked" ? "#475569" : quiz.status === "completed" ? "#8B5CF6" : "#fff",
+                  backgroundColor: quiz.status === "locked" ? "#33415550" : quiz.status === "completed" ? "#8B5CF620" : "var(--accent)",
+                  color: quiz.status === "locked" ? "var(--text-muted)" : quiz.status === "completed" ? "#8B5CF6" : "#fff",
                 }}
               >
                 {quiz.status === "locked" ? (

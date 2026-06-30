@@ -23,9 +23,9 @@ import { INSTRUCTOR_COURSES } from "@/lib/data/instructor-courses"
 import type { Section } from "@/lib/data/instructor-courses"
 
 const STATUS_MAP = {
-  published: { label: "Published", color: "#10B981", bg: "#10B98118" },
-  draft:     { label: "Draft",     color: "#64748B", bg: "#33415518" },
-  review:    { label: "In Review", color: "#F59E0B", bg: "#F59E0B18" },
+  published: { label: "Published", color: "var(--success)", bg: "#10B98118" },
+  draft:     { label: "Draft",     color: "var(--text-tertiary)", bg: "#33415518" },
+  review:    { label: "In Review", color: "var(--warning)", bg: "#F59E0B18" },
 }
 
 const LESSON_TYPE_ICONS = {
@@ -49,7 +49,7 @@ function CurriculumSection({ section }: { section: Section }) {
   const [open, setOpen] = useState(false)
 
   return (
-    <div style={{ borderBottom: "1px solid #334155" }}>
+    <div style={{ borderBottom: "1px solid var(--border-default)" }}>
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
@@ -59,15 +59,15 @@ function CurriculumSection({ section }: { section: Section }) {
           <ChevronDown
             size={14}
             style={{
-              color: "#64748B",
+              color: "var(--text-tertiary)",
               transform: open ? "rotate(0deg)" : "rotate(-90deg)",
               transition: "transform 0.2s",
               flexShrink: 0,
             }}
           />
-          <span className="text-sm font-medium text-white">{section.title}</span>
+          <span className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>{section.title}</span>
         </div>
-        <span className="text-xs flex-shrink-0 ml-3" style={{ color: "#64748B" }}>
+        <span className="text-xs flex-shrink-0 ml-3" style={{ color: "var(--text-tertiary)" }}>
           {section.lessons.length} lesson{section.lessons.length !== 1 ? "s" : ""}
         </span>
       </button>
@@ -81,15 +81,15 @@ function CurriculumSection({ section }: { section: Section }) {
                 key={lesson.id}
                 className="flex items-center gap-3 px-10 py-2"
               >
-                <Icon size={13} style={{ color: "#475569", flexShrink: 0 }} />
-                <span className="text-sm flex-1" style={{ color: "#94A3B8" }}>{lesson.title}</span>
+                <Icon size={13} style={{ color: "var(--text-muted)", flexShrink: 0 }} />
+                <span className="text-sm flex-1" style={{ color: "var(--text-secondary)" }}>{lesson.title}</span>
                 {lesson.isPreview && (
-                  <span className="flex items-center gap-1 text-xs" style={{ color: "#3B82F6" }}>
+                  <span className="flex items-center gap-1 text-xs" style={{ color: "var(--accent)" }}>
                     <Eye size={11} /> Preview
                   </span>
                 )}
                 {lesson.duration && (
-                  <span className="text-xs" style={{ color: "#475569" }}>{lesson.duration}</span>
+                  <span className="text-xs" style={{ color: "var(--text-muted)" }}>{lesson.duration}</span>
                 )}
               </div>
             )
@@ -108,12 +108,12 @@ export default function CoursePreviewPage({ params }: { params: Promise<{ id: st
     return (
       <InstructorPageShell title="Course Not Found" user={{ name: "Jane Smith", email: "jane@example.com" }}>
         <div className="flex flex-col items-center justify-center py-24">
-          <BookOpen size={40} style={{ color: "#334155" }} />
-          <p className="mt-3 text-sm" style={{ color: "#64748B" }}>Course not found.</p>
+          <BookOpen size={40} style={{ color: "var(--border-default)" }} />
+          <p className="mt-3 text-sm" style={{ color: "var(--text-tertiary)" }}>Course not found.</p>
           <Link
             href="/instructor/courses"
             className="mt-4 text-sm font-medium"
-            style={{ color: "#3B82F6" }}
+            style={{ color: "var(--accent)" }}
           >
             Back to My Courses
           </Link>
@@ -134,7 +134,7 @@ export default function CoursePreviewPage({ params }: { params: Promise<{ id: st
           <Link
             href="/instructor/courses"
             className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-medium transition-colors hover:border-slate-500"
-            style={{ backgroundColor: "#1E293B", border: "1px solid #334155", color: "#CBD5E1" }}
+            style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)", color: "var(--text-secondary)" }}
           >
             <ArrowLeft size={14} />
             <span className="hidden sm:inline">Back</span>
@@ -142,7 +142,7 @@ export default function CoursePreviewPage({ params }: { params: Promise<{ id: st
           <Link
             href={`/instructor/courses/${course.id}/edit`}
             className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-semibold text-white hover:opacity-90"
-            style={{ backgroundColor: "#3B82F6" }}
+            style={{ backgroundColor: "var(--accent)" }}
           >
             <Edit2 size={14} />
             <span className="hidden sm:inline">Edit Course</span>
@@ -153,8 +153,8 @@ export default function CoursePreviewPage({ params }: { params: Promise<{ id: st
       <div className="max-w-5xl space-y-5">
         {/* Hero card */}
         <div
-          className="rounded-2xl overflow-hidden"
-          style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
+          className="rounded-2xl overflow-hidden shadow-sm"
+          style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
         >
           {/* Banner */}
           <div
@@ -192,8 +192,8 @@ export default function CoursePreviewPage({ params }: { params: Promise<{ id: st
             <p className="text-xs font-semibold mb-1" style={{ color: course.color }}>
               {course.category}
             </p>
-            <h1 className="text-xl font-bold text-white leading-snug mb-2">{course.title}</h1>
-            <p className="text-sm leading-relaxed mb-4" style={{ color: "#94A3B8" }}>{course.description}</p>
+            <h1 className="text-xl font-bold leading-snug mb-2" style={{ color: "var(--text-primary)" }}>{course.title}</h1>
+            <p className="text-sm leading-relaxed mb-4" style={{ color: "var(--text-secondary)" }}>{course.description}</p>
 
             {/* Quick stats */}
             <div className="flex flex-wrap items-center gap-3">
@@ -203,7 +203,7 @@ export default function CoursePreviewPage({ params }: { params: Promise<{ id: st
                 { icon: Users,    label: `${course.students.toLocaleString()} students` },
                 { icon: Globe,    label: "English" },
               ].map(({ icon: Icon, label }) => (
-                <div key={label} className="flex items-center gap-1.5 text-xs" style={{ color: "#64748B" }}>
+                <div key={label} className="flex items-center gap-1.5 text-xs" style={{ color: "var(--text-tertiary)" }}>
                   <Icon size={13} />
                   {label}
                 </div>
@@ -218,10 +218,10 @@ export default function CoursePreviewPage({ params }: { params: Promise<{ id: st
           <div className="lg:col-span-2 space-y-5">
             {/* What you'll learn */}
             <div
-              className="rounded-2xl p-5"
-              style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
+              className="rounded-2xl p-5 shadow-sm"
+              style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
             >
-              <h2 className="text-sm font-semibold text-white mb-4">What You&apos;ll Learn</h2>
+              <h2 className="text-sm font-semibold mb-4" style={{ color: "var(--text-primary)" }}>What You&apos;ll Learn</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2.5 gap-x-6">
                 {LEARN_BULLETS.map((b) => (
                   <div key={b} className="flex items-start gap-2.5">
@@ -229,7 +229,7 @@ export default function CoursePreviewPage({ params }: { params: Promise<{ id: st
                       className="w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0"
                       style={{ backgroundColor: course.color }}
                     />
-                    <p className="text-sm" style={{ color: "#CBD5E1" }}>{b}</p>
+                    <p className="text-sm" style={{ color: "var(--text-secondary)" }}>{b}</p>
                   </div>
                 ))}
               </div>
@@ -237,21 +237,21 @@ export default function CoursePreviewPage({ params }: { params: Promise<{ id: st
 
             {/* Instructor card */}
             <div
-              className="rounded-2xl p-5"
-              style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
+              className="rounded-2xl p-5 shadow-sm"
+              style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
             >
-              <h2 className="text-sm font-semibold text-white mb-4">Instructor</h2>
+              <h2 className="text-sm font-semibold mb-4" style={{ color: "var(--text-primary)" }}>Instructor</h2>
               <div className="flex items-start gap-4">
                 <div
                   className="flex items-center justify-center w-12 h-12 rounded-full text-sm font-bold text-white flex-shrink-0"
-                  style={{ backgroundColor: "#3B82F6" }}
+                  style={{ backgroundColor: "var(--accent)" }}
                 >
                   JS
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-white">Jane Smith</p>
-                  <p className="text-xs mt-0.5" style={{ color: "#3B82F6" }}>Senior Software Engineer · 6 courses</p>
-                  <p className="text-xs mt-2 leading-relaxed" style={{ color: "#64748B" }}>
+                  <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Jane Smith</p>
+                  <p className="text-xs mt-0.5" style={{ color: "var(--accent)" }}>Senior Software Engineer · 6 courses</p>
+                  <p className="text-xs mt-2 leading-relaxed" style={{ color: "var(--text-tertiary)" }}>
                     Passionate educator with 10+ years of industry experience building scalable systems.
                     Loves breaking complex topics into digestible, hands-on lessons.
                   </p>
@@ -262,12 +262,12 @@ export default function CoursePreviewPage({ params }: { params: Promise<{ id: st
             {/* Curriculum preview */}
             {course.sections.length > 0 && (
               <div
-                className="rounded-2xl overflow-hidden"
-                style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
+                className="rounded-2xl overflow-hidden shadow-sm"
+                style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
               >
-                <div className="px-5 py-4" style={{ borderBottom: "1px solid #334155" }}>
-                  <h2 className="text-sm font-semibold text-white">Course Curriculum</h2>
-                  <p className="text-xs mt-0.5" style={{ color: "#64748B" }}>
+                <div className="px-5 py-4" style={{ borderBottom: "1px solid var(--border-default)" }}>
+                  <h2 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Course Curriculum</h2>
+                  <p className="text-xs mt-0.5" style={{ color: "var(--text-tertiary)" }}>
                     {course.sections.length} sections · {totalLessons} lessons
                   </p>
                 </div>
@@ -283,23 +283,23 @@ export default function CoursePreviewPage({ params }: { params: Promise<{ id: st
           {/* Right column — Pricing card */}
           <div className="space-y-4">
             <div
-              className="rounded-2xl p-5 sticky top-4"
-              style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
+              className="rounded-2xl p-5 sticky top-4 shadow-sm"
+              style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
             >
               {/* Price */}
               <div className="mb-5">
                 {course.students === 0 && course.revenue === "$0" ? (
-                  <p className="text-3xl font-bold" style={{ color: "#10B981" }}>Free</p>
+                  <p className="text-3xl font-bold" style={{ color: "var(--success)" }}>Free</p>
                 ) : (
-                  <p className="text-3xl font-bold text-white">{course.revenue}</p>
+                  <p className="text-3xl font-bold" style={{ color: "var(--text-primary)" }}>{course.revenue}</p>
                 )}
-                <p className="text-xs mt-1" style={{ color: "#475569" }}>One-time purchase</p>
+                <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>One-time purchase</p>
               </div>
 
               {/* Enroll button */}
               <button
                 className="w-full py-3 rounded-xl text-sm font-bold text-white hover:opacity-90 transition-opacity mb-4"
-                style={{ backgroundColor: "#3B82F6" }}
+                style={{ backgroundColor: "var(--accent)" }}
               >
                 Enroll Now
               </button>
@@ -308,23 +308,23 @@ export default function CoursePreviewPage({ params }: { params: Promise<{ id: st
               {course.students > 0 && (
                 <div
                   className="rounded-xl p-3 mb-4"
-                  style={{ backgroundColor: "#0F172A", border: "1px solid #334155" }}
+                  style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)" }}
                 >
-                  <p className="text-xs font-semibold mb-2" style={{ color: "#64748B" }}>Your earnings</p>
+                  <p className="text-xs font-semibold mb-2" style={{ color: "var(--text-tertiary)" }}>Your earnings</p>
                   <div className="flex items-center justify-between">
-                    <span className="text-xs" style={{ color: "#64748B" }}>Revenue</span>
-                    <span className="text-sm font-bold" style={{ color: "#10B981" }}>{course.revenue}</span>
+                    <span className="text-xs" style={{ color: "var(--text-tertiary)" }}>Revenue</span>
+                    <span className="text-sm font-bold" style={{ color: "var(--success)" }}>{course.revenue}</span>
                   </div>
                   <div className="flex items-center justify-between mt-1">
-                    <span className="text-xs" style={{ color: "#64748B" }}>Students</span>
-                    <span className="text-sm font-bold text-white">{course.students.toLocaleString()}</span>
+                    <span className="text-xs" style={{ color: "var(--text-tertiary)" }}>Students</span>
+                    <span className="text-sm font-bold" style={{ color: "var(--text-primary)" }}>{course.students.toLocaleString()}</span>
                   </div>
                 </div>
               )}
 
               {/* Course includes */}
               <div>
-                <p className="text-xs font-semibold mb-3" style={{ color: "#94A3B8" }}>This course includes</p>
+                <p className="text-xs font-semibold mb-3" style={{ color: "var(--text-secondary)" }}>This course includes</p>
                 <div className="space-y-2">
                   {[
                     { icon: BookOpen, label: `${course.lessons} lessons` },
@@ -332,8 +332,8 @@ export default function CoursePreviewPage({ params }: { params: Promise<{ id: st
                     { icon: Award,    label: "Certificate of completion" },
                     { icon: Globe,    label: "Full lifetime access" },
                   ].map(({ icon: Icon, label }) => (
-                    <div key={label} className="flex items-center gap-2.5 text-xs" style={{ color: "#94A3B8" }}>
-                      <Icon size={13} style={{ color: "#64748B", flexShrink: 0 }} />
+                    <div key={label} className="flex items-center gap-2.5 text-xs" style={{ color: "var(--text-secondary)" }}>
+                      <Icon size={13} style={{ color: "var(--text-tertiary)", flexShrink: 0 }} />
                       {label}
                     </div>
                   ))}
@@ -341,7 +341,7 @@ export default function CoursePreviewPage({ params }: { params: Promise<{ id: st
               </div>
 
               {/* Last updated */}
-              <p className="text-xs mt-4 pt-4" style={{ borderTop: "1px solid #334155", color: "#475569" }}>
+              <p className="text-xs mt-4 pt-4" style={{ borderTop: "1px solid var(--border-default)", color: "var(--text-muted)" }}>
                 Last updated {course.updated}
               </p>
             </div>

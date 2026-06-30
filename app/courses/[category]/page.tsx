@@ -52,9 +52,9 @@ export default function CategoryPage({ params }: { params: Promise<{ category: s
     return (
       <main style={{ minHeight: "calc(100vh - var(--app-header-height, 150px))", display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
         <div style={{ textAlign: "center" }}>
-          <h1 className="text-xl font-bold text-white mb-2">Category not found</h1>
-          <p className="text-sm mb-6" style={{ color: "#94a3b8" }}>We couldn&apos;t find that course category.</p>
-          <Link href="/" style={{ color: "#3b82f6", fontWeight: 700, fontSize: 14, textDecoration: "none" }}>← Back to home</Link>
+          <h1 className="text-xl font-bold mb-2" style={{ color: "var(--text-primary)" }}>Category not found</h1>
+          <p className="text-sm mb-6" style={{ color: "var(--text-secondary)" }}>We couldn&apos;t find that course category.</p>
+          <Link href="/" style={{ color: "var(--accent)", fontWeight: 700, fontSize: 14, textDecoration: "none" }}>← Back to home</Link>
         </div>
       </main>
     )
@@ -108,19 +108,19 @@ export default function CategoryPage({ params }: { params: Promise<{ category: s
   }
 
   return (
-    <main style={{ backgroundColor: "#0f172a", color: "#f8fafc", minHeight: "calc(100vh - var(--app-header-height, 150px))" }}>
+    <main style={{ backgroundColor: "var(--bg-canvas)", color: "var(--text-primary)", minHeight: "calc(100vh - var(--app-header-height, 150px))" }}>
       <div style={{ maxWidth: 1280, margin: "0 auto", padding: "28px 24px 64px" }}>
 
         {/* Breadcrumb */}
-        <div className="flex items-center gap-1.5 text-xs mb-4" style={{ color: "#64748b" }}>
-          <Link href="/" style={{ color: "#64748b", textDecoration: "none" }}>Home</Link>
+        <div className="flex items-center gap-1.5 text-xs mb-4" style={{ color: "var(--text-tertiary)" }}>
+          <Link href="/" style={{ color: "var(--text-tertiary)", textDecoration: "none" }}>Home</Link>
           <ChevronRight size={12} />
-          <span style={{ color: "#cbd5e1" }}>{categoryMeta.label}</span>
+          <span style={{ color: "var(--text-secondary)" }}>{categoryMeta.label}</span>
         </div>
 
         {/* Page header */}
-        <h1 className="text-3xl font-bold text-white mb-2">{categoryMeta.label} Courses</h1>
-        <p className="text-sm mb-6" style={{ color: "#94a3b8" }}>
+        <h1 className="text-3xl font-bold mb-2" style={{ color: "var(--text-primary)" }}>{categoryMeta.label} Courses</h1>
+        <p className="text-sm mb-6" style={{ color: "var(--text-secondary)" }}>
           {categoryCourses.length} courses to build in-demand {categoryMeta.label.toLowerCase()} skills, taught by real-world experts.
         </p>
 
@@ -129,9 +129,9 @@ export default function CategoryPage({ params }: { params: Promise<{ category: s
           {/* ── SIDEBAR FILTERS ── */}
           <aside className="w-full lg:w-64 flex-shrink-0">
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-sm font-bold text-white">Filter</h2>
+              <h2 className="text-sm font-bold" style={{ color: "var(--text-primary)" }}>Filter</h2>
               {hasFilters && (
-                <button onClick={clearFilters} className="text-xs font-semibold" style={{ color: "#3b82f6" }}>
+                <button onClick={clearFilters} className="text-xs font-semibold" style={{ color: "var(--accent)" }}>
                   Clear all
                 </button>
               )}
@@ -139,8 +139,8 @@ export default function CategoryPage({ params }: { params: Promise<{ category: s
 
             {/* Topic */}
             {topics.length > 0 && (
-              <div className="mb-6 pb-6" style={{ borderBottom: "1px solid #1e293b" }}>
-                <p className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: "#64748b" }}>Topic</p>
+              <div className="mb-6 pb-6" style={{ borderBottom: "1px solid var(--border-default)" }}>
+                <p className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: "var(--text-tertiary)" }}>Topic</p>
                 <div className="space-y-2.5">
                   {visibleTopics.map((topic) => (
                     <label key={topic} className="flex items-center gap-2.5 cursor-pointer">
@@ -151,7 +151,7 @@ export default function CategoryPage({ params }: { params: Promise<{ category: s
                         className="w-4 h-4 rounded"
                         style={{ accentColor: "#3b82f6" }}
                       />
-                      <span className="text-sm" style={{ color: "#cbd5e1" }}>{topic}</span>
+                      <span className="text-sm" style={{ color: "var(--text-secondary)" }}>{topic}</span>
                     </label>
                   ))}
                 </div>
@@ -159,7 +159,7 @@ export default function CategoryPage({ params }: { params: Promise<{ category: s
                   <button
                     onClick={() => setTopicsExpanded(!topicsExpanded)}
                     className="flex items-center gap-1 mt-3 text-xs font-semibold"
-                    style={{ color: "#3b82f6" }}
+                    style={{ color: "var(--accent)" }}
                   >
                     {topicsExpanded ? <>Show less <ChevronUp size={13} /></> : <>Show more <ChevronDown size={13} /></>}
                   </button>
@@ -168,8 +168,8 @@ export default function CategoryPage({ params }: { params: Promise<{ category: s
             )}
 
             {/* Level */}
-            <div className="mb-6 pb-6" style={{ borderBottom: "1px solid #1e293b" }}>
-              <p className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: "#64748b" }}>Level</p>
+            <div className="mb-6 pb-6" style={{ borderBottom: "1px solid var(--border-default)" }}>
+              <p className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: "var(--text-tertiary)" }}>Level</p>
               <div className="space-y-2.5">
                 {LEVELS.map((level) => (
                   <label key={level} className="flex items-center gap-2.5 cursor-pointer">
@@ -180,15 +180,15 @@ export default function CategoryPage({ params }: { params: Promise<{ category: s
                       className="w-4 h-4 rounded"
                       style={{ accentColor: levelColors[level] }}
                     />
-                    <span className="text-sm" style={{ color: "#cbd5e1" }}>{level}</span>
+                    <span className="text-sm" style={{ color: "var(--text-secondary)" }}>{level}</span>
                   </label>
                 ))}
               </div>
             </div>
 
             {/* Rating */}
-            <div className="mb-6 pb-6" style={{ borderBottom: "1px solid #1e293b" }}>
-              <p className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: "#64748b" }}>Rating</p>
+            <div className="mb-6 pb-6" style={{ borderBottom: "1px solid var(--border-default)" }}>
+              <p className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: "var(--text-tertiary)" }}>Rating</p>
               <div className="space-y-2.5">
                 {RATING_OPTIONS.map((r) => (
                   <label key={r} className="flex items-center gap-2.5 cursor-pointer">
@@ -200,7 +200,7 @@ export default function CategoryPage({ params }: { params: Promise<{ category: s
                       className="w-4 h-4"
                       style={{ accentColor: "#f59e0b" }}
                     />
-                    <span className="flex items-center gap-1 text-sm" style={{ color: "#cbd5e1" }}>
+                    <span className="flex items-center gap-1 text-sm" style={{ color: "var(--text-secondary)" }}>
                       <Star size={12} fill="#F59E0B" style={{ color: "#F59E0B" }} /> {r.toFixed(1)} & up
                     </span>
                   </label>
@@ -209,8 +209,8 @@ export default function CategoryPage({ params }: { params: Promise<{ category: s
             </div>
 
             {/* Price */}
-            <div className="mb-6 pb-6" style={{ borderBottom: "1px solid #1e293b" }}>
-              <p className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: "#64748b" }}>Price</p>
+            <div className="mb-6 pb-6" style={{ borderBottom: "1px solid var(--border-default)" }}>
+              <p className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: "var(--text-tertiary)" }}>Price</p>
               <div className="space-y-2.5">
                 {([["all", "All"], ["paid", "Paid"], ["free", "Free"]] as [PriceFilter, string][]).map(([key, label]) => (
                   <label key={key} className="flex items-center gap-2.5 cursor-pointer">
@@ -222,7 +222,7 @@ export default function CategoryPage({ params }: { params: Promise<{ category: s
                       className="w-4 h-4"
                       style={{ accentColor: "#3b82f6" }}
                     />
-                    <span className="text-sm" style={{ color: "#cbd5e1" }}>{label}</span>
+                    <span className="text-sm" style={{ color: "var(--text-secondary)" }}>{label}</span>
                   </label>
                 ))}
               </div>
@@ -230,7 +230,7 @@ export default function CategoryPage({ params }: { params: Promise<{ category: s
 
             {/* Duration */}
             <div>
-              <p className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: "#64748b" }}>Video Duration</p>
+              <p className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: "var(--text-tertiary)" }}>Video Duration</p>
               <div className="space-y-2.5">
                 {DURATION_OPTIONS.map((d) => (
                   <label key={d.key} className="flex items-center gap-2.5 cursor-pointer">
@@ -241,7 +241,7 @@ export default function CategoryPage({ params }: { params: Promise<{ category: s
                       className="w-4 h-4 rounded"
                       style={{ accentColor: "#3b82f6" }}
                     />
-                    <span className="text-sm" style={{ color: "#cbd5e1" }}>{d.label}</span>
+                    <span className="text-sm" style={{ color: "var(--text-secondary)" }}>{d.label}</span>
                   </label>
                 ))}
               </div>
@@ -251,14 +251,14 @@ export default function CategoryPage({ params }: { params: Promise<{ category: s
           {/* ── RESULTS ── */}
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
-              <p className="text-sm font-semibold text-white">
+              <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
                 {filtered.length} {filtered.length === 1 ? "result" : "results"}
               </p>
               <select
                 value={sort}
                 onChange={(e) => setSort(e.target.value as SortOption)}
                 className="px-3 py-2 rounded-lg text-sm outline-none"
-                style={{ backgroundColor: "#1e293b", border: "1px solid #334155", color: "#cbd5e1" }}
+                style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)", color: "var(--text-secondary)" }}
               >
                 <option value="popular">Most Popular</option>
                 <option value="rating">Highest Rated</option>
@@ -269,11 +269,11 @@ export default function CategoryPage({ params }: { params: Promise<{ category: s
             </div>
 
             {filtered.length === 0 ? (
-              <div className="rounded-2xl p-12 text-center" style={{ backgroundColor: "#1e293b", border: "1px dashed #334155" }}>
-                <p className="text-sm font-medium text-white mb-1">No courses match your filters</p>
-                <p className="text-xs mb-4" style={{ color: "#64748b" }}>Try removing a filter to see more results.</p>
+              <div className="rounded-2xl p-12 text-center" style={{ backgroundColor: "var(--bg-surface)", border: "1px dashed var(--border-default)" }}>
+                <p className="text-sm font-medium mb-1" style={{ color: "var(--text-primary)" }}>No courses match your filters</p>
+                <p className="text-xs mb-4" style={{ color: "var(--text-tertiary)" }}>Try removing a filter to see more results.</p>
                 {hasFilters && (
-                  <button onClick={clearFilters} className="text-xs font-semibold" style={{ color: "#3b82f6" }}>
+                  <button onClick={clearFilters} className="text-xs font-semibold" style={{ color: "var(--accent)" }}>
                     Clear all filters
                   </button>
                 )}
@@ -286,10 +286,10 @@ export default function CategoryPage({ params }: { params: Promise<{ category: s
                     <Link
                       key={course.id}
                       href={`/student/courses/${course.id}`}
-                      className="rounded-2xl overflow-hidden flex flex-col transition-all duration-150"
-                      style={{ backgroundColor: "#1e293b", border: "1px solid #334155" }}
+                      className="rounded-2xl overflow-hidden flex flex-col transition-all duration-150 shadow-sm"
+                      style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
                       onMouseEnter={(e) => (e.currentTarget.style.borderColor = `${course.thumbnailColor}50`)}
-                      onMouseLeave={(e) => (e.currentTarget.style.borderColor = "#334155")}
+                      onMouseLeave={(e) => (e.currentTarget.style.borderColor = "var(--border-default)")}
                     >
                       <CourseThumbnail course={course} locked={course.price !== "Free" && !owned} />
                       <div className="p-4 flex flex-col flex-1">
@@ -301,26 +301,26 @@ export default function CategoryPage({ params }: { params: Promise<{ category: s
                             {course.level}
                           </span>
                           {owned && (
-                            <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ backgroundColor: "#10B98120", color: "#10B981" }}>Enrolled</span>
+                            <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ backgroundColor: "var(--success-bg)", color: "var(--success)" }}>Enrolled</span>
                           )}
                         </div>
-                        <h3 className="text-sm font-bold text-white mb-1 line-clamp-2">{course.title}</h3>
-                        <p className="text-xs mb-3" style={{ color: "#64748b" }}>{course.instructor}</p>
-                        <p className="text-xs mb-3 line-clamp-2 flex-1" style={{ color: "#94a3b8" }}>{course.shortDesc}</p>
-                        <div className="flex items-center gap-3 mb-3 text-xs" style={{ color: "#64748b" }}>
+                        <h3 className="text-sm font-bold mb-1 line-clamp-2" style={{ color: "var(--text-primary)" }}>{course.title}</h3>
+                        <p className="text-xs mb-3" style={{ color: "var(--text-tertiary)" }}>{course.instructor}</p>
+                        <p className="text-xs mb-3 line-clamp-2 flex-1" style={{ color: "var(--text-secondary)" }}>{course.shortDesc}</p>
+                        <div className="flex items-center gap-3 mb-3 text-xs" style={{ color: "var(--text-tertiary)" }}>
                           <span className="flex items-center gap-0.5">
                             <Star size={11} fill="#F59E0B" style={{ color: "#F59E0B" }} />
-                            <strong className="text-white ml-0.5">{course.rating}</strong>
+                            <strong className="ml-0.5" style={{ color: "var(--text-primary)" }}>{course.rating}</strong>
                             <span className="ml-0.5">({course.reviewCount.toLocaleString()})</span>
                           </span>
                           <span className="flex items-center gap-1"><Users size={11} /> {course.studentsCount >= 1000 ? `${(course.studentsCount / 1000).toFixed(0)}k` : course.studentsCount}</span>
                           <span className="flex items-center gap-1"><Clock size={11} /> {course.totalDuration}</span>
                         </div>
                         <div className="flex items-center justify-between">
-                          <span className="text-base font-bold" style={{ color: course.price === "Free" ? "#10B981" : "#F8FAFC" }}>
+                          <span className="text-base font-bold" style={{ color: course.price === "Free" ? "var(--success)" : "var(--text-primary)" }}>
                             {course.price === "Free" ? "Free" : `$${course.price}`}
                           </span>
-                          <div className="flex items-center gap-1 text-xs font-semibold" style={{ color: "#3b82f6" }}>
+                          <div className="flex items-center gap-1 text-xs font-semibold" style={{ color: "var(--accent)" }}>
                             View details <ChevronRight size={13} />
                           </div>
                         </div>
@@ -334,15 +334,15 @@ export default function CategoryPage({ params }: { params: Promise<{ category: s
         </div>
 
         {/* ── OTHER CATEGORIES ── */}
-        <div className="mt-12 pt-8" style={{ borderTop: "1px solid #1e293b" }}>
-          <p className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: "#64748b" }}>Browse other categories</p>
+        <div className="mt-12 pt-8" style={{ borderTop: "1px solid var(--border-default)" }}>
+          <p className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: "var(--text-tertiary)" }}>Browse other categories</p>
           <div className="flex gap-2 flex-wrap">
             {CATEGORIES.filter((c) => c.slug !== categoryMeta.slug).map((c) => (
               <Link
                 key={c.slug}
                 href={`/courses/${c.slug}`}
                 className="text-sm font-semibold px-3.5 py-2 rounded-xl transition-colors"
-                style={{ backgroundColor: "#1e293b", border: "1px solid #334155", color: "#cbd5e1", textDecoration: "none" }}
+                style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)", color: "var(--text-secondary)", textDecoration: "none" }}
               >
                 {c.label}
               </Link>

@@ -33,13 +33,13 @@ export default function WorkshopsPage() {
         {/* Header */}
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
-            <h1 className="text-2xl font-bold text-white">Workshops</h1>
-            <p className="text-sm mt-1" style={{ color: "#94A3B8" }}>Intensive hands-on sessions with expert instructors</p>
+            <h1 className="text-2xl font-bold" style={{ color: "var(--text-primary)" }}>Workshops</h1>
+            <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>Intensive hands-on sessions with expert instructors</p>
           </div>
           <Link
             href="/student/my-workshops"
             className="flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg"
-            style={{ backgroundColor: "#3B82F6", color: "#fff" }}
+            style={{ backgroundColor: "var(--accent)", color: "#fff" }}
           >
             <CalendarCheck size={15} /> My Workshops
           </Link>
@@ -52,9 +52,9 @@ export default function WorkshopsPage() {
             { label: "Registered", value: registeredIds.size, color: "#10B981" },
             { label: "Completed", value: 2, color: "#F59E0B" },
           ].map(({ label, value, color }) => (
-            <div key={label} className="rounded-xl p-4 text-center" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
+            <div key={label} className="rounded-xl p-4 text-center shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
               <p className="text-2xl font-black" style={{ color }}>{value}</p>
-              <p className="text-xs mt-1" style={{ color: "#94A3B8" }}>{label}</p>
+              <p className="text-xs mt-1" style={{ color: "var(--text-secondary)" }}>{label}</p>
             </div>
           ))}
         </div>
@@ -65,9 +65,9 @@ export default function WorkshopsPage() {
             onClick={() => setKind("all")}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex-shrink-0"
             style={{
-              backgroundColor: kind === "all" ? "#3B82F6" : "#1E293B",
-              color: kind === "all" ? "#fff" : "#94A3B8",
-              border: `1px solid ${kind === "all" ? "#3B82F6" : "#334155"}`,
+              backgroundColor: kind === "all" ? "var(--accent)" : "var(--bg-surface)",
+              color: kind === "all" ? "#fff" : "var(--text-secondary)",
+              border: `1px solid ${kind === "all" ? "var(--accent)" : "var(--border-default)"}`,
             }}
           >
             All Kinds
@@ -80,9 +80,9 @@ export default function WorkshopsPage() {
                 onClick={() => setKind(k)}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex-shrink-0"
                 style={{
-                  backgroundColor: kind === k ? KIND_META[k].color : "#1E293B",
-                  color: kind === k ? "#fff" : "#94A3B8",
-                  border: `1px solid ${kind === k ? KIND_META[k].color : "#334155"}`,
+                  backgroundColor: kind === k ? KIND_META[k].color : "var(--bg-surface)",
+                  color: kind === k ? "#fff" : "var(--text-secondary)",
+                  border: `1px solid ${kind === k ? KIND_META[k].color : "var(--border-default)"}`,
                 }}
               >
                 <Icon size={12} /> {KIND_META[k].label}
@@ -93,26 +93,26 @@ export default function WorkshopsPage() {
 
         {/* Filters + search */}
         <div className="flex items-center gap-3 flex-wrap">
-          <div className="flex rounded-xl overflow-hidden" style={{ border: "1px solid #334155" }}>
+          <div className="flex rounded-xl overflow-hidden" style={{ border: "1px solid var(--border-default)" }}>
             {(["all", "registered"] as const).map((f) => (
               <button
                 key={f}
                 onClick={() => setFilter(f)}
                 className="px-4 py-2 text-xs font-semibold capitalize transition-colors"
-                style={{ backgroundColor: filter === f ? "#3B82F6" : "#1E293B", color: filter === f ? "#fff" : "#64748B", borderRight: "1px solid #334155" }}
+                style={{ backgroundColor: filter === f ? "var(--accent)" : "var(--bg-surface)", color: filter === f ? "#fff" : "var(--text-tertiary)", borderRight: "1px solid var(--border-default)" }}
               >
                 {f}
               </button>
             ))}
           </div>
           <div className="relative flex-1 max-w-xs ml-auto">
-            <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "#64748B" }} />
+            <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "var(--text-tertiary)" }} />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search workshops..."
               className="w-full pl-8 pr-3 py-2 text-xs rounded-xl outline-none"
-              style={{ backgroundColor: "#1E293B", border: "1px solid #334155", color: "#F8FAFC" }}
+              style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)", color: "var(--text-primary)" }}
             />
           </div>
         </div>
@@ -131,7 +131,7 @@ export default function WorkshopsPage() {
         </div>
 
         {filtered.length === 0 && (
-          <div className="text-center py-16" style={{ color: "#64748B" }}>
+          <div className="text-center py-16" style={{ color: "var(--text-tertiary)" }}>
             <p className="text-4xl mb-3">🔧</p>
             <p className="text-sm font-semibold">No workshops found</p>
           </div>

@@ -3,6 +3,9 @@
 import { Bell, Search, ChevronDown, Radio, ClipboardList, Award, MessageSquare, X } from "lucide-react"
 import { useState, useRef, useEffect } from "react"
 import Link from "next/link"
+import { useTranslations } from "next-intl"
+import { ThemeToggle } from "@/components/ThemeToggle"
+import { LanguageToggle } from "@/components/LanguageToggle"
 
 interface TopbarProps {
   userName?: string
@@ -16,8 +19,8 @@ const notifications = [
     icon: Radio,
     iconColor: "#EF4444",
     iconBg: "#EF444418",
-    title: "Live session starting soon",
-    body: "React Server Components Q&A starts in 30 minutes",
+    titleKey: "liveTitle",
+    bodyKey: "liveBody",
     time: "30m",
     href: "/student/live",
     unread: true,
@@ -28,8 +31,8 @@ const notifications = [
     icon: ClipboardList,
     iconColor: "#F59E0B",
     iconBg: "#F59E0B18",
-    title: "Assignment due in 2 days",
-    body: "Build a Blog App with App Router — due Jun 17",
+    titleKey: "assignmentTitle",
+    bodyKey: "assignmentBody",
     time: "2h",
     href: "/student/courses/c1?tab=assignments",
     unread: true,
@@ -40,8 +43,8 @@ const notifications = [
     icon: MessageSquare,
     iconColor: "#8B5CF6",
     iconBg: "#8B5CF618",
-    title: "Quiz is now available",
-    body: "Module 2: App Router Architecture — 25 min, 2 attempts",
+    titleKey: "quizTitle",
+    bodyKey: "quizBody",
     time: "5h",
     href: "/student/courses/c1?tab=quizzes",
     unread: true,
@@ -52,8 +55,8 @@ const notifications = [
     icon: Award,
     iconColor: "#F59E0B",
     iconBg: "#F59E0B18",
-    title: "Certificate earned 🎉",
-    body: "You completed Cybersecurity Fundamentals with 96%",
+    titleKey: "certTitle",
+    bodyKey: "certBody",
     time: "3d",
     href: "/student/certificates",
     unread: false,
@@ -64,8 +67,8 @@ const notifications = [
     icon: MessageSquare,
     iconColor: "#10B981",
     iconBg: "#10B98118",
-    title: "Instructor replied to your thread",
-    body: "Sarah Chen replied in 'Server Components vs getServerSideProps'",
+    titleKey: "replyTitle",
+    bodyKey: "replyBody",
     time: "1d",
     href: "/student/discussions",
     unread: false,
@@ -73,6 +76,10 @@ const notifications = [
 ]
 
 export function Topbar({ userName = "Alex Johnson", role = "student" }: TopbarProps) {
+  const t = useTranslations("topbar")
+  const tNotif = useTranslations("notifications")
+  const tSidebar = useTranslations("sidebar")
+  const tCommon = useTranslations("common")
   const [searchFocused, setSearchFocused] = useState(false)
   const [notifOpen, setNotifOpen] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
@@ -94,47 +101,55 @@ export function Topbar({ userName = "Alex Johnson", role = "student" }: TopbarPr
 
   const markAllRead = () => setReadIds(new Set(notifications.map((n) => n.id)))
 
+  const roleLabel = role === "student" ? tCommon("student") : role === "tutor" ? tCommon("instructor") : tCommon("admin")
+
   return (
     <header
       className="flex items-center justify-between px-5 py-3 flex-shrink-0 relative z-30"
-      style={{ backgroundColor: "#1E293B", borderBottom: "1px solid #334155", height: 60 }}
+      style={{ backgroundColor: "var(--bg-surface)", borderBottom: "1px solid var(--border-default)", height: 60 }}
     >
       {/* Search */}
       <div className="relative flex-1 max-w-sm">
         <Search
           size={14}
-          className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
-          style={{ color: "#64748B" }}
+          className="absolute start-3 top-1/2 -translate-y-1/2 pointer-events-none"
+          style={{ color: "var(--text-muted)" }}
         />
         <input
           type="text"
-          placeholder="Search courses, lessons, instructors..."
+          placeholder={t("searchPlaceholder")}
           onFocus={() => setSearchFocused(true)}
           onBlur={() => setSearchFocused(false)}
-          className="w-full pl-9 pr-4 py-2 text-sm rounded-lg outline-none transition-all duration-200"
+          className="w-full ps-9 pe-4 py-2 text-sm rounded-lg outline-none transition-all duration-200"
           style={{
-            backgroundColor: "#0F172A",
-            color: "#F8FAFC",
-            border: `1px solid ${searchFocused ? "#3B82F6" : "#334155"}`,
+            backgroundColor: "var(--bg-surface-muted)",
+            color: "var(--text-primary)",
+            border: `1px solid ${searchFocused ? "var(--accent)" : "var(--border-default)"}`,
           }}
         />
       </div>
 
       {/* Right side */}
-      <div className="flex items-center gap-2 ml-4">
+      <div className="flex items-center gap-2 ms-4">
+
+        <LanguageToggle />
+        <ThemeToggle />
 
         {/* Notifications */}
         <div ref={notifRef} className="relative">
           <button
             onClick={() => { setNotifOpen(!notifOpen); setProfileOpen(false) }}
             className="relative flex items-center justify-center w-9 h-9 rounded-lg transition-colors duration-150"
-            style={{ backgroundColor: notifOpen ? "#3B82F620" : "#334155", color: notifOpen ? "#60A5FA" : "#94A3B8" }}
+            style={{
+              backgroundColor: notifOpen ? "var(--accent-subtle)" : "var(--bg-surface-muted)",
+              color: notifOpen ? "var(--accent)" : "var(--text-muted)",
+            }}
           >
             <Bell size={15} />
             {unreadCount > 0 && (
               <span
-                className="absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 rounded-full text-white font-bold"
-                style={{ backgroundColor: "#EF4444", fontSize: 9 }}
+                className="absolute -top-1 flex items-center justify-center w-4 h-4 rounded-full text-white font-bold"
+                style={{ backgroundColor: "var(--danger)", fontSize: 9, insetInlineEnd: -4 }}
               >
                 {unreadCount}
               </span>
@@ -144,26 +159,26 @@ export function Topbar({ userName = "Alex Johnson", role = "student" }: TopbarPr
           {/* Notification dropdown */}
           {notifOpen && (
             <div
-              className="absolute right-0 top-12 w-80 rounded-2xl shadow-2xl overflow-hidden"
-              style={{ backgroundColor: "#1E293B", border: "1px solid #334155", zIndex: 50 }}
+              className="absolute end-0 top-12 w-80 rounded-2xl shadow-xl overflow-hidden"
+              style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)", zIndex: 50 }}
             >
               {/* Header */}
-              <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: "1px solid #334155" }}>
+              <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: "1px solid var(--border-default)" }}>
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-bold text-white">Notifications</span>
+                  <span className="text-sm font-bold" style={{ color: "var(--text-primary)" }}>{t("notifications")}</span>
                   {unreadCount > 0 && (
-                    <span className="text-xs px-1.5 py-0.5 rounded-full font-bold" style={{ backgroundColor: "#EF444420", color: "#EF4444" }}>
-                      {unreadCount} new
+                    <span className="text-xs px-1.5 py-0.5 rounded-full font-bold" style={{ backgroundColor: "var(--danger-bg)", color: "var(--danger)" }}>
+                      {t("newCount", { count: unreadCount })}
                     </span>
                   )}
                 </div>
-                <button onClick={markAllRead} className="text-xs" style={{ color: "#3B82F6" }}>
-                  Mark all read
+                <button onClick={markAllRead} className="text-xs" style={{ color: "var(--accent)" }}>
+                  {t("markAllRead")}
                 </button>
               </div>
 
               {/* Notification list */}
-              <div className="max-h-80 overflow-y-auto" style={{ scrollbarWidth: "thin", scrollbarColor: "#334155 transparent" }}>
+              <div className="max-h-80 overflow-y-auto">
                 {notifications.map((n) => {
                   const Icon = n.icon
                   const isUnread = n.unread && !readIds.has(n.id)
@@ -174,11 +189,11 @@ export function Topbar({ userName = "Alex Johnson", role = "student" }: TopbarPr
                       onClick={() => { setReadIds((p) => new Set([...p, n.id])); setNotifOpen(false) }}
                       className="flex items-start gap-3 px-4 py-3 transition-colors"
                       style={{
-                        backgroundColor: isUnread ? "#3B82F608" : "transparent",
-                        borderBottom: "1px solid #33415530",
+                        backgroundColor: isUnread ? "var(--accent-subtle)" : "transparent",
+                        borderBottom: "1px solid var(--border-subtle)",
                       }}
-                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#33415540")}
-                      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = isUnread ? "#3B82F608" : "transparent")}
+                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "var(--bg-surface-muted)")}
+                      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = isUnread ? "var(--accent-subtle)" : "transparent")}
                     >
                       <div
                         className="flex items-center justify-center w-8 h-8 rounded-lg flex-shrink-0"
@@ -188,13 +203,13 @@ export function Topbar({ userName = "Alex Johnson", role = "student" }: TopbarPr
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-1">
-                          <p className="text-xs font-semibold text-white leading-snug">{n.title}</p>
-                          <span className="text-xs flex-shrink-0 ml-1" style={{ color: "#475569" }}>{n.time}</span>
+                          <p className="text-xs font-semibold leading-snug" style={{ color: "var(--text-primary)" }}>{tNotif(n.titleKey)}</p>
+                          <span className="text-xs flex-shrink-0 ms-1" style={{ color: "var(--text-muted)" }}>{n.time}</span>
                         </div>
-                        <p className="text-xs mt-0.5 leading-snug line-clamp-2" style={{ color: "#64748B" }}>{n.body}</p>
+                        <p className="text-xs mt-0.5 leading-snug line-clamp-2" style={{ color: "var(--text-tertiary)" }}>{tNotif(n.bodyKey)}</p>
                       </div>
                       {isUnread && (
-                        <span className="w-1.5 h-1.5 rounded-full flex-shrink-0 mt-1.5" style={{ backgroundColor: "#3B82F6" }} />
+                        <span className="w-1.5 h-1.5 rounded-full flex-shrink-0 mt-1.5" style={{ backgroundColor: "var(--accent)" }} />
                       )}
                     </Link>
                   )
@@ -202,14 +217,14 @@ export function Topbar({ userName = "Alex Johnson", role = "student" }: TopbarPr
               </div>
 
               {/* Footer */}
-              <div className="px-4 py-2.5" style={{ borderTop: "1px solid #334155" }}>
+              <div className="px-4 py-2.5" style={{ borderTop: "1px solid var(--border-default)" }}>
                 <Link
                   href={role === "admin" ? "/admin/audit-log" : "/student/schedule"}
                   onClick={() => setNotifOpen(false)}
                   className="block text-center text-xs font-semibold py-1.5"
-                  style={{ color: "#3B82F6" }}
+                  style={{ color: "var(--accent)" }}
                 >
-                  View all activity →
+                  {t("viewAllActivity")}
                 </Link>
               </div>
             </div>
@@ -221,70 +236,70 @@ export function Topbar({ userName = "Alex Johnson", role = "student" }: TopbarPr
           <button
             onClick={() => { setProfileOpen(!profileOpen); setNotifOpen(false) }}
             className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 transition-colors duration-150"
-            style={{ backgroundColor: profileOpen ? "#3B82F620" : "#334155" }}
+            style={{ backgroundColor: profileOpen ? "var(--accent-subtle)" : "var(--bg-surface-muted)" }}
           >
             <div
               className="flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold text-white flex-shrink-0"
-              style={{ backgroundColor: "#3B82F6" }}
+              style={{ backgroundColor: "var(--accent)" }}
             >
               {userName.charAt(0).toUpperCase()}
             </div>
-            <div className="text-left hidden sm:block">
-              <p className="text-xs font-semibold text-white leading-none">{userName}</p>
-              <p className="text-xs capitalize mt-0.5" style={{ color: "#64748B" }}>{role}</p>
+            <div className="text-start hidden sm:block">
+              <p className="text-xs font-semibold leading-none" style={{ color: "var(--text-primary)" }}>{userName}</p>
+              <p className="text-xs mt-0.5" style={{ color: "var(--text-tertiary)" }}>{roleLabel}</p>
             </div>
-            <ChevronDown size={13} style={{ color: "#64748B" }} />
+            <ChevronDown size={13} style={{ color: "var(--text-tertiary)" }} />
           </button>
 
           {/* Profile dropdown */}
           {profileOpen && (
             <div
-              className="absolute right-0 top-12 w-52 rounded-2xl shadow-2xl overflow-hidden"
-              style={{ backgroundColor: "#1E293B", border: "1px solid #334155", zIndex: 50 }}
+              className="absolute end-0 top-12 w-52 rounded-2xl shadow-xl overflow-hidden"
+              style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)", zIndex: 50 }}
             >
-              <div className="px-4 py-3" style={{ borderBottom: "1px solid #334155" }}>
-                <p className="text-sm font-bold text-white">{userName}</p>
-                <p className="text-xs mt-0.5" style={{ color: "#64748B" }}>alex.johnson@techcorp.com</p>
+              <div className="px-4 py-3" style={{ borderBottom: "1px solid var(--border-default)" }}>
+                <p className="text-sm font-bold" style={{ color: "var(--text-primary)" }}>{userName}</p>
+                <p className="text-xs mt-0.5" style={{ color: "var(--text-tertiary)" }}>alex.johnson@techcorp.com</p>
               </div>
               {(role === "admin"
                 ? [
-                    { label: "Settings", href: "/admin/settings" },
-                    { label: "Audit Log", href: "/admin/audit-log" },
+                    { label: tSidebar("nav.settings"), href: "/admin/settings" },
+                    { label: tSidebar("nav.auditLog"), href: "/admin/audit-log" },
                   ]
                 : [
-                    { label: "My Profile", href: "/student/profile" },
-                    { label: "Settings", href: "/student/settings" },
-                    { label: "Certificates", href: "/student/certificates" },
+                    { label: t("myProfile"), href: "/student/profile" },
+                    { label: tSidebar("nav.settings"), href: "/student/settings" },
+                    { label: tSidebar("nav.certificates"), href: "/student/certificates" },
                   ]
               ).map(({ label, href }) => (
                 <Link
-                  key={label}
+                  key={href}
                   href={href}
                   onClick={() => setProfileOpen(false)}
                   className="block px-4 py-2.5 text-sm transition-colors"
-                  style={{ color: "#94A3B8" }}
+                  style={{ color: "var(--text-secondary)" }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = "#334155"
-                    e.currentTarget.style.color = "#F8FAFC"
+                    e.currentTarget.style.backgroundColor = "var(--bg-surface-muted)"
+                    e.currentTarget.style.color = "var(--text-primary)"
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.backgroundColor = "transparent"
-                    e.currentTarget.style.color = "#94A3B8"
+                    e.currentTarget.style.color = "var(--text-secondary)"
                   }}
                 >
                   {label}
                 </Link>
               ))}
-              <div style={{ borderTop: "1px solid #334155" }}>
+              <div style={{ borderTop: "1px solid var(--border-default)" }}>
                 <Link
                   href="/login"
                   onClick={() => setProfileOpen(false)}
                   className="block px-4 py-2.5 text-sm"
-                  style={{ color: "#F87171" }}
-                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#EF444415")}
+                  style={{ color: "var(--danger)" }}
+                  onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "var(--danger-bg)")}
                   onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
                 >
-                  Sign out
+                  {t("signOut")}
                 </Link>
               </div>
             </div>

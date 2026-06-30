@@ -59,8 +59,8 @@ export default function VideosPage() {
         {/* Header */}
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-white">Video Library</h1>
-            <p className="text-sm mt-1" style={{ color: "#94A3B8" }}>
+            <h1 className="text-2xl font-bold" style={{ color: "var(--text-primary)" }}>Video Library</h1>
+            <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>
               {VIDEOS.length} videos across {CATEGORIES.length - 1} categories
             </p>
           </div>
@@ -69,13 +69,13 @@ export default function VideosPage() {
         {/* Search + filter */}
         <div className="flex items-center gap-3 flex-wrap">
           <div className="relative flex-1 max-w-md">
-            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "#64748B" }} />
+            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "var(--text-tertiary)" }} />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search videos, instructors..."
               className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm outline-none"
-              style={{ backgroundColor: "#1E293B", border: "1px solid #334155", color: "#F8FAFC" }}
+              style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)", color: "var(--text-primary)" }}
             />
           </div>
         </div>
@@ -88,9 +88,9 @@ export default function VideosPage() {
               onClick={() => setCategory(cat)}
               className="px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap flex-shrink-0 transition-all"
               style={{
-                backgroundColor: category === cat ? "#3B82F6" : "#1E293B",
-                color: category === cat ? "#fff" : "#64748B",
-                border: `1px solid ${category === cat ? "#3B82F6" : "#334155"}`,
+                backgroundColor: category === cat ? "var(--accent)" : "var(--bg-surface)",
+                color: category === cat ? "#fff" : "var(--text-tertiary)",
+                border: `1px solid ${category === cat ? "var(--accent)" : "var(--border-default)"}`,
               }}
             >
               {cat}
@@ -102,27 +102,27 @@ export default function VideosPage() {
         {search === "" && category === "All" && (
           <div>
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-sm font-bold text-white flex items-center gap-2"><Play size={14} style={{ color: "#3B82F6" }} /> Continue Watching</h2>
+              <h2 className="text-sm font-bold flex items-center gap-2" style={{ color: "var(--text-primary)" }}><Play size={14} style={{ color: "var(--accent)" }} /> Continue Watching</h2>
             </div>
             <div className="grid sm:grid-cols-3 gap-4">
               {CONTINUE_WATCHING.map((v) => (
-                <Link key={v.id} href={`/student/videos/${v.id}`} className="rounded-xl overflow-hidden transition-all" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
-                  onMouseEnter={(e) => (e.currentTarget.style.borderColor = "#475569")}
-                  onMouseLeave={(e) => (e.currentTarget.style.borderColor = "#334155")}
+                <Link key={v.id} href={`/student/videos/${v.id}`} className="rounded-xl overflow-hidden transition-all shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
+                  onMouseEnter={(e) => (e.currentTarget.style.borderColor = "var(--text-muted)")}
+                  onMouseLeave={(e) => (e.currentTarget.style.borderColor = "var(--border-default)")}
                 >
                   <div className="relative h-28 flex items-center justify-center text-4xl" style={{ backgroundColor: "#0F172A" }}>
                     {v.thumbnail}
                     {/* Progress bar at bottom */}
                     <div className="absolute bottom-0 left-0 right-0 h-1" style={{ backgroundColor: "#334155" }}>
-                      <div className="h-full" style={{ width: `${v.progress}%`, backgroundColor: "#3B82F6" }} />
+                      <div className="h-full" style={{ width: `${v.progress}%`, backgroundColor: "var(--accent)" }} />
                     </div>
                     <div className="absolute top-2 right-2 text-xs font-semibold px-1.5 py-0.5 rounded" style={{ backgroundColor: "#000000AA", color: "#94A3B8" }}>
                       {Math.floor(v.duration / 60)}:{String(v.duration % 60).padStart(2, "0")}
                     </div>
                   </div>
                   <div className="p-3">
-                    <p className="text-xs font-semibold text-white line-clamp-2 leading-snug">{v.title}</p>
-                    <p className="text-xs mt-1" style={{ color: "#64748B" }}>{v.watched} / {v.duration} min watched · {v.progress}%</p>
+                    <p className="text-xs font-semibold line-clamp-2 leading-snug" style={{ color: "var(--text-primary)" }}>{v.title}</p>
+                    <p className="text-xs mt-1" style={{ color: "var(--text-tertiary)" }}>{v.watched} / {v.duration} min watched · {v.progress}%</p>
                   </div>
                 </Link>
               ))}
@@ -133,7 +133,7 @@ export default function VideosPage() {
         {/* Trending */}
         {trending.length > 0 && search === "" && (
           <div>
-            <h2 className="text-sm font-bold text-white flex items-center gap-2 mb-3"><TrendingUp size={14} style={{ color: "#F59E0B" }} /> Trending Now</h2>
+            <h2 className="text-sm font-bold flex items-center gap-2 mb-3" style={{ color: "var(--text-primary)" }}><TrendingUp size={14} style={{ color: "var(--warning)" }} /> Trending Now</h2>
             <div className="flex gap-4 overflow-x-auto pb-2" style={{ scrollbarWidth: "none" }}>
               {trending.map((v) => (
                 <VideoCard key={v.id} video={v} saved={savedIds.has(v.id)} onSave={toggleSave} compact />
@@ -144,7 +144,7 @@ export default function VideosPage() {
 
         {/* All / Featured */}
         <div>
-          <h2 className="text-sm font-bold text-white mb-3">
+          <h2 className="text-sm font-bold mb-3" style={{ color: "var(--text-primary)" }}>
             {search || category !== "All" ? `Results (${filtered.length})` : "All Videos"}
           </h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -153,7 +153,7 @@ export default function VideosPage() {
             ))}
           </div>
           {filtered.length === 0 && (
-            <div className="text-center py-16" style={{ color: "#64748B" }}>
+            <div className="text-center py-16" style={{ color: "var(--text-tertiary)" }}>
               <p className="text-4xl mb-3">🎬</p>
               <p className="text-sm font-semibold">No videos found</p>
               <p className="text-xs mt-1">Try different keywords or category</p>
@@ -168,20 +168,20 @@ export default function VideosPage() {
 function VideoCard({ video: v, saved, onSave, compact }: { video: typeof VIDEOS[0]; saved: boolean; onSave: (id: string) => void; compact?: boolean }) {
   return (
     <div
-      className="rounded-xl overflow-hidden flex-shrink-0 transition-all"
+      className="rounded-xl overflow-hidden flex-shrink-0 transition-all shadow-sm"
       style={{
-        backgroundColor: "#1E293B", border: "1px solid #334155",
+        backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)",
         width: compact ? 220 : "auto",
       }}
-      onMouseEnter={(e) => (e.currentTarget.style.borderColor = "#475569")}
-      onMouseLeave={(e) => (e.currentTarget.style.borderColor = "#334155")}
+      onMouseEnter={(e) => (e.currentTarget.style.borderColor = "var(--text-muted)")}
+      onMouseLeave={(e) => (e.currentTarget.style.borderColor = "var(--border-default)")}
     >
       <Link href={`/student/videos/${v.id}`} className="block">
         <div className="relative flex items-center justify-center text-4xl" style={{ height: compact ? 100 : 130, backgroundColor: "#0F172A" }}>
           {v.thumbnail}
           <div className="absolute top-2 left-2">
             {v.isFree ? (
-              <span className="text-xs font-bold px-1.5 py-0.5 rounded" style={{ backgroundColor: "#10B98120", color: "#10B981" }}>FREE</span>
+              <span className="text-xs font-bold px-1.5 py-0.5 rounded" style={{ backgroundColor: "var(--success-bg)", color: "var(--success)" }}>FREE</span>
             ) : null}
           </div>
           <div className="absolute top-2 right-2 text-xs font-semibold px-1.5 py-0.5 rounded" style={{ backgroundColor: "#000000AA", color: "#94A3B8" }}>
@@ -191,7 +191,7 @@ function VideoCard({ video: v, saved, onSave, compact }: { video: typeof VIDEOS[
             onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")}
             onMouseLeave={(e) => (e.currentTarget.style.opacity = "0")}
           >
-            <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: "#3B82F6" }}>
+            <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: "var(--accent)" }}>
               <Play size={17} fill="#fff" color="#fff" />
             </div>
           </div>
@@ -199,19 +199,19 @@ function VideoCard({ video: v, saved, onSave, compact }: { video: typeof VIDEOS[
       </Link>
       <div className="p-3">
         <Link href={`/student/videos/${v.id}`} className="block">
-          <p className="text-xs font-semibold text-white line-clamp-2 leading-snug">{v.title}</p>
+          <p className="text-xs font-semibold line-clamp-2 leading-snug" style={{ color: "var(--text-primary)" }}>{v.title}</p>
         </Link>
-        <p className="text-xs mt-1" style={{ color: "#64748B" }}>{v.instructor}</p>
+        <p className="text-xs mt-1" style={{ color: "var(--text-tertiary)" }}>{v.instructor}</p>
         <div className="flex items-center justify-between mt-2">
-          <div className="flex items-center gap-2 text-xs" style={{ color: "#64748B" }}>
+          <div className="flex items-center gap-2 text-xs" style={{ color: "var(--text-tertiary)" }}>
             <span className="flex items-center gap-1"><Star size={11} fill="#F59E0B" color="#F59E0B" /> {v.rating}</span>
             <span className="flex items-center gap-1"><Eye size={11} /> {(v.views / 1000).toFixed(1)}k</span>
           </div>
           <button
             onClick={() => onSave(v.id)}
-            style={{ background: "none", border: "none", cursor: "pointer", color: saved ? "#3B82F6" : "#64748B", padding: 0 }}
+            style={{ background: "none", border: "none", cursor: "pointer", color: saved ? "var(--accent)" : "var(--text-tertiary)", padding: 0 }}
           >
-            <Bookmark size={13} fill={saved ? "#3B82F6" : "none"} />
+            <Bookmark size={13} fill={saved ? "var(--accent)" : "none"} />
           </button>
         </div>
         {!compact && (

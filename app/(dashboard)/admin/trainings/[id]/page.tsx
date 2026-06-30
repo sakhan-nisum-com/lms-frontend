@@ -82,14 +82,14 @@ export default function AdminTrainingDetailPage({ params }: { params: Promise<{ 
       <div className="max-w-4xl space-y-6">
         {/* Breadcrumb */}
         <div className="flex items-center justify-between flex-wrap gap-3">
-          <Link href="/admin/trainings" className="flex items-center gap-1.5 text-sm w-fit" style={{ color: "#64748B" }}>
+          <Link href="/admin/trainings" className="flex items-center gap-1.5 text-sm w-fit" style={{ color: "var(--text-tertiary)" }}>
             <ChevronLeft size={15} /> Back to Trainings
           </Link>
           {!isEditing && (
             <button
               onClick={startEditing}
               className="flex items-center gap-1.5 text-sm font-semibold px-3.5 py-2 rounded-lg"
-              style={{ backgroundColor: "#3B82F6", color: "#fff" }}
+              style={{ backgroundColor: "var(--accent)", color: "#fff" }}
             >
               <Pencil size={14} /> Edit Training
             </button>
@@ -98,49 +98,49 @@ export default function AdminTrainingDetailPage({ params }: { params: Promise<{ 
 
         {/* Edit form */}
         {isEditing && (
-          <div className="rounded-2xl p-6 space-y-4" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
-            <h2 className="text-base font-bold text-white">Edit Training Details</h2>
+          <div className="rounded-2xl p-6 space-y-4 shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
+            <h2 className="text-base font-bold" style={{ color: "var(--text-primary)" }}>Edit Training Details</h2>
 
             <div>
-              <label className="text-xs font-semibold block mb-1.5" style={{ color: "#94A3B8" }}>Title</label>
+              <label className="text-xs font-semibold block mb-1.5" style={{ color: "var(--text-secondary)" }}>Title</label>
               <input
                 value={form.title}
                 onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
                 className="w-full px-3 py-2.5 rounded-lg text-sm outline-none"
-                style={{ backgroundColor: "#0F172A", border: "1px solid #334155", color: "#F8FAFC" }}
+                style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)", color: "var(--text-primary)" }}
               />
             </div>
 
             <div>
-              <label className="text-xs font-semibold block mb-1.5" style={{ color: "#94A3B8" }}>Description</label>
+              <label className="text-xs font-semibold block mb-1.5" style={{ color: "var(--text-secondary)" }}>Description</label>
               <textarea
                 value={form.description}
                 onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
                 rows={3}
                 className="w-full px-3 py-2.5 rounded-lg text-sm outline-none resize-none"
-                style={{ backgroundColor: "#0F172A", border: "1px solid #334155", color: "#F8FAFC" }}
+                style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)", color: "var(--text-primary)" }}
               />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-semibold block mb-1.5" style={{ color: "#94A3B8" }}>Type</label>
+                <label className="text-xs font-semibold block mb-1.5" style={{ color: "var(--text-secondary)" }}>Type</label>
                 <select
                   value={form.type}
                   onChange={(e) => setForm((f) => ({ ...f, type: e.target.value as TrainingTrack["type"] }))}
                   className="w-full px-3 py-2.5 rounded-lg text-sm outline-none capitalize"
-                  style={{ backgroundColor: "#0F172A", border: "1px solid #334155", color: "#F8FAFC" }}
+                  style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)", color: "var(--text-primary)" }}
                 >
                   {TYPE_OPTIONS.map((t) => <option key={t} value={t}>{t}</option>)}
                 </select>
               </div>
               <div>
-                <label className="text-xs font-semibold block mb-1.5" style={{ color: "#94A3B8" }}>Category</label>
+                <label className="text-xs font-semibold block mb-1.5" style={{ color: "var(--text-secondary)" }}>Category</label>
                 <select
                   value={form.category}
                   onChange={(e) => setForm((f) => ({ ...f, category: e.target.value as TrainingTrack["category"] }))}
                   className="w-full px-3 py-2.5 rounded-lg text-sm outline-none"
-                  style={{ backgroundColor: "#0F172A", border: "1px solid #334155", color: "#F8FAFC" }}
+                  style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)", color: "var(--text-primary)" }}
                 >
                   {CATEGORY_OPTIONS.map((c) => <option key={c} value={c}>{c}</option>)}
                 </select>
@@ -149,49 +149,49 @@ export default function AdminTrainingDetailPage({ params }: { params: Promise<{ 
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="text-xs font-semibold block mb-1.5" style={{ color: "#94A3B8" }}>Level</label>
+                <label className="text-xs font-semibold block mb-1.5" style={{ color: "var(--text-secondary)" }}>Level</label>
                 <input
                   value={form.level}
                   onChange={(e) => setForm((f) => ({ ...f, level: e.target.value }))}
                   placeholder="e.g. Intermediate"
                   className="w-full px-3 py-2.5 rounded-lg text-sm outline-none"
-                  style={{ backgroundColor: "#0F172A", border: "1px solid #334155", color: "#F8FAFC" }}
+                  style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)", color: "var(--text-primary)" }}
                 />
               </div>
               <div>
-                <label className="text-xs font-semibold block mb-1.5" style={{ color: "#94A3B8" }}>Total Hours</label>
+                <label className="text-xs font-semibold block mb-1.5" style={{ color: "var(--text-secondary)" }}>Total Hours</label>
                 <input
                   value={form.totalHours}
                   onChange={(e) => setForm((f) => ({ ...f, totalHours: e.target.value }))}
                   placeholder="e.g. 42"
                   className="w-full px-3 py-2.5 rounded-lg text-sm outline-none"
-                  style={{ backgroundColor: "#0F172A", border: "1px solid #334155", color: "#F8FAFC" }}
+                  style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)", color: "var(--text-primary)" }}
                 />
               </div>
               <div>
-                <label className="text-xs font-semibold block mb-1.5" style={{ color: "#94A3B8" }}>Badge Earned</label>
+                <label className="text-xs font-semibold block mb-1.5" style={{ color: "var(--text-secondary)" }}>Badge Earned</label>
                 <input
                   value={form.badge}
                   onChange={(e) => setForm((f) => ({ ...f, badge: e.target.value }))}
                   placeholder="e.g. Engineering Pro"
                   className="w-full px-3 py-2.5 rounded-lg text-sm outline-none"
-                  style={{ backgroundColor: "#0F172A", border: "1px solid #334155", color: "#F8FAFC" }}
+                  style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)", color: "var(--text-primary)" }}
                 />
               </div>
             </div>
 
-            <div className="flex justify-end gap-2 pt-2" style={{ borderTop: "1px solid #334155" }}>
+            <div className="flex justify-end gap-2 pt-2" style={{ borderTop: "1px solid var(--border-default)" }}>
               <button
                 onClick={() => setIsEditing(false)}
                 className="px-4 py-2 rounded-xl text-sm font-semibold"
-                style={{ backgroundColor: "#334155", color: "#94A3B8" }}
+                style={{ backgroundColor: "var(--border-default)", color: "var(--text-secondary)" }}
               >
                 Cancel
               </button>
               <button
                 onClick={handleSaveContent}
                 className="px-4 py-2 rounded-xl text-sm font-semibold"
-                style={{ backgroundColor: "#3B82F6", color: "#fff" }}
+                style={{ backgroundColor: "var(--accent)", color: "#fff" }}
               >
                 Save Changes
               </button>
@@ -201,7 +201,7 @@ export default function AdminTrainingDetailPage({ params }: { params: Promise<{ 
 
         {/* Hero */}
         {!isEditing && (
-        <div className="rounded-2xl p-6 relative overflow-hidden" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
+        <div className="rounded-2xl p-6 relative overflow-hidden shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
           <div
             className="absolute top-0 right-0 w-64 h-64 rounded-full pointer-events-none"
             style={{ background: `radial-gradient(circle, ${track.badgeColor}18 0%, transparent 70%)`, transform: "translate(30%, -30%)" }}
@@ -209,7 +209,7 @@ export default function AdminTrainingDetailPage({ params }: { params: Promise<{ 
           <div className="flex flex-col lg:flex-row gap-6 relative">
             <div className="flex-1">
               <div className="flex items-start gap-4">
-                <div className="text-3xl flex-shrink-0 w-14 h-14 flex items-center justify-center rounded-2xl" style={{ backgroundColor: "#0F172A" }}>
+                <div className="text-3xl flex-shrink-0 w-14 h-14 flex items-center justify-center rounded-2xl" style={{ backgroundColor: "var(--bg-surface-muted)" }}>
                   {track.icon}
                 </div>
                 <div className="flex-1">
@@ -217,7 +217,7 @@ export default function AdminTrainingDetailPage({ params }: { params: Promise<{ 
                     <span className="text-xs font-semibold px-2 py-0.5 rounded-full capitalize" style={{ backgroundColor: content.type === "enterprise" ? "#3B82F615" : "#8B5CF615", color: content.type === "enterprise" ? "#60A5FA" : "#A78BFA" }}>
                       {content.type}
                     </span>
-                    <span className="text-xs font-semibold px-2 py-0.5 rounded-full flex items-center gap-1" style={{ backgroundColor: "#334155", color: "#94A3B8" }}>
+                    <span className="text-xs font-semibold px-2 py-0.5 rounded-full flex items-center gap-1" style={{ backgroundColor: "var(--border-default)", color: "var(--text-secondary)" }}>
                       <CategoryIcon size={10} /> {content.category}
                     </span>
                     {isMandatory && (
@@ -226,10 +226,10 @@ export default function AdminTrainingDetailPage({ params }: { params: Promise<{ 
                       </span>
                     )}
                   </div>
-                  <h1 className="text-xl font-bold text-white mb-2">{content.title}</h1>
-                  <p className="text-sm leading-relaxed" style={{ color: "#94A3B8" }}>{content.description}</p>
+                  <h1 className="text-xl font-bold mb-2" style={{ color: "var(--text-primary)" }}>{content.title}</h1>
+                  <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>{content.description}</p>
 
-                  <div className="flex items-center gap-5 flex-wrap mt-4 text-sm" style={{ color: "#64748B" }}>
+                  <div className="flex items-center gap-5 flex-wrap mt-4 text-sm" style={{ color: "var(--text-tertiary)" }}>
                     <span className="flex items-center gap-1.5"><BookOpen size={14} /> {totalModules} modules</span>
                     <span className="flex items-center gap-1.5"><Clock size={14} /> {content.totalHours}h total</span>
                     <span className="flex items-center gap-1.5"><Users size={14} /> {track.enrolledUsers.toLocaleString()} enrolled</span>
@@ -240,18 +240,18 @@ export default function AdminTrainingDetailPage({ params }: { params: Promise<{ 
             </div>
 
             {/* Admin moderation panel */}
-            <div className="lg:w-72 rounded-xl p-5 flex-shrink-0 space-y-4" style={{ backgroundColor: "#0F172A", border: "1px solid #334155" }}>
-              <div className="flex items-center gap-2 p-2.5 rounded-xl" style={{ backgroundColor: "#1E293B" }}>
+            <div className="lg:w-72 rounded-xl p-5 flex-shrink-0 space-y-4" style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)" }}>
+              <div className="flex items-center gap-2 p-2.5 rounded-xl" style={{ backgroundColor: "var(--bg-surface)" }}>
                 <Award size={14} style={{ color: track.badgeColor, flexShrink: 0 }} />
                 <span className="text-xs font-semibold" style={{ color: track.badgeColor }}>Earns: {content.badge}</span>
               </div>
 
               <div>
-                <div className="flex justify-between text-xs mb-1" style={{ color: "#64748B" }}>
+                <div className="flex justify-between text-xs mb-1" style={{ color: "var(--text-tertiary)" }}>
                   <span>Avg. completion</span>
-                  <span className="text-white font-semibold">{track.progress}%</span>
+                  <span className="font-semibold" style={{ color: "var(--text-primary)" }}>{track.progress}%</span>
                 </div>
-                <div className="h-2 rounded-full" style={{ backgroundColor: "#334155" }}>
+                <div className="h-2 rounded-full" style={{ backgroundColor: "var(--border-default)" }}>
                   <div className="h-full rounded-full" style={{ width: `${track.progress}%`, backgroundColor: track.badgeColor }} />
                 </div>
               </div>
@@ -259,20 +259,20 @@ export default function AdminTrainingDetailPage({ params }: { params: Promise<{ 
               <button
                 onClick={() => toggleMandatory(track.id, isMandatory)}
                 className="w-full text-xs font-semibold px-3 py-2 rounded-lg"
-                style={{ backgroundColor: isMandatory ? "#EF444420" : "#334155", color: isMandatory ? "#F87171" : "#94A3B8" }}
+                style={{ backgroundColor: isMandatory ? "#EF444420" : "var(--border-default)", color: isMandatory ? "#F87171" : "var(--text-secondary)" }}
               >
                 {isMandatory ? "Mandatory" : "Optional"} — click to toggle
               </button>
 
               {isMandatory && (
                 <div>
-                  <label className="text-xs font-semibold block mb-1.5" style={{ color: "#94A3B8" }}>Deadline</label>
+                  <label className="text-xs font-semibold block mb-1.5" style={{ color: "var(--text-secondary)" }}>Deadline</label>
                   <input
                     type="date"
                     value={deadline ?? ""}
                     onChange={(e) => setDeadline(track.id, e.target.value)}
                     className="w-full px-2.5 py-2 rounded-lg text-xs outline-none"
-                    style={{ backgroundColor: "#1E293B", border: "1px solid #334155", color: "#F8FAFC" }}
+                    style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)", color: "var(--text-primary)" }}
                   />
                 </div>
               )}
@@ -282,19 +282,19 @@ export default function AdminTrainingDetailPage({ params }: { params: Promise<{ 
         )}
 
         {/* Modules */}
-        <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
-          <div className="px-5 py-4" style={{ borderBottom: "1px solid #334155" }}>
+        <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
+          <div className="px-5 py-4" style={{ borderBottom: "1px solid var(--border-default)" }}>
             <h2 className="text-sm font-bold text-white">Training Content</h2>
-            <p className="text-xs mt-0.5" style={{ color: "#64748B" }}>{totalModules} modules · {content.totalHours}h total</p>
+            <p className="text-xs mt-0.5" style={{ color: "var(--text-tertiary)" }}>{totalModules} modules · {content.totalHours}h total</p>
           </div>
-          <div className="divide-y" style={{ borderColor: "#334155" }}>
+          <div className="divide-y" style={{ borderColor: "var(--border-default)" }}>
             {track.modules.map((m, i) => (
-              <div key={m.id} className="flex items-center gap-3 px-5 py-3.5" style={{ backgroundColor: i % 2 === 0 ? "#1A2535" : "#1E293B" }}>
-                <span className="text-xs flex-shrink-0 w-5 text-right" style={{ color: "#475569" }}>{i + 1}</span>
+              <div key={m.id} className="flex items-center gap-3 px-5 py-3.5" style={{ backgroundColor: i % 2 === 0 ? "#1A2535" : "var(--bg-surface)" }}>
+                <span className="text-xs flex-shrink-0 w-5 text-right" style={{ color: "var(--text-muted)" }}>{i + 1}</span>
                 <div className="flex-shrink-0 w-5 flex items-center justify-center">{moduleTypeIcon(m.type)}</div>
                 <span className="flex-1 text-sm" style={{ color: "#CBD5E1" }}>{m.title}</span>
-                <span className="text-xs capitalize flex-shrink-0" style={{ color: "#475569" }}>{m.type}</span>
-                <span className="text-xs flex-shrink-0" style={{ color: "#475569" }}>{m.duration}</span>
+                <span className="text-xs capitalize flex-shrink-0" style={{ color: "var(--text-muted)" }}>{m.type}</span>
+                <span className="text-xs flex-shrink-0" style={{ color: "var(--text-muted)" }}>{m.duration}</span>
               </div>
             ))}
           </div>
@@ -307,7 +307,7 @@ export default function AdminTrainingDetailPage({ params }: { params: Promise<{ 
               <h2 className="text-sm font-bold text-white flex items-center gap-2">
                 <ClipboardCheck size={16} style={{ color: "#3B82F6" }} /> Knowledge Checks
               </h2>
-              <p className="text-xs mt-0.5" style={{ color: "#64748B" }}>
+              <p className="text-xs mt-0.5" style={{ color: "var(--text-tertiary)" }}>
                 {track.knowledgeChecks.length} check{track.knowledgeChecks.length > 1 ? "s" : ""} · review question content below
               </p>
             </div>
@@ -315,26 +315,26 @@ export default function AdminTrainingDetailPage({ params }: { params: Promise<{ 
             {track.knowledgeChecks.map((check) => {
               const expanded = expandedCheckId === check.id
               return (
-                <div key={check.id} className="rounded-2xl overflow-hidden" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
+                <div key={check.id} className="rounded-2xl overflow-hidden" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
                   <button
                     onClick={() => setExpandedCheckId(expanded ? null : check.id)}
                     className="w-full flex items-center justify-between gap-3 px-5 py-4 flex-wrap text-left"
                   >
                     <div>
                       <p className="text-sm font-semibold text-white">{check.title}</p>
-                      <p className="text-xs mt-0.5" style={{ color: "#64748B" }}>
+                      <p className="text-xs mt-0.5" style={{ color: "var(--text-tertiary)" }}>
                         {check.questions.length} questions · Pass: {check.passingScore}%
                       </p>
                     </div>
-                    <span className="text-xs font-semibold px-3 py-1.5 rounded-lg flex-shrink-0" style={{ backgroundColor: "#334155", color: "#CBD5E1" }}>
+                    <span className="text-xs font-semibold px-3 py-1.5 rounded-lg flex-shrink-0" style={{ backgroundColor: "var(--border-default)", color: "#CBD5E1" }}>
                       {expanded ? "Hide" : "Preview"} Questions
                     </span>
                   </button>
 
                   {expanded && (
-                    <div className="px-5 pb-5 space-y-4" style={{ borderTop: "1px solid #334155" }}>
+                    <div className="px-5 pb-5 space-y-4" style={{ borderTop: "1px solid var(--border-default)" }}>
                       {check.questions.map((q: KnowledgeCheck["questions"][number], i: number) => (
-                        <div key={q.id} className="pt-4" style={{ borderTop: i === 0 ? "none" : "1px solid #1E293B" }}>
+                        <div key={q.id} className="pt-4" style={{ borderTop: i === 0 ? "none" : "1px solid var(--bg-surface)" }}>
                           <p className="text-sm font-medium text-white mb-2">Q{i + 1}. {q.question}</p>
                           {q.type === "mcq" ? (
                             <div className="space-y-1.5">
@@ -343,9 +343,9 @@ export default function AdminTrainingDetailPage({ params }: { params: Promise<{ 
                                   key={idx}
                                   className="px-3 py-2 rounded-lg text-sm"
                                   style={{
-                                    backgroundColor: idx === q.correctIndex ? "#10B98115" : "#0F172A",
-                                    border: `1px solid ${idx === q.correctIndex ? "#10B98130" : "#334155"}`,
-                                    color: idx === q.correctIndex ? "#34D399" : "#94A3B8",
+                                    backgroundColor: idx === q.correctIndex ? "#10B98115" : "var(--bg-surface-muted)",
+                                    border: `1px solid ${idx === q.correctIndex ? "#10B98130" : "var(--border-default)"}`,
+                                    color: idx === q.correctIndex ? "#34D399" : "var(--text-secondary)",
                                   }}
                                 >
                                   {idx === q.correctIndex && "✓ "}{opt}
@@ -374,20 +374,20 @@ export default function AdminTrainingDetailPage({ params }: { params: Promise<{ 
               <h2 className="text-sm font-bold text-white flex items-center gap-2">
                 <ClipboardList size={16} style={{ color: "#F59E0B" }} /> Assignments
               </h2>
-              <p className="text-xs mt-0.5" style={{ color: "#64748B" }}>
+              <p className="text-xs mt-0.5" style={{ color: "var(--text-tertiary)" }}>
                 {track.assignments.length} assignment{track.assignments.length > 1 ? "s" : ""} for this training
               </p>
             </div>
             {track.assignments.map((a) => (
-              <div key={a.id} className="rounded-2xl p-5" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
+              <div key={a.id} className="rounded-2xl p-5" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
                 <div className="flex items-start justify-between gap-3 mb-2">
                   <p className="text-sm font-semibold text-white">{a.title}</p>
-                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full flex-shrink-0 capitalize" style={{ backgroundColor: "#33415560", color: "#94A3B8" }}>
+                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full flex-shrink-0 capitalize" style={{ backgroundColor: "#33415560", color: "var(--text-secondary)" }}>
                     {a.submissionFormat}
                   </span>
                 </div>
-                <p className="text-sm mb-3" style={{ color: "#94A3B8" }}>{a.description}</p>
-                <div className="flex items-center gap-4 text-xs" style={{ color: "#64748B" }}>
+                <p className="text-sm mb-3" style={{ color: "var(--text-secondary)" }}>{a.description}</p>
+                <div className="flex items-center gap-4 text-xs" style={{ color: "var(--text-tertiary)" }}>
                   <span>Due {a.dueDate}</span>
                   <span>Max score: {a.maxScore}</span>
                 </div>
@@ -397,10 +397,10 @@ export default function AdminTrainingDetailPage({ params }: { params: Promise<{ 
         )}
 
         {/* Study groups (link out) */}
-        <div className="rounded-2xl p-4 flex items-center justify-between gap-3" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
+        <div className="rounded-2xl p-4 flex items-center justify-between gap-3" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
           <div className="flex items-center gap-2">
             <Users size={16} style={{ color: "#3B82F6" }} />
-            <p className="text-sm" style={{ color: "#94A3B8" }}>
+            <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
               {trainingGroups.length} study group{trainingGroups.length === 1 ? "" : "s"} for this training
             </p>
           </div>
@@ -414,21 +414,21 @@ export default function AdminTrainingDetailPage({ params }: { params: Promise<{ 
               <h2 className="text-sm font-bold text-white flex items-center gap-2">
                 <MessageSquare size={16} style={{ color: "#3B82F6" }} /> Discussions
               </h2>
-              <p className="text-xs mt-0.5" style={{ color: "#64748B" }}>{trainingDiscussions.length} thread{trainingDiscussions.length === 1 ? "" : "s"} for this training</p>
+              <p className="text-xs mt-0.5" style={{ color: "var(--text-tertiary)" }}>{trainingDiscussions.length} thread{trainingDiscussions.length === 1 ? "" : "s"} for this training</p>
             </div>
-            <Link href="/admin/discussions" className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg flex-shrink-0" style={{ backgroundColor: "#334155", color: "#CBD5E1" }}>
+            <Link href="/admin/discussions" className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg flex-shrink-0" style={{ backgroundColor: "var(--border-default)", color: "#CBD5E1" }}>
               <MessageSquare size={13} /> Moderate Discussions
             </Link>
           </div>
 
           {trainingDiscussions.length === 0 ? (
-            <div className="rounded-2xl p-8 text-center" style={{ backgroundColor: "#1E293B", border: "1px dashed #334155" }}>
-              <p className="text-sm" style={{ color: "#475569" }}>No discussions yet for this training.</p>
+            <div className="rounded-2xl p-8 text-center" style={{ backgroundColor: "var(--bg-surface)", border: "1px dashed var(--border-default)" }}>
+              <p className="text-sm" style={{ color: "var(--text-muted)" }}>No discussions yet for this training.</p>
             </div>
           ) : (
             <div className="space-y-3">
               {trainingDiscussions.map((d) => (
-                <div key={d.id} className="rounded-2xl p-4" style={{ backgroundColor: "#1E293B", border: `1px solid ${d.isPinned ? "#3B82F640" : "#334155"}` }}>
+                <div key={d.id} className="rounded-2xl p-4" style={{ backgroundColor: "var(--bg-surface)", border: `1px solid ${d.isPinned ? "#3B82F640" : "var(--border-default)"}` }}>
                   <div className="flex items-start gap-3">
                     <div className="flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold flex-shrink-0" style={{ backgroundColor: "#3B82F6", color: "#fff" }}>{d.authorAvatar}</div>
                     <div className="flex-1 min-w-0">
@@ -437,7 +437,7 @@ export default function AdminTrainingDetailPage({ params }: { params: Promise<{ 
                         {d.isPinned && <span className="text-xs px-1.5 py-0.5 rounded" style={{ backgroundColor: "#3B82F620", color: "#60A5FA" }}>Pinned</span>}
                         {d.isSolved && <span className="text-xs px-1.5 py-0.5 rounded" style={{ backgroundColor: "#10B98120", color: "#10B981" }}>Solved</span>}
                       </div>
-                      <p className="text-xs mt-0.5" style={{ color: "#64748B" }}>{d.author} · {d.createdAt} · {d.replies} replies · {d.views} views</p>
+                      <p className="text-xs mt-0.5" style={{ color: "var(--text-tertiary)" }}>{d.author} · {d.createdAt} · {d.replies} replies · {d.views} views</p>
                     </div>
                   </div>
                 </div>

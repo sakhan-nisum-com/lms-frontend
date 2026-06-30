@@ -58,8 +58,8 @@ export function LiveSessionTab({ interior }: Props) {
     <div className="space-y-5">
       {/* Session card */}
       <div
-        className="rounded-2xl p-5"
-        style={{ backgroundColor: "#1E293B", border: `1px solid ${platformColor}40` }}
+        className="rounded-2xl p-5 shadow-sm"
+        style={{ backgroundColor: "var(--bg-surface)", border: `1px solid ${platformColor}40` }}
       >
         <div className="flex items-start gap-4 flex-wrap">
           <div
@@ -77,13 +77,13 @@ export function LiveSessionTab({ interior }: Props) {
                 {PLATFORM_LABELS[liveSession.platform]}
               </span>
               {liveSession.recordingAvailable && (
-                <span className="text-xs px-2 py-0.5 rounded-full" style={{ backgroundColor: "#10B98115", color: "#10B981" }}>
+                <span className="text-xs px-2 py-0.5 rounded-full" style={{ backgroundColor: "var(--success-bg)", color: "var(--success)" }}>
                   ● Recording Available
                 </span>
               )}
             </div>
-            <h2 className="text-sm font-bold text-white">Live Lab Session</h2>
-            <p className="text-xs mt-0.5" style={{ color: "#64748B" }}>
+            <h2 className="text-sm font-bold" style={{ color: "var(--text-primary)" }}>Live Lab Session</h2>
+            <p className="text-xs mt-0.5" style={{ color: "var(--text-tertiary)" }}>
               {new Date(liveSession.scheduledDate).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
               {" · "}{liveSession.scheduledTime} · {liveSession.duration} · Hosted by {liveSession.host}
             </p>
@@ -92,9 +92,9 @@ export function LiveSessionTab({ interior }: Props) {
             <button
               onClick={() => setMicOn((v) => !v)}
               className="w-9 h-9 rounded-xl flex items-center justify-center"
-              style={{ backgroundColor: micOn ? "#EF444420" : "#334155", border: `1px solid ${micOn ? "#EF444440" : "#475569"}` }}
+              style={{ backgroundColor: micOn ? "var(--danger-bg)" : "var(--border-default)", border: `1px solid ${micOn ? "#EF444440" : "var(--text-muted)"}` }}
             >
-              {micOn ? <Mic size={14} style={{ color: "#EF4444" }} /> : <MicOff size={14} style={{ color: "#64748B" }} />}
+              {micOn ? <Mic size={14} style={{ color: "var(--danger)" }} /> : <MicOff size={14} style={{ color: "var(--text-tertiary)" }} />}
             </button>
             <a
               href={liveSession.joinUrl}
@@ -109,7 +109,7 @@ export function LiveSessionTab({ interior }: Props) {
         </div>
 
         {/* Controls row */}
-        <div className="flex items-center gap-2 mt-4 pt-4" style={{ borderTop: "1px solid #334155" }}>
+        <div className="flex items-center gap-2 mt-4 pt-4" style={{ borderTop: "1px solid var(--border-default)" }}>
           {[
             { icon: Grid3x3, label: "Gallery View" },
             { icon: Monitor, label: "Share Screen" },
@@ -119,7 +119,7 @@ export function LiveSessionTab({ interior }: Props) {
             <button
               key={label}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold"
-              style={{ backgroundColor: "#0F172A", color: "#64748B", border: "1px solid #334155" }}
+              style={{ backgroundColor: "var(--bg-surface-muted)", color: "var(--text-tertiary)", border: "1px solid var(--border-default)" }}
             >
               <Icon size={11} /> {label}
             </button>
@@ -128,10 +128,10 @@ export function LiveSessionTab({ interior }: Props) {
       </div>
 
       {/* Breakout Rooms */}
-      <div className="rounded-2xl p-5" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
+      <div className="rounded-2xl p-5 shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-sm font-bold text-white">Breakout Rooms</h2>
-          <span className="text-xs" style={{ color: "#64748B" }}>
+          <h2 className="text-sm font-bold" style={{ color: "var(--text-primary)" }}>Breakout Rooms</h2>
+          <span className="text-xs" style={{ color: "var(--text-tertiary)" }}>
             {liveSession.breakoutRooms.length} rooms active
           </span>
         </div>
@@ -142,18 +142,18 @@ export function LiveSessionTab({ interior }: Props) {
               <div
                 key={room.id}
                 className="rounded-xl p-4"
-                style={{ backgroundColor: "#0F172A", border: `1px solid ${isFull ? "#EF444430" : "#334155"}` }}
+                style={{ backgroundColor: "var(--bg-surface-muted)", border: `1px solid ${isFull ? "#EF444430" : "var(--border-default)"}` }}
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-bold text-white">{room.name}</p>
-                    <p className="text-xs mt-0.5" style={{ color: "#64748B" }}>{room.topic}</p>
-                    <p className="text-xs mt-1.5" style={{ color: "#64748B" }}>
-                      Host: <span style={{ color: "#94A3B8" }}>{room.host}</span>
+                    <p className="text-xs font-bold" style={{ color: "var(--text-primary)" }}>{room.name}</p>
+                    <p className="text-xs mt-0.5" style={{ color: "var(--text-tertiary)" }}>{room.topic}</p>
+                    <p className="text-xs mt-1.5" style={{ color: "var(--text-tertiary)" }}>
+                      Host: <span style={{ color: "var(--text-secondary)" }}>{room.host}</span>
                     </p>
                   </div>
                   <div className="text-right flex-shrink-0">
-                    <div className="flex items-center gap-1" style={{ color: isFull ? "#EF4444" : "#10B981" }}>
+                    <div className="flex items-center gap-1" style={{ color: isFull ? "var(--danger)" : "var(--success)" }}>
                       <Users size={11} />
                       <span className="text-xs font-bold">{room.participants}/{room.capacity}</span>
                     </div>
@@ -161,8 +161,8 @@ export function LiveSessionTab({ interior }: Props) {
                       disabled={isFull}
                       className="mt-2 px-3 py-1.5 rounded-lg text-xs font-semibold"
                       style={{
-                        backgroundColor: isFull ? "#334155" : `${platformColor}20`,
-                        color: isFull ? "#475569" : platformColor,
+                        backgroundColor: isFull ? "var(--border-default)" : `${platformColor}20`,
+                        color: isFull ? "var(--text-muted)" : platformColor,
                         cursor: isFull ? "not-allowed" : "pointer",
                       }}
                     >
@@ -171,10 +171,10 @@ export function LiveSessionTab({ interior }: Props) {
                   </div>
                 </div>
                 {/* Capacity bar */}
-                <div className="mt-3 h-1 rounded-full" style={{ backgroundColor: "#334155" }}>
+                <div className="mt-3 h-1 rounded-full" style={{ backgroundColor: "var(--border-default)" }}>
                   <div
                     className="h-full rounded-full"
-                    style={{ width: `${(room.participants / room.capacity) * 100}%`, backgroundColor: isFull ? "#EF4444" : platformColor }}
+                    style={{ width: `${(room.participants / room.capacity) * 100}%`, backgroundColor: isFull ? "var(--danger)" : platformColor }}
                   />
                 </div>
               </div>
@@ -184,10 +184,10 @@ export function LiveSessionTab({ interior }: Props) {
       </div>
 
       {/* Collaborative Whiteboard */}
-      <div className="rounded-2xl p-5" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
+      <div className="rounded-2xl p-5 shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-sm font-bold text-white">Collaborative Whiteboard</h2>
-          <span className="text-xs px-2 py-0.5 rounded-full" style={{ backgroundColor: "#F59E0B15", color: "#F59E0B" }}>
+          <h2 className="text-sm font-bold" style={{ color: "var(--text-primary)" }}>Collaborative Whiteboard</h2>
+          <span className="text-xs px-2 py-0.5 rounded-full" style={{ backgroundColor: "var(--warning-bg)", color: "var(--warning)" }}>
             🟡 Live — 12 collaborators
           </span>
         </div>
@@ -195,7 +195,7 @@ export function LiveSessionTab({ interior }: Props) {
         {/* Whiteboard placeholder */}
         <div
           className="rounded-xl relative overflow-hidden"
-          style={{ height: 240, backgroundColor: "#0F172A", border: "1px solid #334155" }}
+          style={{ height: 240, backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)" }}
         >
           {/* Sticky notes */}
           {[
@@ -239,7 +239,7 @@ export function LiveSessionTab({ interior }: Props) {
           <a
             href="#"
             className="absolute bottom-3 right-3 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold"
-            style={{ backgroundColor: "#334155", color: "#94A3B8" }}
+            style={{ backgroundColor: "var(--border-default)", color: "var(--text-secondary)" }}
           >
             <ExternalLink size={11} /> Open in {liveSession.whiteboardLabel.split(" — ")[1] ?? "Miro"}
           </a>
@@ -247,16 +247,16 @@ export function LiveSessionTab({ interior }: Props) {
       </div>
 
       {/* Live Q&A Chat */}
-      <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
+      <div className="rounded-2xl overflow-hidden shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
         <div
           className="px-5 py-3 flex items-center justify-between"
-          style={{ backgroundColor: "#0F172A", borderBottom: "1px solid #334155" }}
+          style={{ backgroundColor: "var(--bg-surface-muted)", borderBottom: "1px solid var(--border-default)" }}
         >
           <div className="flex items-center gap-2">
-            <MessageCircle size={14} style={{ color: "#3B82F6" }} />
-            <h2 className="text-sm font-bold text-white">Live Q&A Chat</h2>
+            <MessageCircle size={14} style={{ color: "var(--accent)" }} />
+            <h2 className="text-sm font-bold" style={{ color: "var(--text-primary)" }}>Live Q&A Chat</h2>
           </div>
-          <span className="text-xs" style={{ color: "#64748B" }}>{messages.length} messages</span>
+          <span className="text-xs" style={{ color: "var(--text-tertiary)" }}>{messages.length} messages</span>
         </div>
 
         {/* Messages */}
@@ -270,25 +270,25 @@ export function LiveSessionTab({ interior }: Props) {
               <div key={msg.id} className={`flex items-start gap-2.5 ${msg.sender === "You" ? "flex-row-reverse" : ""}`}>
                 <div
                   className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
-                  style={{ backgroundColor: msg.isInstructor ? "#3B82F620" : msg.sender === "You" ? "#8B5CF620" : "#334155", color: msg.isInstructor ? "#60A5FA" : msg.sender === "You" ? "#A78BFA" : "#94A3B8" }}
+                  style={{ backgroundColor: msg.isInstructor ? "var(--accent-subtle)" : msg.sender === "You" ? "#8B5CF620" : "var(--border-default)", color: msg.isInstructor ? "var(--accent)" : msg.sender === "You" ? "#A78BFA" : "var(--text-secondary)" }}
                 >
                   {msg.sender.charAt(0)}
                 </div>
                 <div className={`flex-1 ${msg.sender === "You" ? "items-end" : "items-start"} flex flex-col`}>
                   <div className="flex items-center gap-2 mb-0.5" style={{ flexDirection: msg.sender === "You" ? "row-reverse" : "row" }}>
-                    <span className="text-xs font-semibold" style={{ color: msg.isInstructor ? "#60A5FA" : "#94A3B8" }}>
+                    <span className="text-xs font-semibold" style={{ color: msg.isInstructor ? "var(--accent)" : "var(--text-secondary)" }}>
                       {msg.sender}
                     </span>
                     {msg.isInstructor && (
-                      <span className="text-xs px-1.5 py-0 rounded-full" style={{ backgroundColor: "#3B82F615", color: "#60A5FA" }}>Instructor</span>
+                      <span className="text-xs px-1.5 py-0 rounded-full" style={{ backgroundColor: "var(--accent-subtle)", color: "var(--accent)" }}>Instructor</span>
                     )}
-                    <span className="text-xs" style={{ color: "#334155" }}>{msg.timestamp}</span>
+                    <span className="text-xs" style={{ color: "var(--border-default)" }}>{msg.timestamp}</span>
                   </div>
                   <div
                     className="text-xs leading-relaxed px-3 py-2 rounded-xl max-w-xs"
                     style={{
-                      backgroundColor: msg.isInstructor ? "#3B82F615" : msg.sender === "You" ? "#8B5CF620" : "#0F172A",
-                      color: "#CBD5E1",
+                      backgroundColor: msg.isInstructor ? "var(--accent-subtle)" : msg.sender === "You" ? "#8B5CF620" : "var(--bg-surface-muted)",
+                      color: "var(--text-secondary)",
                     }}
                   >
                     {msg.message}
@@ -302,7 +302,7 @@ export function LiveSessionTab({ interior }: Props) {
         {/* Input */}
         <div
           className="flex items-center gap-2 px-4 py-3"
-          style={{ borderTop: "1px solid #334155", backgroundColor: "#0F172A" }}
+          style={{ borderTop: "1px solid var(--border-default)", backgroundColor: "var(--bg-surface-muted)" }}
         >
           <input
             value={chatInput}
@@ -310,12 +310,12 @@ export function LiveSessionTab({ interior }: Props) {
             onKeyDown={(e) => e.key === "Enter" && sendMessage()}
             placeholder="Ask a question or share a note..."
             className="flex-1 px-3 py-2 rounded-xl text-xs outline-none"
-            style={{ backgroundColor: "#1E293B", border: "1px solid #334155", color: "#F8FAFC" }}
+            style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)", color: "var(--text-primary)" }}
           />
           <button
             onClick={sendMessage}
             className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-            style={{ backgroundColor: "#3B82F6" }}
+            style={{ backgroundColor: "var(--accent)" }}
           >
             <Send size={13} color="#fff" />
           </button>
@@ -323,18 +323,18 @@ export function LiveSessionTab({ interior }: Props) {
       </div>
 
       {/* Attendance QR */}
-      <div className="rounded-2xl p-5" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
+      <div className="rounded-2xl p-5 shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: "#10B98115" }}>
-            <QrCode size={22} style={{ color: "#10B981" }} />
+          <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: "var(--success-bg)" }}>
+            <QrCode size={22} style={{ color: "var(--success)" }} />
           </div>
           <div className="flex-1">
-            <p className="text-sm font-bold text-white">Session Attendance Check-in</p>
-            <p className="text-xs mt-0.5" style={{ color: "#64748B" }}>Scan the QR code displayed by your instructor or click below to register your attendance digitally.</p>
+            <p className="text-sm font-bold" style={{ color: "var(--text-primary)" }}>Session Attendance Check-in</p>
+            <p className="text-xs mt-0.5" style={{ color: "var(--text-tertiary)" }}>Scan the QR code displayed by your instructor or click below to register your attendance digitally.</p>
           </div>
           <button
             className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white flex-shrink-0"
-            style={{ backgroundColor: "#10B981" }}
+            style={{ backgroundColor: "var(--success)" }}
           >
             <QrCode size={12} /> Check In
           </button>

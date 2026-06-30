@@ -43,10 +43,10 @@ const streakData = [
 ]
 
 const activityColor = (level: number) => {
-  if (level === 0) return "#1E293B"
+  if (level === 0) return "var(--bg-surface-muted)"
   if (level === 1) return "#1D4ED840"
   if (level === 2) return "#3B82F680"
-  return "#3B82F6"
+  return "var(--accent)"
 }
 
 // Achievements
@@ -83,8 +83,8 @@ export default function ProgressPage() {
 
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-bold text-white">Progress & Analytics</h1>
-          <p className="text-sm mt-1" style={{ color: "#94A3B8" }}>
+          <h1 className="text-2xl font-bold" style={{ color: "var(--text-primary)" }}>Progress & Analytics</h1>
+          <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>
             Your learning journey at a glance — last updated June 12, 2025
           </p>
         </div>
@@ -97,15 +97,15 @@ export default function ProgressPage() {
             { label: "Quizzes Passed", value: `${quizzesPassed}/${QUIZZES.length}`, sub: `avg ${avgQuizScore}%`, icon: CheckCircle2, color: "#10B981" },
             { label: "Current Streak", value: `${p.streak} days`, sub: "keep it going!", icon: Flame, color: "#EF4444" },
           ].map(({ label, value, sub, icon: Icon, color }) => (
-            <div key={label} className="rounded-2xl p-5" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
+            <div key={label} className="rounded-2xl p-5 shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center justify-center w-9 h-9 rounded-xl" style={{ backgroundColor: `${color}20` }}>
                   <Icon size={17} style={{ color }} />
                 </div>
               </div>
-              <p className="text-2xl font-bold text-white">{value}</p>
-              <p className="text-xs font-medium mt-0.5" style={{ color: "#94A3B8" }}>{label}</p>
-              <p className="text-xs" style={{ color: "#475569" }}>{sub}</p>
+              <p className="text-2xl font-bold" style={{ color: "var(--text-primary)" }}>{value}</p>
+              <p className="text-xs font-medium mt-0.5" style={{ color: "var(--text-secondary)" }}>{label}</p>
+              <p className="text-xs" style={{ color: "var(--text-muted)" }}>{sub}</p>
             </div>
           ))}
         </div>
@@ -117,10 +117,10 @@ export default function ProgressPage() {
           <div className="lg:col-span-2 space-y-6">
 
             {/* Activity chart */}
-            <div className="rounded-2xl p-5" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
+            <div className="rounded-2xl p-5 shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-sm font-bold text-white">Weekly Learning Activity</h2>
-                <span className="text-xs" style={{ color: "#64748B" }}>Last 8 weeks</span>
+                <h2 className="text-sm font-bold" style={{ color: "var(--text-primary)" }}>Weekly Learning Activity</h2>
+                <span className="text-xs" style={{ color: "var(--text-tertiary)" }}>Last 8 weeks</span>
               </div>
               <div className="flex items-end gap-2 h-32">
                 {weeklyData.map(({ week, hours }) => {
@@ -132,15 +132,15 @@ export default function ProgressPage() {
                         className="w-full rounded-t-lg transition-all"
                         style={{
                           height: `${barH}px`,
-                          backgroundColor: isLast ? "#3B82F6" : "#3B82F640",
+                          backgroundColor: isLast ? "var(--accent)" : "#3B82F640",
                         }}
                       />
-                      <span className="text-xs" style={{ color: "#475569", fontSize: 9 }}>
+                      <span className="text-xs" style={{ color: "var(--text-muted)", fontSize: 9 }}>
                         {week.slice(4)}
                       </span>
                       <div
                         className="absolute -top-7 left-1/2 -translate-x-1/2 px-1.5 py-0.5 rounded text-xs font-semibold opacity-0 group-hover:opacity-100 pointer-events-none"
-                        style={{ backgroundColor: "#334155", color: "#F8FAFC", whiteSpace: "nowrap" }}
+                        style={{ backgroundColor: "var(--border-default)", color: "var(--text-primary)", whiteSpace: "nowrap" }}
                       >
                         {hours}h
                       </div>
@@ -148,16 +148,16 @@ export default function ProgressPage() {
                   )
                 })}
               </div>
-              <div className="flex items-center justify-between mt-3 pt-3 text-xs" style={{ borderTop: "1px solid #334155", color: "#64748B" }}>
-                <span>Total this month: <strong className="text-white">22h</strong></span>
-                <span>vs last month: <strong style={{ color: "#10B981" }}>+18%</strong></span>
-                <span>Weekly goal: <strong className="text-white">{p.weeklyGoal}h</strong></span>
+              <div className="flex items-center justify-between mt-3 pt-3 text-xs" style={{ borderTop: "1px solid var(--border-default)", color: "var(--text-tertiary)" }}>
+                <span>Total this month: <strong style={{ color: "var(--text-primary)" }}>22h</strong></span>
+                <span>vs last month: <strong style={{ color: "var(--success)" }}>+18%</strong></span>
+                <span>Weekly goal: <strong style={{ color: "var(--text-primary)" }}>{p.weeklyGoal}h</strong></span>
               </div>
             </div>
 
             {/* Course progress breakdown */}
-            <div className="rounded-2xl p-5" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
-              <h2 className="text-sm font-bold text-white mb-4">Course Progress Breakdown</h2>
+            <div className="rounded-2xl p-5 shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
+              <h2 className="text-sm font-bold mb-4" style={{ color: "var(--text-primary)" }}>Course Progress Breakdown</h2>
               <div className="space-y-4">
                 {enrolled.map((course) => {
                   const totalLessons = course.sections.reduce((s, sec) => s + sec.lessons.length, 0)
@@ -176,23 +176,23 @@ export default function ProgressPage() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between gap-2">
-                            <span className="text-xs font-semibold text-white truncate">{course.title}</span>
-                            <span className="text-xs font-bold flex-shrink-0" style={{ color: course.progress === 100 ? "#10B981" : "#94A3B8" }}>
+                            <span className="text-xs font-semibold truncate" style={{ color: "var(--text-primary)" }}>{course.title}</span>
+                            <span className="text-xs font-bold flex-shrink-0" style={{ color: course.progress === 100 ? "var(--success)" : "var(--text-secondary)" }}>
                               {course.progress}%
                             </span>
                           </div>
-                          <span className="text-xs" style={{ color: "#475569" }}>
+                          <span className="text-xs" style={{ color: "var(--text-muted)" }}>
                             {completedLessons}/{totalLessons > 0 ? totalLessons : "?"} lessons
                             {course.grade !== undefined && ` · Grade: ${course.grade}%`}
                           </span>
                         </div>
                       </div>
-                      <div className="h-2 rounded-full" style={{ backgroundColor: "#334155" }}>
+                      <div className="h-2 rounded-full" style={{ backgroundColor: "var(--border-default)" }}>
                         <div
                           className="h-full rounded-full"
                           style={{
                             width: `${course.progress}%`,
-                            backgroundColor: course.progress === 100 ? "#10B981" : course.thumbnailColor,
+                            backgroundColor: course.progress === 100 ? "var(--success)" : course.thumbnailColor,
                           }}
                         />
                       </div>
@@ -203,10 +203,10 @@ export default function ProgressPage() {
             </div>
 
             {/* Activity heatmap */}
-            <div className="rounded-2xl p-5" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
+            <div className="rounded-2xl p-5 shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-sm font-bold text-white">Activity Heatmap</h2>
-                <span className="text-xs" style={{ color: "#64748B" }}>Last 28 days</span>
+                <h2 className="text-sm font-bold" style={{ color: "var(--text-primary)" }}>Activity Heatmap</h2>
+                <span className="text-xs" style={{ color: "var(--text-tertiary)" }}>Last 28 days</span>
               </div>
               <div className="grid gap-1.5" style={{ gridTemplateColumns: "repeat(14, 1fr)" }}>
                 {streakData.map((level, i) => (
@@ -218,7 +218,7 @@ export default function ProgressPage() {
                   />
                 ))}
               </div>
-              <div className="flex items-center gap-2 mt-3 text-xs" style={{ color: "#64748B" }}>
+              <div className="flex items-center gap-2 mt-3 text-xs" style={{ color: "var(--text-tertiary)" }}>
                 <span>Less</span>
                 {[0, 1, 2, 3].map((l) => (
                   <div key={l} className="w-3 h-3 rounded" style={{ backgroundColor: activityColor(l) }} />
@@ -232,16 +232,16 @@ export default function ProgressPage() {
           <div className="space-y-4">
 
             {/* Skills */}
-            <div className="rounded-2xl p-5" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
-              <h2 className="text-sm font-bold text-white mb-4">Skills Progress</h2>
+            <div className="rounded-2xl p-5 shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
+              <h2 className="text-sm font-bold mb-4" style={{ color: "var(--text-primary)" }}>Skills Progress</h2>
               <div className="space-y-3">
                 {skills.map((skill) => (
                   <div key={skill.name}>
                     <div className="flex justify-between mb-1 text-xs">
-                      <span style={{ color: "#94A3B8" }}>{skill.name}</span>
+                      <span style={{ color: "var(--text-secondary)" }}>{skill.name}</span>
                       <span className="font-semibold" style={{ color: skill.color }}>{skill.level}%</span>
                     </div>
-                    <div className="h-1.5 rounded-full" style={{ backgroundColor: "#334155" }}>
+                    <div className="h-1.5 rounded-full" style={{ backgroundColor: "var(--border-default)" }}>
                       <div
                         className="h-full rounded-full"
                         style={{ width: `${skill.level}%`, backgroundColor: skill.color }}
@@ -253,18 +253,18 @@ export default function ProgressPage() {
             </div>
 
             {/* Time by category */}
-            <div className="rounded-2xl p-5" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
-              <h2 className="text-sm font-bold text-white mb-4">Time by Category</h2>
+            <div className="rounded-2xl p-5 shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
+              <h2 className="text-sm font-bold mb-4" style={{ color: "var(--text-primary)" }}>Time by Category</h2>
               <div className="space-y-3">
                 {categoryBreakdown.map((cat) => {
                   const pct = Math.round((cat.hours / totalCatHours) * 100)
                   return (
                     <div key={cat.name}>
                       <div className="flex justify-between mb-1 text-xs">
-                        <span style={{ color: "#94A3B8" }}>{cat.name}</span>
-                        <span className="font-medium text-white">{cat.hours}h <span style={{ color: "#475569" }}>({pct}%)</span></span>
+                        <span style={{ color: "var(--text-secondary)" }}>{cat.name}</span>
+                        <span className="font-medium" style={{ color: "var(--text-primary)" }}>{cat.hours}h <span style={{ color: "var(--text-muted)" }}>({pct}%)</span></span>
                       </div>
-                      <div className="h-2 rounded-full" style={{ backgroundColor: "#334155" }}>
+                      <div className="h-2 rounded-full" style={{ backgroundColor: "var(--border-default)" }}>
                         <div className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: cat.color }} />
                       </div>
                     </div>
@@ -274,21 +274,21 @@ export default function ProgressPage() {
             </div>
 
             {/* Achievements */}
-            <div className="rounded-2xl p-5" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
-              <h2 className="text-sm font-bold text-white mb-4">Achievements</h2>
+            <div className="rounded-2xl p-5 shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
+              <h2 className="text-sm font-bold mb-4" style={{ color: "var(--text-primary)" }}>Achievements</h2>
               <div className="grid grid-cols-3 gap-2">
                 {achievements.map((ach) => (
                   <div
                     key={ach.id}
                     className="flex flex-col items-center gap-1.5 p-2.5 rounded-xl"
                     style={{
-                      backgroundColor: ach.earned ? "#334155" : "#1A2535",
+                      backgroundColor: ach.earned ? "var(--border-default)" : "#1A2535",
                       opacity: ach.earned ? 1 : 0.4,
                     }}
                     title={ach.earned ? `Earned: ${ach.date}` : "Not yet earned"}
                   >
                     <span style={{ fontSize: 22 }}>{ach.icon}</span>
-                    <span className="text-xs text-center leading-tight" style={{ color: ach.earned ? "#CBD5E1" : "#475569", fontSize: 10 }}>
+                    <span className="text-xs text-center leading-tight" style={{ color: ach.earned ? "#CBD5E1" : "var(--text-muted)", fontSize: 10 }}>
                       {ach.label}
                     </span>
                   </div>
@@ -297,12 +297,12 @@ export default function ProgressPage() {
             </div>
 
             {/* Quick goals */}
-            <div className="rounded-2xl p-5" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
+            <div className="rounded-2xl p-5 shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
               <div className="flex items-center gap-2 mb-4">
-                <Target size={14} style={{ color: "#3B82F6" }} />
-                <h2 className="text-sm font-bold text-white">Learning Goal</h2>
+                <Target size={14} style={{ color: "var(--accent)" }} />
+                <h2 className="text-sm font-bold" style={{ color: "var(--text-primary)" }}>Learning Goal</h2>
               </div>
-              <p className="text-xs leading-relaxed mb-4" style={{ color: "#94A3B8" }}>{p.learningGoal}</p>
+              <p className="text-xs leading-relaxed mb-4" style={{ color: "var(--text-secondary)" }}>{p.learningGoal}</p>
               <div className="space-y-2">
                 {[
                   { label: "Complete React course", done: false },
@@ -311,8 +311,8 @@ export default function ProgressPage() {
                   { label: "Cybersecurity cert ✓", done: true },
                   { label: "DEI cert ✓", done: true },
                 ].map(({ label, done }) => (
-                  <div key={label} className="flex items-center gap-2 text-xs" style={{ color: done ? "#64748B" : "#94A3B8" }}>
-                    <CheckCircle2 size={12} style={{ color: done ? "#10B981" : "#334155" }} />
+                  <div key={label} className="flex items-center gap-2 text-xs" style={{ color: done ? "var(--text-tertiary)" : "var(--text-secondary)" }}>
+                    <CheckCircle2 size={12} style={{ color: done ? "var(--success)" : "var(--border-default)" }} />
                     <span style={{ textDecoration: done ? "line-through" : "none" }}>{label}</span>
                   </div>
                 ))}

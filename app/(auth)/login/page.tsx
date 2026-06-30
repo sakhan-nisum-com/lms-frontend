@@ -26,7 +26,7 @@ export default function LoginPage() {
 
   return (
     <div style={{
-      minHeight: "calc(100vh - var(--app-header-height, 150px))", backgroundColor: "#0f172a",
+      minHeight: "calc(100vh - var(--app-header-height, 150px))", backgroundColor: "var(--bg-canvas)",
       display: "flex", alignItems: "center", justifyContent: "center",
       padding: "24px", position: "relative",
     }}>
@@ -42,20 +42,20 @@ export default function LoginPage() {
         {/* Logo & heading */}
         <div style={{ textAlign: "center", marginBottom: 32 }}>
           <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: 10, textDecoration: "none", marginBottom: 28 }}>
-            <div style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: "#3b82f6", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <div style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: "var(--accent)", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <GraduationCap size={24} color="#fff" />
             </div>
-            <span style={{ fontWeight: 800, fontSize: 20, color: "#f8fafc" }}>LearnFlow</span>
+            <span style={{ fontWeight: 800, fontSize: 20, color: "var(--text-primary)" }}>LearnFlow</span>
           </Link>
-          <h1 style={{ fontSize: 28, fontWeight: 800, color: "#f8fafc", marginBottom: 8, letterSpacing: "-0.02em" }}>Welcome back</h1>
-          <p style={{ color: "#94a3b8", fontSize: 15 }}>Sign in to continue your learning journey</p>
+          <h1 style={{ fontSize: 28, fontWeight: 800, color: "var(--text-primary)", marginBottom: 8, letterSpacing: "-0.02em" }}>Welcome back</h1>
+          <p style={{ color: "var(--text-secondary)", fontSize: 15 }}>Sign in to continue your learning journey</p>
         </div>
 
         {/* Card */}
-        <div style={{ backgroundColor: "#1e293b", border: "1px solid #334155", borderRadius: 24, padding: "36px 32px" }}>
+        <div className="shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)", borderRadius: 24, padding: "36px 32px" }}>
 
           {/* Role toggle */}
-          <div style={{ display: "flex", backgroundColor: "#0f172a", borderRadius: 12, padding: 4, marginBottom: 28, gap: 4 }}>
+          <div style={{ display: "flex", backgroundColor: "var(--bg-surface-muted)", borderRadius: 12, padding: 4, marginBottom: 28, gap: 4 }}>
             {(["student", "tutor", "admin"] as const).map((r) => (
               <button
                 key={r}
@@ -63,8 +63,8 @@ export default function LoginPage() {
                 style={{
                   flex: 1, padding: "9px 0", borderRadius: 9, fontSize: 14, fontWeight: 600,
                   border: "none", cursor: "pointer", transition: "all 0.15s",
-                  backgroundColor: role === r ? "#3b82f6" : "transparent",
-                  color: role === r ? "#fff" : "#64748b",
+                  backgroundColor: role === r ? "var(--accent)" : "transparent",
+                  color: role === r ? "#fff" : "var(--text-tertiary)",
                 }}
               >
                 {r === "student" ? "Student" : r === "tutor" ? "Instructor" : "Admin"}
@@ -75,7 +75,7 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
             {/* Email */}
             <div>
-              <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#cbd5e1", marginBottom: 7 }}>
+              <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "var(--text-secondary)", marginBottom: 7 }}>
                 Email address
               </label>
               <input
@@ -86,19 +86,19 @@ export default function LoginPage() {
                 required
                 style={{
                   width: "100%", padding: "11px 14px", borderRadius: 10,
-                  backgroundColor: "#0f172a", border: "1px solid #334155",
-                  color: "#f8fafc", fontSize: 14, outline: "none", boxSizing: "border-box",
+                  backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)",
+                  color: "var(--text-primary)", fontSize: 14, outline: "none", boxSizing: "border-box",
                 }}
                 onFocus={(e) => (e.target.style.borderColor = "#3b82f6")}
-                onBlur={(e) => (e.target.style.borderColor = "#334155")}
+                onBlur={(e) => (e.target.style.borderColor = "var(--border-default)")}
               />
             </div>
 
             {/* Password */}
             <div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 7 }}>
-                <label style={{ fontSize: 13, fontWeight: 600, color: "#cbd5e1" }}>Password</label>
-                <Link href="/forgot-password" style={{ fontSize: 13, color: "#3b82f6", textDecoration: "none" }}>
+                <label style={{ fontSize: 13, fontWeight: 600, color: "var(--text-secondary)" }}>Password</label>
+                <Link href="/forgot-password" style={{ fontSize: 13, color: "var(--accent)", textDecoration: "none" }}>
                   Forgot password?
                 </Link>
               </div>
@@ -111,16 +111,16 @@ export default function LoginPage() {
                   required
                   style={{
                     width: "100%", padding: "11px 44px 11px 14px", borderRadius: 10,
-                    backgroundColor: "#0f172a", border: "1px solid #334155",
-                    color: "#f8fafc", fontSize: 14, outline: "none", boxSizing: "border-box",
+                    backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)",
+                    color: "var(--text-primary)", fontSize: 14, outline: "none", boxSizing: "border-box",
                   }}
                   onFocus={(e) => (e.target.style.borderColor = "#3b82f6")}
-                  onBlur={(e) => (e.target.style.borderColor = "#334155")}
+                  onBlur={(e) => (e.target.style.borderColor = "var(--border-default)")}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPw(!showPw)}
-                  style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "#64748b", padding: 0 }}
+                  style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "var(--text-tertiary)", padding: 0 }}
                 >
                   {showPw ? <EyeOff size={17} /> : <Eye size={17} />}
                 </button>
@@ -133,7 +133,7 @@ export default function LoginPage() {
               disabled={loading}
               style={{
                 width: "100%", padding: "13px", borderRadius: 11, border: "none",
-                backgroundColor: loading ? "#2563eb" : "#3b82f6", color: "#fff",
+                backgroundColor: loading ? "var(--accent-hover)" : "var(--accent)", color: "#fff",
                 fontSize: 15, fontWeight: 700, cursor: loading ? "not-allowed" : "pointer",
                 display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
                 boxShadow: "0 4px 20px rgba(59,130,246,0.35)",
@@ -153,9 +153,9 @@ export default function LoginPage() {
 
           {/* Divider */}
           <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "24px 0" }}>
-            <div style={{ flex: 1, height: 1, backgroundColor: "#334155" }} />
-            <span style={{ color: "#475569", fontSize: 13 }}>or continue with</span>
-            <div style={{ flex: 1, height: 1, backgroundColor: "#334155" }} />
+            <div style={{ flex: 1, height: 1, backgroundColor: "var(--border-default)" }} />
+            <span style={{ color: "var(--text-muted)", fontSize: 13 }}>or continue with</span>
+            <div style={{ flex: 1, height: 1, backgroundColor: "var(--border-default)" }} />
           </div>
 
           {/* OAuth */}
@@ -165,12 +165,12 @@ export default function LoginPage() {
                 key={p}
                 onClick={() => router.push("/student/dashboard")}
                 style={{
-                  padding: "11px", borderRadius: 10, border: "1px solid #334155",
-                  backgroundColor: "#0f172a", color: "#cbd5e1", fontSize: 14, fontWeight: 600,
+                  padding: "11px", borderRadius: 10, border: "1px solid var(--border-default)",
+                  backgroundColor: "var(--bg-surface-muted)", color: "var(--text-secondary)", fontSize: 14, fontWeight: 600,
                   cursor: "pointer", transition: "border-color 0.15s",
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.borderColor = "#475569")}
-                onMouseLeave={(e) => (e.currentTarget.style.borderColor = "#334155")}
+                onMouseEnter={(e) => (e.currentTarget.style.borderColor = "var(--text-muted)")}
+                onMouseLeave={(e) => (e.currentTarget.style.borderColor = "var(--border-default)")}
               >
                 {p}
               </button>
@@ -178,20 +178,20 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <p style={{ textAlign: "center", marginTop: 24, fontSize: 14, color: "#64748b" }}>
+        <p style={{ textAlign: "center", marginTop: 24, fontSize: 14, color: "var(--text-tertiary)" }}>
           Don&apos;t have an account?{" "}
-          <Link href="/register" style={{ color: "#3b82f6", fontWeight: 600, textDecoration: "none" }}>
+          <Link href="/register" style={{ color: "var(--accent)", fontWeight: 600, textDecoration: "none" }}>
             Sign up free
           </Link>
         </p>
 
         {/* Quick demo links */}
         <div style={{ textAlign: "center", marginTop: 16 }}>
-          <p style={{ fontSize: 12, color: "#475569", marginBottom: 8 }}>Quick demo access:</p>
+          <p style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 8 }}>Quick demo access:</p>
           <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
             <Link
               href="/student/dashboard"
-              style={{ fontSize: 12, color: "#3b82f6", textDecoration: "none", padding: "5px 12px", borderRadius: 8, border: "1px solid #3b82f630", backgroundColor: "#3b82f610" }}
+              style={{ fontSize: 12, color: "var(--accent)", textDecoration: "none", padding: "5px 12px", borderRadius: 8, border: "1px solid #3b82f630", backgroundColor: "#3b82f610" }}
             >
               → Student Dashboard
             </Link>
@@ -203,7 +203,7 @@ export default function LoginPage() {
             </Link>
             <Link
               href="/admin/dashboard"
-              style={{ fontSize: 12, color: "#F59E0B", textDecoration: "none", padding: "5px 12px", borderRadius: 8, border: "1px solid #F59E0B30", backgroundColor: "#F59E0B10" }}
+              style={{ fontSize: 12, color: "var(--warning)", textDecoration: "none", padding: "5px 12px", borderRadius: 8, border: "1px solid #F59E0B30", backgroundColor: "#F59E0B10" }}
             >
               → Admin Dashboard
             </Link>

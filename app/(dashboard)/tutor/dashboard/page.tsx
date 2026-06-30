@@ -43,8 +43,8 @@ const courses = [
 ]
 
 const statusColors: Record<string, React.CSSProperties> = {
-  Published: { backgroundColor: "#10B98120", color: "#34D399" },
-  Draft: { backgroundColor: "#F59E0B20", color: "#FCD34D" },
+  Published: { backgroundColor: "var(--success-bg)", color: "var(--success)" },
+  Draft: { backgroundColor: "var(--warning-bg)", color: "var(--warning)" },
 }
 
 export default function TutorDashboardPage() {
@@ -54,14 +54,14 @@ export default function TutorDashboardPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-white">Instructor Dashboard</h1>
-            <p className="text-sm mt-1" style={{ color: "#94A3B8" }}>
+            <h1 className="text-2xl font-bold" style={{ color: "var(--text-primary)" }}>Instructor Dashboard</h1>
+            <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>
               Here&apos;s how your courses are performing this month.
             </p>
           </div>
           <button
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white transition-opacity hover:opacity-90"
-            style={{ backgroundColor: "#3B82F6" }}
+            style={{ backgroundColor: "var(--accent)" }}
           >
             <Plus size={16} />
             New Course
@@ -73,17 +73,17 @@ export default function TutorDashboardPage() {
           {stats.map(({ label, value, icon: Icon, color }) => (
             <div
               key={label}
-              className="rounded-2xl p-5"
-              style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
+              className="rounded-2xl p-5 shadow-sm"
+              style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
             >
               <div
                 className="flex items-center justify-center w-10 h-10 rounded-xl mb-3"
-                style={{ backgroundColor: `${color}20` }}
+                style={{ backgroundColor: `${color}18` }}
               >
                 <Icon size={20} style={{ color }} />
               </div>
-              <div className="text-2xl font-bold text-white">{value}</div>
-              <div className="text-xs mt-0.5" style={{ color: "#64748B" }}>{label}</div>
+              <div className="text-2xl font-bold" style={{ color: "var(--text-primary)" }}>{value}</div>
+              <div className="text-xs mt-0.5" style={{ color: "var(--text-tertiary)" }}>{label}</div>
             </div>
           ))}
         </div>
@@ -91,27 +91,27 @@ export default function TutorDashboardPage() {
         {/* Courses table */}
         <div>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-base font-semibold text-white">My Courses</h2>
+            <h2 className="text-base font-semibold" style={{ color: "var(--text-primary)" }}>My Courses</h2>
             <button
               className="flex items-center gap-1 text-xs font-medium"
-              style={{ color: "#3B82F6" }}
+              style={{ color: "var(--accent)" }}
             >
               Manage all <ChevronRight size={14} />
             </button>
           </div>
 
           <div
-            className="rounded-2xl overflow-hidden"
-            style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
+            className="rounded-2xl overflow-hidden shadow-sm"
+            style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
           >
             <table className="w-full text-sm">
               <thead>
-                <tr style={{ borderBottom: "1px solid #334155" }}>
+                <tr style={{ borderBottom: "1px solid var(--border-default)" }}>
                   {["Course", "Students", "Rating", "Status"].map((h) => (
                     <th
                       key={h}
                       className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider"
-                      style={{ color: "#64748B" }}
+                      style={{ color: "var(--text-tertiary)" }}
                     >
                       {h}
                     </th>
@@ -123,20 +123,20 @@ export default function TutorDashboardPage() {
                   <tr
                     key={course.title}
                     className="transition-colors"
-                    style={{ borderBottom: i < courses.length - 1 ? "1px solid #334155" : "none" }}
-                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#334155")}
+                    style={{ borderBottom: i < courses.length - 1 ? "1px solid var(--border-default)" : "none" }}
+                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "var(--bg-surface-muted)")}
                     onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
                   >
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-3">
                         <span className="text-xl">{course.emoji}</span>
-                        <span className="font-medium text-white">{course.title}</span>
+                        <span className="font-medium" style={{ color: "var(--text-primary)" }}>{course.title}</span>
                       </div>
                     </td>
-                    <td className="px-5 py-4" style={{ color: "#94A3B8" }}>
+                    <td className="px-5 py-4" style={{ color: "var(--text-secondary)" }}>
                       {course.students.toLocaleString()}
                     </td>
-                    <td className="px-5 py-4" style={{ color: "#94A3B8" }}>
+                    <td className="px-5 py-4" style={{ color: "var(--text-secondary)" }}>
                       {course.rating > 0 ? (
                         <span className="flex items-center gap-1">
                           <Star size={13} fill="#F59E0B" style={{ color: "#F59E0B" }} />
@@ -164,10 +164,10 @@ export default function TutorDashboardPage() {
         {/* Analytics placeholder */}
         <div
           className="rounded-2xl p-8 text-center"
-          style={{ backgroundColor: "#1E293B", border: "1px dashed #334155" }}
+          style={{ backgroundColor: "var(--bg-surface)", border: "1px dashed var(--border-default)" }}
         >
-          <BarChart2 size={32} className="mx-auto mb-3" style={{ color: "#334155" }} />
-          <p className="text-sm font-medium" style={{ color: "#475569" }}>
+          <BarChart2 size={32} className="mx-auto mb-3" style={{ color: "var(--border-default)" }} />
+          <p className="text-sm font-medium" style={{ color: "var(--text-muted)" }}>
             Detailed analytics, revenue charts, and student engagement coming soon
           </p>
         </div>

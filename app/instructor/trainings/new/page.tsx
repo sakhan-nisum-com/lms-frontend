@@ -92,7 +92,7 @@ function uid(p: string) {
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
   return (
-    <label className="block text-xs font-semibold mb-1.5" style={{ color: "#94A3B8" }}>
+    <label className="block text-xs font-semibold mb-1.5" style={{ color: "var(--text-secondary)" }}>
       {children}
     </label>
   )
@@ -102,7 +102,7 @@ function PanelCard({ children, accent }: { children: React.ReactNode; accent?: s
   return (
     <div
       className="rounded-2xl"
-      style={{ backgroundColor: "#1E293B", border: `1px solid ${accent ?? "#334155"}` }}
+      style={{ backgroundColor: "var(--bg-surface)", border: `1px solid ${accent ?? "var(--border-default)"}` }}
     >
       {children}
     </div>
@@ -114,12 +114,12 @@ function PanelHeader({ icon: Icon, iconColor, iconBg, title, action }: {
   title: string; action?: React.ReactNode
 }) {
   return (
-    <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: "1px solid #334155" }}>
+    <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: "1px solid var(--border-default)" }}>
       <div className="flex items-center gap-2.5">
         <div className="flex items-center justify-center w-6 h-6 rounded-lg" style={{ backgroundColor: iconBg }}>
           <Icon size={13} style={{ color: iconColor }} />
         </div>
-        <p className="text-sm font-semibold text-white">{title}</p>
+        <p className="text-sm font-semibold text-[var(--text-primary)]">{title}</p>
       </div>
       {action}
     </div>
@@ -301,14 +301,14 @@ export default function CreateTrainingPage() {
           <Link
             href="/instructor/trainings"
             className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-medium transition-colors"
-            style={{ backgroundColor: "#1E293B", border: "1px solid #334155", color: "#CBD5E1" }}
+            style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)", color: "var(--text-secondary)" }}
           >
             <ArrowLeft size={14} />
             <span className="hidden sm:inline">Back</span>
           </Link>
           <button
-            className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-semibold text-white hover:opacity-90 transition-opacity"
-            style={{ backgroundColor: "#3B82F6" }}
+            className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-semibold text-[var(--text-primary)] hover:opacity-90 transition-opacity"
+            style={{ backgroundColor: "var(--accent)" }}
           >
             <Save size={14} />
             <span className="hidden sm:inline">Save Training</span>
@@ -331,23 +331,23 @@ export default function CreateTrainingPage() {
               if (e.key === "Enter" || e.key === "Escape")
                 (e.target as HTMLInputElement).blur()
             }}
-            className="text-xl font-bold bg-transparent outline-none text-white border-b-2"
-            style={{ borderColor: "#3B82F6", minWidth: 320 }}
+            className="text-xl font-bold bg-transparent outline-none text-[var(--text-primary)] border-b-2"
+            style={{ borderColor: "var(--accent)", minWidth: 320 }}
           />
         ) : (
           <div
             className="flex items-center gap-2 group cursor-text w-fit"
             onClick={() => { setTitleEditing(true); setTitleValue(form.trainingTitle) }}
           >
-            <h2 className="text-xl font-bold text-white">{form.trainingTitle}</h2>
+            <h2 className="text-xl font-bold text-[var(--text-primary)]">{form.trainingTitle}</h2>
             <Pencil
               size={13}
               className="opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
-              style={{ color: "#475569" }}
+              style={{ color: "var(--text-muted)" }}
             />
           </div>
         )}
-        <p className="text-xs mt-1" style={{ color: "#475569" }}>
+        <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>
           Click the title to rename · Drag week and activity handles to reorder
         </p>
       </div>
@@ -363,9 +363,9 @@ export default function CreateTrainingPage() {
               {/* Week header */}
               <div
                 className="flex items-center gap-3 px-4 py-3"
-                style={{ borderBottom: week.activities.length > 0 ? "1px solid #334155" : "none" }}
+                style={{ borderBottom: week.activities.length > 0 ? "1px solid var(--border-default)" : "none" }}
               >
-                <GripVertical size={14} style={{ color: "#334155", flexShrink: 0, cursor: "grab" }} />
+                <GripVertical size={14} style={{ color: "var(--border-default)", flexShrink: 0, cursor: "grab" }} />
 
                 {/* Inline-editable title */}
                 <div className="flex-1 min-w-0 group flex items-center gap-2">
@@ -379,13 +379,13 @@ export default function CreateTrainingPage() {
                         if (e.key === "Enter") commitWeekTitle()
                         if (e.key === "Escape") setEditingWeekId(null)
                       }}
-                      className="flex-1 bg-transparent outline-none text-sm font-semibold text-white border-b"
-                      style={{ borderColor: "#3B82F6" }}
+                      className="flex-1 bg-transparent outline-none text-sm font-semibold text-[var(--text-primary)] border-b"
+                      style={{ borderColor: "var(--accent)" }}
                     />
                   ) : (
                     <>
                       <span
-                        className="text-sm font-semibold text-white cursor-text truncate"
+                        className="text-sm font-semibold text-[var(--text-primary)] cursor-text truncate"
                         onClick={() => startEditWeek(week.id, week.title)}
                       >
                         {week.title}
@@ -393,14 +393,14 @@ export default function CreateTrainingPage() {
                       <Pencil
                         size={11}
                         className="opacity-0 group-hover:opacity-100 flex-shrink-0 cursor-pointer transition-opacity"
-                        style={{ color: "#475569" }}
+                        style={{ color: "var(--text-muted)" }}
                         onClick={() => startEditWeek(week.id, week.title)}
                       />
                     </>
                   )}
                 </div>
 
-                <span className="text-xs flex-shrink-0" style={{ color: "#475569" }}>
+                <span className="text-xs flex-shrink-0" style={{ color: "var(--text-muted)" }}>
                   {week.activities.length} {week.activities.length === 1 ? "activity" : "activities"}
                 </span>
 
@@ -410,7 +410,7 @@ export default function CreateTrainingPage() {
                     onClick={() => moveWeek(week.id, -1)}
                     disabled={wi === 0}
                     className="p-1 rounded hover:bg-white/5 transition-colors disabled:opacity-20"
-                    style={{ color: "#64748B" }}
+                    style={{ color: "var(--text-tertiary)" }}
                   >
                     <ChevronUp size={13} />
                   </button>
@@ -419,7 +419,7 @@ export default function CreateTrainingPage() {
                     onClick={() => moveWeek(week.id, 1)}
                     disabled={wi === form.weeks.length - 1}
                     className="p-1 rounded hover:bg-white/5 transition-colors disabled:opacity-20"
-                    style={{ color: "#64748B" }}
+                    style={{ color: "var(--text-tertiary)" }}
                   >
                     <ChevronDown size={13} />
                   </button>
@@ -427,9 +427,9 @@ export default function CreateTrainingPage() {
                     type="button"
                     onClick={() => removeWeek(week.id)}
                     className="p-1 rounded transition-colors"
-                    style={{ color: "#64748B" }}
-                    onMouseEnter={e => (e.currentTarget.style.color = "#EF4444")}
-                    onMouseLeave={e => (e.currentTarget.style.color = "#64748B")}
+                    style={{ color: "var(--text-tertiary)" }}
+                    onMouseEnter={e => (e.currentTarget.style.color = "var(--danger)")}
+                    onMouseLeave={e => (e.currentTarget.style.color = "var(--text-tertiary)")}
                   >
                     <Trash2 size={13} />
                   </button>
@@ -448,10 +448,10 @@ export default function CreateTrainingPage() {
                     style={{
                       borderLeft: `3px solid ${isSelected ? meta.color : "transparent"}`,
                       backgroundColor: isSelected ? `${meta.color}0D` : "transparent",
-                      borderBottom: ai < week.activities.length - 1 ? "1px solid #0F172A" : "none",
+                      borderBottom: ai < week.activities.length - 1 ? "1px solid var(--bg-surface-muted)" : "none",
                     }}
                   >
-                    <GripVertical size={12} style={{ color: "#334155", flexShrink: 0, cursor: "grab" }} />
+                    <GripVertical size={12} style={{ color: "var(--border-default)", flexShrink: 0, cursor: "grab" }} />
 
                     {/* Type pill */}
                     <span
@@ -466,11 +466,11 @@ export default function CreateTrainingPage() {
                     </span>
 
                     {/* Title */}
-                    <span className="text-sm text-white flex-1 truncate">{activity.title}</span>
+                    <span className="text-sm text-[var(--text-primary)] flex-1 truncate">{activity.title}</span>
 
                     {/* Type-specific inline meta */}
                     {activity.type === "workshop" && (activity as WorkshopActivity).scheduledAt && (
-                      <span className="text-xs flex-shrink-0 flex items-center gap-1" style={{ color: "#10B981" }}>
+                      <span className="text-xs flex-shrink-0 flex items-center gap-1" style={{ color: "var(--success)" }}>
                         <Calendar size={10} />
                         {new Date((activity as WorkshopActivity).scheduledAt!).toLocaleDateString()}
                       </span>
@@ -485,7 +485,7 @@ export default function CreateTrainingPage() {
                         onClick={() => moveActivity(week.id, activity.id, -1)}
                         disabled={ai === 0}
                         className="p-1 rounded hover:bg-white/5 transition-colors disabled:opacity-20"
-                        style={{ color: "#64748B" }}
+                        style={{ color: "var(--text-tertiary)" }}
                       >
                         <ChevronUp size={11} />
                       </button>
@@ -494,7 +494,7 @@ export default function CreateTrainingPage() {
                         onClick={() => moveActivity(week.id, activity.id, 1)}
                         disabled={ai === week.activities.length - 1}
                         className="p-1 rounded hover:bg-white/5 transition-colors disabled:opacity-20"
-                        style={{ color: "#64748B" }}
+                        style={{ color: "var(--text-tertiary)" }}
                       >
                         <ChevronDown size={11} />
                       </button>
@@ -502,9 +502,9 @@ export default function CreateTrainingPage() {
                         type="button"
                         onClick={() => removeActivity(week.id, activity.id)}
                         className="p-1 rounded transition-colors"
-                        style={{ color: "#64748B" }}
-                        onMouseEnter={e => (e.currentTarget.style.color = "#EF4444")}
-                        onMouseLeave={e => (e.currentTarget.style.color = "#64748B")}
+                        style={{ color: "var(--text-tertiary)" }}
+                        onMouseEnter={e => (e.currentTarget.style.color = "var(--danger)")}
+                        onMouseLeave={e => (e.currentTarget.style.color = "var(--text-tertiary)")}
                       >
                         <Trash2 size={11} />
                       </button>
@@ -516,13 +516,13 @@ export default function CreateTrainingPage() {
               {/* Add Activity */}
               <div
                 className="px-4 py-3 relative"
-                style={{ borderTop: week.activities.length > 0 ? "1px solid #334155" : "none" }}
+                style={{ borderTop: week.activities.length > 0 ? "1px solid var(--border-default)" : "none" }}
               >
                 <button
                   type="button"
                   onClick={() => setDropdownWeekId(dropdownWeekId === week.id ? null : week.id)}
                   className="flex items-center gap-1.5 text-xs font-medium transition-opacity hover:opacity-80"
-                  style={{ color: "#3B82F6" }}
+                  style={{ color: "var(--accent)" }}
                 >
                   <Plus size={13} /> Add Activity
                 </button>
@@ -534,8 +534,8 @@ export default function CreateTrainingPage() {
                       className="absolute left-4 z-20 w-72 rounded-xl py-1.5 overflow-hidden"
                       style={{
                         top: "calc(100% + 4px)",
-                        backgroundColor: "#0F172A",
-                        border: "1px solid #334155",
+                        backgroundColor: "var(--bg-surface-muted)",
+                        border: "1px solid var(--border-default)",
                         boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
                       }}
                     >
@@ -548,8 +548,8 @@ export default function CreateTrainingPage() {
                         >
                           <span className="text-base flex-shrink-0 mt-0.5">{opt.emoji}</span>
                           <div>
-                            <p className="text-xs font-semibold text-white">{opt.label}</p>
-                            <p className="text-xs mt-0.5" style={{ color: "#475569" }}>{opt.desc}</p>
+                            <p className="text-xs font-semibold text-[var(--text-primary)]">{opt.label}</p>
+                            <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>{opt.desc}</p>
                           </div>
                         </button>
                       ))}
@@ -565,9 +565,9 @@ export default function CreateTrainingPage() {
             type="button"
             onClick={addWeek}
             className="flex items-center justify-center gap-2 w-full py-3 rounded-2xl text-sm font-medium transition-all"
-            style={{ backgroundColor: "transparent", border: "1px dashed #334155", color: "#64748B" }}
-            onMouseEnter={e => { e.currentTarget.style.borderColor = "#3B82F6"; e.currentTarget.style.color = "#3B82F6" }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = "#334155"; e.currentTarget.style.color = "#64748B" }}
+            style={{ backgroundColor: "transparent", border: "1px dashed var(--border-default)", color: "var(--text-tertiary)" }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = "var(--accent)"; e.currentTarget.style.color = "var(--accent)" }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--border-default)"; e.currentTarget.style.color = "var(--text-tertiary)" }}
           >
             <Plus size={14} /> Add Week / Phase
           </button>
@@ -599,7 +599,7 @@ export default function CreateTrainingPage() {
                         type="button"
                         onClick={() => setSelectedId(null)}
                         className="p-1 rounded-lg hover:bg-white/5 transition-colors"
-                        style={{ color: "#64748B" }}
+                        style={{ color: "var(--text-tertiary)" }}
                         title="Close editor"
                       >
                         <X size={14} />
@@ -616,9 +616,9 @@ export default function CreateTrainingPage() {
                       value={selectedActivity.title}
                       onChange={e => patchActivity(selectedActivity.id, { title: e.target.value })}
                       className="w-full px-3 py-2.5 rounded-xl text-sm outline-none"
-                      style={{ backgroundColor: "#0F172A", border: "1px solid #334155", color: "#F8FAFC" }}
+                      style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)", color: "var(--text-primary)" }}
                       onFocus={e => (e.currentTarget.style.borderColor = meta.color)}
-                      onBlur={e => (e.currentTarget.style.borderColor = "#334155")}
+                      onBlur={e => (e.currentTarget.style.borderColor = "var(--border-default)")}
                     />
                   </div>
 
@@ -630,7 +630,7 @@ export default function CreateTrainingPage() {
                         {/* Session type toggle */}
                         <div>
                           <FieldLabel>Session Type</FieldLabel>
-                          <div className="flex items-center gap-1 p-1 rounded-xl" style={{ backgroundColor: "#0F172A" }}>
+                          <div className="flex items-center gap-1 p-1 rounded-xl" style={{ backgroundColor: "var(--bg-surface-muted)" }}>
                             {([
                               { key: "live"     as const, Icon: Video, label: "Live Meeting" },
                               { key: "recorded" as const, Icon: Film,  label: "Pre-recorded" },
@@ -641,8 +641,8 @@ export default function CreateTrainingPage() {
                                 onClick={() => patchActivity(selectedActivity.id, { sessionType: key })}
                                 className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-semibold transition-colors"
                                 style={{
-                                  backgroundColor: ws.sessionType === key ? "#10B981" : "transparent",
-                                  color: ws.sessionType === key ? "#fff" : "#64748B",
+                                  backgroundColor: ws.sessionType === key ? "var(--success)" : "transparent",
+                                  color: ws.sessionType === key ? "#fff" : "var(--text-tertiary)",
                                 }}
                               >
                                 <Icon size={12} /> {label}
@@ -659,9 +659,9 @@ export default function CreateTrainingPage() {
                             value={ws.scheduledAt ?? ""}
                             onChange={e => patchActivity(selectedActivity.id, { scheduledAt: e.target.value })}
                             className="w-full px-3 py-2.5 rounded-xl text-sm outline-none"
-                            style={{ backgroundColor: "#0F172A", border: "1px solid #334155", color: "#F8FAFC" }}
-                            onFocus={e => (e.currentTarget.style.borderColor = "#10B981")}
-                            onBlur={e => (e.currentTarget.style.borderColor = "#334155")}
+                            style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)", color: "var(--text-primary)" }}
+                            onFocus={e => (e.currentTarget.style.borderColor = "var(--success)")}
+                            onBlur={e => (e.currentTarget.style.borderColor = "var(--border-default)")}
                           />
                         </div>
 
@@ -675,11 +675,11 @@ export default function CreateTrainingPage() {
                               onChange={e => patchActivity(selectedActivity.id, { meetUrl: e.target.value })}
                               placeholder="https://zoom.us/j/… or meet.google.com/…"
                               className="w-full px-3 py-2.5 rounded-xl text-sm outline-none placeholder-slate-600"
-                              style={{ backgroundColor: "#0F172A", border: "1px solid #334155", color: "#F8FAFC" }}
-                              onFocus={e => (e.currentTarget.style.borderColor = "#10B981")}
-                              onBlur={e => (e.currentTarget.style.borderColor = "#334155")}
+                              style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)", color: "var(--text-primary)" }}
+                              onFocus={e => (e.currentTarget.style.borderColor = "var(--success)")}
+                              onBlur={e => (e.currentTarget.style.borderColor = "var(--border-default)")}
                             />
-                            <p className="text-xs mt-1.5 flex items-center gap-1" style={{ color: "#10B981" }}>
+                            <p className="text-xs mt-1.5 flex items-center gap-1" style={{ color: "var(--success)" }}>
                               <Link2 size={10} />
                               This link stays active for all sessions in the program — share it once.
                             </p>
@@ -693,27 +693,27 @@ export default function CreateTrainingPage() {
                               onChange={e => patchActivity(selectedActivity.id, { videoUrl: e.target.value })}
                               placeholder="https://youtube.com/watch?v=… or direct MP4 link"
                               className="w-full px-3 py-2.5 rounded-xl text-sm outline-none placeholder-slate-600"
-                              style={{ backgroundColor: "#0F172A", border: "1px solid #334155", color: "#F8FAFC" }}
-                              onFocus={e => (e.currentTarget.style.borderColor = "#10B981")}
-                              onBlur={e => (e.currentTarget.style.borderColor = "#334155")}
+                              style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)", color: "var(--text-primary)" }}
+                              onFocus={e => (e.currentTarget.style.borderColor = "var(--success)")}
+                              onBlur={e => (e.currentTarget.style.borderColor = "var(--border-default)")}
                             />
-                            <p className="text-xs mt-1" style={{ color: "#475569" }}>YouTube, Vimeo, or direct MP4 link.</p>
+                            <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>YouTube, Vimeo, or direct MP4 link.</p>
                           </div>
                         )}
 
                         {/* Knowledge Checks builder */}
-                        <div style={{ borderTop: "1px solid #334155", paddingTop: 16 }}>
+                        <div style={{ borderTop: "1px solid var(--border-default)", paddingTop: 16 }}>
                           <div className="flex items-center justify-between mb-3">
                             <div>
-                              <p className="text-xs font-semibold" style={{ color: "#94A3B8" }}>Knowledge Checks</p>
-                              <p className="text-[10px] mt-0.5" style={{ color: "#475569" }}>MCQ or descriptive questions pushed to students during the session</p>
+                              <p className="text-xs font-semibold" style={{ color: "var(--text-secondary)" }}>Knowledge Checks</p>
+                              <p className="text-[10px] mt-0.5" style={{ color: "var(--text-muted)" }}>MCQ or descriptive questions pushed to students during the session</p>
                             </div>
                             {!checkDraft && (
                               <button
                                 type="button"
                                 onClick={() => setCheckDraft({ type: "mcq", question: "", options: ["", "", "", ""], correctIndex: 0 })}
                                 className="flex items-center gap-1 text-xs font-semibold flex-shrink-0"
-                                style={{ color: "#10B981" }}
+                                style={{ color: "var(--success)" }}
                               >
                                 <Plus size={11} /> Add
                               </button>
@@ -727,7 +727,7 @@ export default function CreateTrainingPage() {
                                 <div
                                   key={check.id}
                                   className="flex items-start gap-2.5 p-2.5 rounded-xl"
-                                  style={{ backgroundColor: "#0F172A", border: "1px solid #334155" }}
+                                  style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)" }}
                                 >
                                   <span
                                     className="flex-shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded mt-0.5"
@@ -735,14 +735,14 @@ export default function CreateTrainingPage() {
                                   >
                                     {check.type === "mcq" ? "MCQ" : "DESC"}
                                   </span>
-                                  <p className="flex-1 text-xs text-white truncate">{check.question || `Check ${ci + 1}`}</p>
+                                  <p className="flex-1 text-xs text-[var(--text-primary)] truncate">{check.question || `Check ${ci + 1}`}</p>
                                   <button
                                     type="button"
                                     onClick={() => removeCheckFromCurrent(check.id)}
                                     className="flex-shrink-0 p-0.5 rounded transition-colors"
-                                    style={{ color: "#475569" }}
-                                    onMouseEnter={e => (e.currentTarget.style.color = "#EF4444")}
-                                    onMouseLeave={e => (e.currentTarget.style.color = "#475569")}
+                                    style={{ color: "var(--text-muted)" }}
+                                    onMouseEnter={e => (e.currentTarget.style.color = "var(--danger)")}
+                                    onMouseLeave={e => (e.currentTarget.style.color = "var(--text-muted)")}
                                   >
                                     <X size={11} />
                                   </button>
@@ -752,16 +752,16 @@ export default function CreateTrainingPage() {
                           )}
 
                           {ws.checks.length === 0 && !checkDraft && (
-                            <p className="text-[10px] text-center py-3 rounded-xl" style={{ color: "#475569", border: "1px dashed #334155" }}>
+                            <p className="text-[10px] text-center py-3 rounded-xl" style={{ color: "var(--text-muted)", border: "1px dashed var(--border-default)" }}>
                               No checks yet — add MCQ or descriptive questions
                             </p>
                           )}
 
                           {/* New check form */}
                           {checkDraft && (
-                            <div className="p-3 rounded-xl space-y-3" style={{ backgroundColor: "#0F172A", border: "1px solid #10B98140" }}>
+                            <div className="p-3 rounded-xl space-y-3" style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid #10B98140" }}>
                               {/* Type toggle */}
-                              <div className="flex items-center gap-1 p-0.5 rounded-lg w-fit" style={{ backgroundColor: "#1E293B" }}>
+                              <div className="flex items-center gap-1 p-0.5 rounded-lg w-fit" style={{ backgroundColor: "var(--bg-surface)" }}>
                                 {(["mcq", "descriptive"] as const).map(t => (
                                   <button
                                     key={t}
@@ -769,8 +769,8 @@ export default function CreateTrainingPage() {
                                     onClick={() => setCheckDraft(d => d ? { ...d, type: t } : d)}
                                     className="px-2.5 py-1 rounded-md text-[10px] font-bold transition-colors"
                                     style={{
-                                      backgroundColor: checkDraft.type === t ? "#10B981" : "transparent",
-                                      color: checkDraft.type === t ? "#fff" : "#64748B",
+                                      backgroundColor: checkDraft.type === t ? "var(--success)" : "transparent",
+                                      color: checkDraft.type === t ? "#fff" : "var(--text-tertiary)",
                                     }}
                                   >
                                     {t === "mcq" ? "MCQ" : "Descriptive"}
@@ -785,9 +785,9 @@ export default function CreateTrainingPage() {
                                 onChange={e => setCheckDraft(d => d ? { ...d, question: e.target.value } : d)}
                                 placeholder="Question text…"
                                 className="w-full px-3 py-2 rounded-lg text-xs outline-none resize-none placeholder-slate-600"
-                                style={{ backgroundColor: "#1E293B", border: "1px solid #334155", color: "#F8FAFC" }}
-                                onFocus={e => (e.currentTarget.style.borderColor = "#10B981")}
-                                onBlur={e => (e.currentTarget.style.borderColor = "#334155")}
+                                style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)", color: "var(--text-primary)" }}
+                                onFocus={e => (e.currentTarget.style.borderColor = "var(--success)")}
+                                onBlur={e => (e.currentTarget.style.borderColor = "var(--border-default)")}
                               />
 
                               {/* MCQ options */}
@@ -800,12 +800,12 @@ export default function CreateTrainingPage() {
                                         onClick={() => setCheckDraft(d => d ? { ...d, correctIndex: oi } : d)}
                                         className="flex-shrink-0 w-4 h-4 rounded-full border-2 transition-all"
                                         style={{
-                                          borderColor: checkDraft.correctIndex === oi ? "#10B981" : "#475569",
-                                          backgroundColor: checkDraft.correctIndex === oi ? "#10B981" : "transparent",
+                                          borderColor: checkDraft.correctIndex === oi ? "var(--success)" : "var(--text-muted)",
+                                          backgroundColor: checkDraft.correctIndex === oi ? "var(--success)" : "transparent",
                                         }}
                                         title="Mark as correct"
                                       />
-                                      <span className="text-[10px] font-bold w-4 flex-shrink-0" style={{ color: "#475569" }}>
+                                      <span className="text-[10px] font-bold w-4 flex-shrink-0" style={{ color: "var(--text-muted)" }}>
                                         {String.fromCharCode(65 + oi)}
                                       </span>
                                       <input
@@ -818,7 +818,7 @@ export default function CreateTrainingPage() {
                                         })}
                                         placeholder={`Option ${String.fromCharCode(65 + oi)}`}
                                         className="flex-1 bg-transparent outline-none text-xs placeholder-slate-600"
-                                        style={{ color: checkDraft.correctIndex === oi ? "#6EE7B7" : "#94A3B8", borderBottom: "1px solid #334155" }}
+                                        style={{ color: checkDraft.correctIndex === oi ? "#6EE7B7" : "var(--text-secondary)", borderBottom: "1px solid var(--border-default)" }}
                                       />
                                     </div>
                                   ))}
@@ -840,7 +840,7 @@ export default function CreateTrainingPage() {
                                   }}
                                   disabled={!checkDraft.question.trim()}
                                   className="flex-1 py-1.5 rounded-lg text-xs font-semibold transition-all disabled:opacity-30"
-                                  style={{ backgroundColor: "#10B981", color: "#fff" }}
+                                  style={{ backgroundColor: "var(--success)", color: "#fff" }}
                                 >
                                   Save Check
                                 </button>
@@ -848,7 +848,7 @@ export default function CreateTrainingPage() {
                                   type="button"
                                   onClick={() => setCheckDraft(null)}
                                   className="px-3 py-1.5 rounded-lg text-xs font-medium"
-                                  style={{ backgroundColor: "#334155", color: "#94A3B8" }}
+                                  style={{ backgroundColor: "var(--border-default)", color: "var(--text-secondary)" }}
                                 >
                                   Cancel
                                 </button>
@@ -858,11 +858,11 @@ export default function CreateTrainingPage() {
                         </div>
 
                         {/* Assignments builder */}
-                        <div style={{ borderTop: "1px solid #334155", paddingTop: 16 }}>
+                        <div style={{ borderTop: "1px solid var(--border-default)", paddingTop: 16 }}>
                           <div className="flex items-center justify-between mb-3">
                             <div>
-                              <p className="text-xs font-semibold" style={{ color: "#94A3B8" }}>Assignments</p>
-                              <p className="text-[10px] mt-0.5" style={{ color: "#475569" }}>Students see these only after you publish them during the session</p>
+                              <p className="text-xs font-semibold" style={{ color: "var(--text-secondary)" }}>Assignments</p>
+                              <p className="text-[10px] mt-0.5" style={{ color: "var(--text-muted)" }}>Students see these only after you publish them during the session</p>
                             </div>
                             {!assignmentDraft && (
                               <button
@@ -883,7 +883,7 @@ export default function CreateTrainingPage() {
                                 <div
                                   key={asgn.id}
                                   className="flex items-start gap-2.5 p-2.5 rounded-xl"
-                                  style={{ backgroundColor: "#0F172A", border: "1px solid #334155" }}
+                                  style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)" }}
                                 >
                                   <span
                                     className="flex-shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded mt-0.5"
@@ -892,10 +892,10 @@ export default function CreateTrainingPage() {
                                     {ai + 1}
                                   </span>
                                   <div className="flex-1 min-w-0">
-                                    <p className="text-xs text-white truncate">{asgn.title || `Assignment ${ai + 1}`}</p>
+                                    <p className="text-xs text-[var(--text-primary)] truncate">{asgn.title || `Assignment ${ai + 1}`}</p>
                                     <div className="flex items-center gap-2 mt-0.5 flex-wrap">
                                       {asgn.dueDate && (
-                                        <p className="text-[10px]" style={{ color: "#475569" }}>
+                                        <p className="text-[10px]" style={{ color: "var(--text-muted)" }}>
                                           Due {new Date(asgn.dueDate).toLocaleDateString()}{asgn.maxPoints ? ` · ${asgn.maxPoints} pts` : ""}
                                         </p>
                                       )}
@@ -911,9 +911,9 @@ export default function CreateTrainingPage() {
                                     type="button"
                                     onClick={() => removeAssignmentFromCurrent(asgn.id)}
                                     className="flex-shrink-0 p-0.5 rounded transition-colors"
-                                    style={{ color: "#475569" }}
-                                    onMouseEnter={e => (e.currentTarget.style.color = "#EF4444")}
-                                    onMouseLeave={e => (e.currentTarget.style.color = "#475569")}
+                                    style={{ color: "var(--text-muted)" }}
+                                    onMouseEnter={e => (e.currentTarget.style.color = "var(--danger)")}
+                                    onMouseLeave={e => (e.currentTarget.style.color = "var(--text-muted)")}
                                   >
                                     <X size={11} />
                                   </button>
@@ -923,22 +923,22 @@ export default function CreateTrainingPage() {
                           )}
 
                           {ws.assignments.length === 0 && !assignmentDraft && (
-                            <p className="text-[10px] text-center py-3 rounded-xl" style={{ color: "#475569", border: "1px dashed #334155" }}>
+                            <p className="text-[10px] text-center py-3 rounded-xl" style={{ color: "var(--text-muted)", border: "1px dashed var(--border-default)" }}>
                               No assignments yet — add tasks for students to complete
                             </p>
                           )}
 
                           {/* New assignment form */}
                           {assignmentDraft && (
-                            <div className="p-3 rounded-xl space-y-3" style={{ backgroundColor: "#0F172A", border: "1px solid #8B5CF640" }}>
+                            <div className="p-3 rounded-xl space-y-3" style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid #8B5CF640" }}>
                               <input
                                 value={assignmentDraft.title}
                                 onChange={e => setAssignmentDraft(d => d ? { ...d, title: e.target.value } : d)}
                                 placeholder="Assignment title…"
                                 className="w-full px-3 py-2 rounded-lg text-xs outline-none placeholder-slate-600"
-                                style={{ backgroundColor: "#1E293B", border: "1px solid #334155", color: "#F8FAFC" }}
+                                style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)", color: "var(--text-primary)" }}
                                 onFocus={e => (e.currentTarget.style.borderColor = "#8B5CF6")}
-                                onBlur={e => (e.currentTarget.style.borderColor = "#334155")}
+                                onBlur={e => (e.currentTarget.style.borderColor = "var(--border-default)")}
                               />
                               <textarea
                                 rows={2}
@@ -946,23 +946,23 @@ export default function CreateTrainingPage() {
                                 onChange={e => setAssignmentDraft(d => d ? { ...d, description: e.target.value } : d)}
                                 placeholder="Instructions or description…"
                                 className="w-full px-3 py-2 rounded-lg text-xs outline-none resize-none placeholder-slate-600"
-                                style={{ backgroundColor: "#1E293B", border: "1px solid #334155", color: "#F8FAFC" }}
+                                style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)", color: "var(--text-primary)" }}
                                 onFocus={e => (e.currentTarget.style.borderColor = "#8B5CF6")}
-                                onBlur={e => (e.currentTarget.style.borderColor = "#334155")}
+                                onBlur={e => (e.currentTarget.style.borderColor = "var(--border-default)")}
                               />
                               <div className="flex items-center gap-2">
                                 <div className="flex-1">
-                                  <p className="text-[10px] mb-1" style={{ color: "#475569" }}>Due date</p>
+                                  <p className="text-[10px] mb-1" style={{ color: "var(--text-muted)" }}>Due date</p>
                                   <input
                                     type="date"
                                     value={assignmentDraft.dueDate}
                                     onChange={e => setAssignmentDraft(d => d ? { ...d, dueDate: e.target.value } : d)}
                                     className="w-full px-2.5 py-1.5 rounded-lg text-xs outline-none"
-                                    style={{ backgroundColor: "#1E293B", border: "1px solid #334155", color: "#F8FAFC" }}
+                                    style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)", color: "var(--text-primary)" }}
                                   />
                                 </div>
                                 <div className="w-20">
-                                  <p className="text-[10px] mb-1" style={{ color: "#475569" }}>Max pts</p>
+                                  <p className="text-[10px] mb-1" style={{ color: "var(--text-muted)" }}>Max pts</p>
                                   <input
                                     type="number"
                                     min={0}
@@ -970,7 +970,7 @@ export default function CreateTrainingPage() {
                                     onChange={e => setAssignmentDraft(d => d ? { ...d, maxPoints: e.target.value } : d)}
                                     placeholder="100"
                                     className="w-full px-2.5 py-1.5 rounded-lg text-xs outline-none placeholder-slate-600"
-                                    style={{ backgroundColor: "#1E293B", border: "1px solid #334155", color: "#F8FAFC" }}
+                                    style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)", color: "var(--text-primary)" }}
                                   />
                                 </div>
                               </div>
@@ -978,9 +978,9 @@ export default function CreateTrainingPage() {
                               <div>
                                 <label
                                   className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg cursor-pointer transition-colors text-xs"
-                                  style={{ border: "1px dashed #334155", color: "#64748B" }}
+                                  style={{ border: "1px dashed var(--border-default)", color: "var(--text-tertiary)" }}
                                   onMouseEnter={e => { e.currentTarget.style.borderColor = "#8B5CF6"; e.currentTarget.style.color = "#A78BFA" }}
-                                  onMouseLeave={e => { e.currentTarget.style.borderColor = "#334155"; e.currentTarget.style.color = "#64748B" }}
+                                  onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--border-default)"; e.currentTarget.style.color = "var(--text-tertiary)" }}
                                 >
                                   <Paperclip size={12} />
                                   Attach files (image, PDF, text)
@@ -1010,21 +1010,21 @@ export default function CreateTrainingPage() {
                                 {assignmentDraft.attachments.length > 0 && (
                                   <div className="mt-2 space-y-1">
                                     {assignmentDraft.attachments.map(f => (
-                                      <div key={f.id} className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg" style={{ backgroundColor: "#0F172A", border: "1px solid #334155" }}>
+                                      <div key={f.id} className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg" style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)" }}>
                                         {f.fileType === "image"
-                                          ? <ImageIcon size={11} style={{ color: "#10B981", flexShrink: 0 }} />
+                                          ? <ImageIcon size={11} style={{ color: "var(--success)", flexShrink: 0 }} />
                                           : f.fileType === "pdf"
-                                          ? <FileText size={11} style={{ color: "#EF4444", flexShrink: 0 }} />
-                                          : <FileText size={11} style={{ color: "#3B82F6", flexShrink: 0 }} />}
-                                        <span className="flex-1 text-[10px] truncate" style={{ color: "#94A3B8" }}>{f.name}</span>
-                                        <span className="text-[10px] flex-shrink-0" style={{ color: "#475569" }}>{f.size}</span>
+                                          ? <FileText size={11} style={{ color: "var(--danger)", flexShrink: 0 }} />
+                                          : <FileText size={11} style={{ color: "var(--accent)", flexShrink: 0 }} />}
+                                        <span className="flex-1 text-[10px] truncate" style={{ color: "var(--text-secondary)" }}>{f.name}</span>
+                                        <span className="text-[10px] flex-shrink-0" style={{ color: "var(--text-muted)" }}>{f.size}</span>
                                         <button
                                           type="button"
                                           onClick={() => setAssignmentDraft(d => d ? { ...d, attachments: d.attachments.filter(a => a.id !== f.id) } : d)}
                                           className="flex-shrink-0 p-0.5 rounded transition-colors"
-                                          style={{ color: "#475569" }}
-                                          onMouseEnter={e => (e.currentTarget.style.color = "#EF4444")}
-                                          onMouseLeave={e => (e.currentTarget.style.color = "#475569")}
+                                          style={{ color: "var(--text-muted)" }}
+                                          onMouseEnter={e => (e.currentTarget.style.color = "var(--danger)")}
+                                          onMouseLeave={e => (e.currentTarget.style.color = "var(--text-muted)")}
                                         >
                                           <X size={10} />
                                         </button>
@@ -1058,7 +1058,7 @@ export default function CreateTrainingPage() {
                                   type="button"
                                   onClick={() => setAssignmentDraft(null)}
                                   className="px-3 py-1.5 rounded-lg text-xs font-medium"
-                                  style={{ backgroundColor: "#334155", color: "#94A3B8" }}
+                                  style={{ backgroundColor: "var(--border-default)", color: "var(--text-secondary)" }}
                                 >
                                   Cancel
                                 </button>
@@ -1071,8 +1071,8 @@ export default function CreateTrainingPage() {
                         {(ws.meetUrl || ws.videoUrl) && (
                           <Link
                             href={`/instructor/live-session/${selectedActivity.id}`}
-                            className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-semibold text-white transition-opacity hover:opacity-90"
-                            style={{ backgroundColor: "#10B981", marginTop: 4 }}
+                            className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-semibold text-[var(--text-primary)] transition-opacity hover:opacity-90"
+                            style={{ backgroundColor: "var(--success)", marginTop: 4 }}
                           >
                             <Play size={13} fill="#fff" /> Launch Session
                           </Link>
@@ -1088,7 +1088,7 @@ export default function CreateTrainingPage() {
 
           {/* ── Access Link Engine ── */}
           <PanelCard>
-            <PanelHeader icon={Globe} iconColor="#3B82F6" iconBg="#3B82F615" title="Access & Enrollment" />
+            <PanelHeader icon={Globe} iconColor="var(--accent)" iconBg="#3B82F615" title="Access & Enrollment" />
 
             <div className="px-4 py-4 space-y-5">
 
@@ -1106,22 +1106,22 @@ export default function CreateTrainingPage() {
                       onClick={() => setForm(f => ({ ...f, accessMode: key }))}
                       className="flex items-center gap-3 w-full p-3.5 rounded-xl text-left transition-all"
                       style={{
-                        backgroundColor: "#0F172A",
-                        border: `1px solid ${form.accessMode === key ? "#3B82F6" : "#334155"}`,
+                        backgroundColor: "var(--bg-surface-muted)",
+                        border: `1px solid ${form.accessMode === key ? "var(--accent)" : "var(--border-default)"}`,
                       }}
                     >
                       <div
                         className="w-4 h-4 rounded-full border-2 flex-shrink-0 transition-all"
                         style={{
-                          borderColor: form.accessMode === key ? "#3B82F6" : "#475569",
-                          backgroundColor: form.accessMode === key ? "#3B82F6" : "transparent",
+                          borderColor: form.accessMode === key ? "var(--accent)" : "var(--text-muted)",
+                          backgroundColor: form.accessMode === key ? "var(--accent)" : "transparent",
                         }}
                       />
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs font-semibold" style={{ color: form.accessMode === key ? "#60A5FA" : "#CBD5E1" }}>
+                        <p className="text-xs font-semibold" style={{ color: form.accessMode === key ? "#60A5FA" : "var(--text-secondary)" }}>
                           {label}
                         </p>
-                        <p className="text-xs mt-0.5" style={{ color: "#475569" }}>{desc}</p>
+                        <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>{desc}</p>
                       </div>
                     </button>
                   ))}
@@ -1143,12 +1143,12 @@ export default function CreateTrainingPage() {
                             ? { backgroundColor: "#10B98118", color: "#34D399" }
                             : isExpired
                             ? { backgroundColor: "#EF444418", color: "#F87171" }
-                            : { backgroundColor: "#33415530", color: "#64748B" }
+                            : { backgroundColor: "#33415530", color: "var(--text-tertiary)" }
                         }
                       >
                         <span
                           className="w-1.5 h-1.5 rounded-full flex-shrink-0"
-                          style={{ backgroundColor: isActive ? "#10B981" : isExpired ? "#EF4444" : "#475569" }}
+                          style={{ backgroundColor: isActive ? "var(--success)" : isExpired ? "var(--danger)" : "var(--text-muted)" }}
                         />
                         {isActive ? "Active" : isExpired ? "Expired" : "No expiry set"}
                       </span>
@@ -1157,9 +1157,9 @@ export default function CreateTrainingPage() {
                     <div className="flex items-center gap-2">
                       <div
                         className="flex-1 flex items-center px-3 py-2.5 rounded-xl overflow-hidden"
-                        style={{ backgroundColor: "#0F172A", border: "1px solid #334155" }}
+                        style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)" }}
                       >
-                        <span className="text-xs truncate" style={{ color: "#64748B" }}>
+                        <span className="text-xs truncate" style={{ color: "var(--text-tertiary)" }}>
                           {shareUrl}
                         </span>
                       </div>
@@ -1170,7 +1170,7 @@ export default function CreateTrainingPage() {
                         className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-semibold flex-shrink-0 transition-all disabled:opacity-40"
                         style={{
                           backgroundColor: copied ? "#10B98120" : "#3B82F620",
-                          color: copied ? "#10B981" : "#60A5FA",
+                          color: copied ? "var(--success)" : "#60A5FA",
                           border: `1px solid ${copied ? "#10B98140" : "#3B82F640"}`,
                         }}
                       >
@@ -1198,12 +1198,12 @@ export default function CreateTrainingPage() {
                       type="button"
                       onClick={openExpiryPicker}
                       className="flex items-center gap-2.5 w-full px-3 py-2.5 rounded-xl text-left transition-all"
-                      style={{ backgroundColor: "#0F172A", border: "1px solid #334155" }}
-                      onMouseEnter={e => (e.currentTarget.style.borderColor = "#3B82F6")}
-                      onMouseLeave={e => (e.currentTarget.style.borderColor = "#334155")}
+                      style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)" }}
+                      onMouseEnter={e => (e.currentTarget.style.borderColor = "var(--accent)")}
+                      onMouseLeave={e => (e.currentTarget.style.borderColor = "var(--border-default)")}
                     >
-                      <Calendar size={14} style={{ color: "#3B82F6", flexShrink: 0 }} />
-                      <span className="flex-1 text-sm" style={{ color: form.expiresAt ? "#F8FAFC" : "#475569" }}>
+                      <Calendar size={14} style={{ color: "var(--accent)", flexShrink: 0 }} />
+                      <span className="flex-1 text-sm" style={{ color: form.expiresAt ? "var(--text-primary)" : "var(--text-muted)" }}>
                         {form.expiresAt
                           ? new Date(form.expiresAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })
                           : "Pick expiry date & time…"}
@@ -1212,13 +1212,13 @@ export default function CreateTrainingPage() {
                         <span
                           onClick={e => { e.stopPropagation(); setForm(f => ({ ...f, expiresAt: "" })) }}
                           className="p-0.5 rounded hover:bg-white/10 transition-colors flex-shrink-0"
-                          style={{ color: "#64748B" }}
+                          style={{ color: "var(--text-tertiary)" }}
                         >
                           <X size={12} />
                         </span>
                       )}
                     </button>
-                    <p className="text-xs mt-1.5" style={{ color: isExpired ? "#EF4444" : "#475569" }}>
+                    <p className="text-xs mt-1.5" style={{ color: isExpired ? "var(--danger)" : "var(--text-muted)" }}>
                       {isExpired
                         ? "⚠ This link has already expired."
                         : form.expiresAt
@@ -1230,15 +1230,15 @@ export default function CreateTrainingPage() {
               )}
 
               {/* Pricing */}
-              <div style={{ borderTop: "1px solid #334155", paddingTop: 20 }}>
+              <div style={{ borderTop: "1px solid var(--border-default)", paddingTop: 20 }}>
                 <FieldLabel>Cohort Fee (USD)</FieldLabel>
                 <div
                   className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl"
-                  style={{ backgroundColor: "#0F172A", border: "1px solid #334155" }}
-                  onFocusCapture={e => ((e.currentTarget as HTMLDivElement).style.borderColor = "#3B82F6")}
-                  onBlurCapture={e => ((e.currentTarget as HTMLDivElement).style.borderColor = "#334155")}
+                  style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)" }}
+                  onFocusCapture={e => ((e.currentTarget as HTMLDivElement).style.borderColor = "var(--accent)")}
+                  onBlurCapture={e => ((e.currentTarget as HTMLDivElement).style.borderColor = "var(--border-default)")}
                 >
-                  <DollarSign size={13} style={{ color: "#475569", flexShrink: 0 }} />
+                  <DollarSign size={13} style={{ color: "var(--text-muted)", flexShrink: 0 }} />
                   <input
                     type="number"
                     min={0}
@@ -1246,11 +1246,11 @@ export default function CreateTrainingPage() {
                     onChange={e => setForm(f => ({ ...f, priceUsd: e.target.value }))}
                     placeholder="499"
                     className="flex-1 bg-transparent outline-none text-sm placeholder-slate-600"
-                    style={{ color: "#F8FAFC" }}
+                    style={{ color: "var(--text-primary)" }}
                   />
-                  <span className="text-xs flex-shrink-0" style={{ color: "#475569" }}>USD</span>
+                  <span className="text-xs flex-shrink-0" style={{ color: "var(--text-muted)" }}>USD</span>
                 </div>
-                <p className="text-xs mt-1.5" style={{ color: "#475569" }}>
+                <p className="text-xs mt-1.5" style={{ color: "var(--text-muted)" }}>
                   {form.priceUsd
                     ? `$${form.priceUsd} per cohort seat.`
                     : "Leave blank to offer this training at no cost."}

@@ -40,7 +40,7 @@ function DaysLeft({ dueDate, status }: { dueDate: string; status: Assignment["st
 
   if (status === "graded" || status === "submitted") return null
 
-  const color = diff < 0 ? "#EF4444" : diff <= 3 ? "#EF4444" : diff <= 7 ? "#F59E0B" : "#94A3B8"
+  const color = diff < 0 ? "var(--danger)" : diff <= 3 ? "var(--danger)" : diff <= 7 ? "var(--warning)" : "var(--text-secondary)"
   const label = diff < 0 ? `${Math.abs(diff)}d overdue` : diff === 0 ? "Due today" : `${diff}d left`
 
   return (
@@ -56,9 +56,9 @@ export function CourseAssignments({ assignments }: { assignments: Assignment[] }
 
   if (assignments.length === 0) {
     return (
-      <div className="rounded-2xl p-10 text-center" style={{ backgroundColor: "#1E293B", border: "1px dashed #334155" }}>
-        <ClipboardList size={36} className="mx-auto mb-3" style={{ color: "#334155" }} />
-        <p className="text-sm" style={{ color: "#475569" }}>No assignments for this course yet.</p>
+      <div className="rounded-2xl p-10 text-center shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px dashed var(--border-default)" }}>
+        <ClipboardList size={36} className="mx-auto mb-3" style={{ color: "var(--border-default)" }} />
+        <p className="text-sm" style={{ color: "var(--text-muted)" }}>No assignments for this course yet.</p>
       </div>
     )
   }
@@ -93,23 +93,23 @@ export function CourseAssignments({ assignments }: { assignments: Assignment[] }
           { label: "Submitted", value: counts.submitted, color: "#8B5CF6" },
           { label: "Avg. Grade", value: `${avgGrade}%`, color: "#10B981" },
         ].map(({ label, value, color }) => (
-          <div key={label} className="rounded-xl p-4" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
+          <div key={label} className="rounded-xl p-4 shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
             <p className="text-xl font-bold" style={{ color }}>{value}</p>
-            <p className="text-xs mt-0.5" style={{ color: "#94A3B8" }}>{label}</p>
+            <p className="text-xs mt-0.5" style={{ color: "var(--text-secondary)" }}>{label}</p>
           </div>
         ))}
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-1 rounded-xl p-1" style={{ backgroundColor: "#1E293B", border: "1px solid #334155", display: "inline-flex" }}>
+      <div className="flex items-center gap-1 rounded-xl p-1" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)", display: "inline-flex" }}>
         {(["all", "pending", "submitted", "graded"] as Tab[]).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium capitalize transition-all"
             style={{
-              backgroundColor: tab === t ? "#3B82F6" : "transparent",
-              color: tab === t ? "#fff" : "#94A3B8",
+              backgroundColor: tab === t ? "var(--accent)" : "transparent",
+              color: tab === t ? "#fff" : "var(--text-secondary)",
             }}
           >
             {t}
@@ -117,7 +117,7 @@ export function CourseAssignments({ assignments }: { assignments: Assignment[] }
               className="text-xs px-1.5 py-0.5 rounded-full"
               style={{
                 backgroundColor: tab === t ? "rgba(255,255,255,0.2)" : "#33415540",
-                color: tab === t ? "#fff" : "#64748B",
+                color: tab === t ? "#fff" : "var(--text-tertiary)",
               }}
             >
               {counts[t]}
@@ -129,9 +129,9 @@ export function CourseAssignments({ assignments }: { assignments: Assignment[] }
       {/* Assignment list */}
       <div className="space-y-3">
         {filtered.length === 0 ? (
-          <div className="rounded-2xl p-10 text-center" style={{ backgroundColor: "#1E293B", border: "1px dashed #334155" }}>
-            <ClipboardList size={36} className="mx-auto mb-3" style={{ color: "#334155" }} />
-            <p className="text-sm" style={{ color: "#475569" }}>No assignments in this category</p>
+          <div className="rounded-2xl p-10 text-center shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px dashed var(--border-default)" }}>
+            <ClipboardList size={36} className="mx-auto mb-3" style={{ color: "var(--border-default)" }} />
+            <p className="text-sm" style={{ color: "var(--text-muted)" }}>No assignments in this category</p>
           </div>
         ) : filtered.map((a) => {
           const sc = statusConfig[a.status]
@@ -140,10 +140,10 @@ export function CourseAssignments({ assignments }: { assignments: Assignment[] }
           return (
             <button
               key={a.id}
-              className="w-full rounded-2xl p-4 text-left transition-all"
+              className="w-full rounded-2xl p-4 text-left transition-all shadow-sm"
               style={{
-                backgroundColor: "#1E293B",
-                border: `1px solid ${isSelected ? "#3B82F6" : "#334155"}`,
+                backgroundColor: "var(--bg-surface)",
+                border: `1px solid ${isSelected ? "var(--accent)" : "var(--border-default)"}`,
               }}
               onClick={() => setSelected(isSelected ? null : a)}
             >
@@ -156,7 +156,7 @@ export function CourseAssignments({ assignments }: { assignments: Assignment[] }
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap mb-0.5">
-                    <span className="text-sm font-bold text-white">{a.title}</span>
+                    <span className="text-sm font-bold" style={{ color: "var(--text-primary)" }}>{a.title}</span>
                     <span
                       className="text-xs font-semibold px-1.5 py-0.5 rounded"
                       style={{ backgroundColor: `${typeColors[a.type]}15`, color: typeColors[a.type] }}
@@ -173,7 +173,7 @@ export function CourseAssignments({ assignments }: { assignments: Assignment[] }
                     </span>
                     <DaysLeft dueDate={a.dueDate} status={a.status} />
                     {a.grade !== undefined && (
-                      <span className="text-xs font-bold" style={{ color: a.grade >= 80 ? "#10B981" : a.grade >= 60 ? "#F59E0B" : "#EF4444" }}>
+                      <span className="text-xs font-bold" style={{ color: a.grade >= 80 ? "var(--success)" : a.grade >= 60 ? "var(--warning)" : "var(--danger)" }}>
                         {a.grade}/{a.maxGrade} pts
                       </span>
                     )}
@@ -182,7 +182,7 @@ export function CourseAssignments({ assignments }: { assignments: Assignment[] }
                 <ChevronRight
                   size={15}
                   style={{
-                    color: "#64748B",
+                    color: "var(--text-tertiary)",
                     transform: isSelected ? "rotate(90deg)" : "rotate(0deg)",
                     transition: "transform 0.2s",
                   }}
@@ -191,15 +191,15 @@ export function CourseAssignments({ assignments }: { assignments: Assignment[] }
 
               {/* Expanded detail */}
               {isSelected && (
-                <div className="mt-4 pt-4" style={{ borderTop: "1px solid #334155" }}>
-                  <p className="text-sm mb-3" style={{ color: "#94A3B8" }}>{a.description}</p>
+                <div className="mt-4 pt-4" style={{ borderTop: "1px solid var(--border-default)" }}>
+                  <p className="text-sm mb-3" style={{ color: "var(--text-secondary)" }}>{a.description}</p>
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-xs" style={{ color: "#64748B" }}>
-                      Due: <strong className="text-white">{a.dueDate}</strong>
+                    <span className="text-xs" style={{ color: "var(--text-tertiary)" }}>
+                      Due: <strong style={{ color: "var(--text-primary)" }}>{a.dueDate}</strong>
                     </span>
                     {a.submittedDate && (
-                      <span className="text-xs" style={{ color: "#64748B" }}>
-                        · Submitted: <strong className="text-white">{a.submittedDate}</strong>
+                      <span className="text-xs" style={{ color: "var(--text-tertiary)" }}>
+                        · Submitted: <strong style={{ color: "var(--text-primary)" }}>{a.submittedDate}</strong>
                       </span>
                     )}
                   </div>
@@ -209,7 +209,7 @@ export function CourseAssignments({ assignments }: { assignments: Assignment[] }
                         <button
                           key={att}
                           className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium"
-                          style={{ backgroundColor: "#334155", color: "#94A3B8" }}
+                          style={{ backgroundColor: "var(--border-default)", color: "var(--text-secondary)" }}
                         >
                           <Download size={12} /> {att}
                         </button>
@@ -217,15 +217,15 @@ export function CourseAssignments({ assignments }: { assignments: Assignment[] }
                     </div>
                   )}
                   {a.feedback && (
-                    <div className="mt-3 p-3 rounded-xl" style={{ backgroundColor: "#0F172A", border: "1px solid #334155" }}>
-                      <p className="text-xs font-bold mb-1" style={{ color: "#64748B" }}>INSTRUCTOR FEEDBACK</p>
-                      <p className="text-sm" style={{ color: "#94A3B8" }}>{a.feedback}</p>
+                    <div className="mt-3 p-3 rounded-xl" style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)" }}>
+                      <p className="text-xs font-bold mb-1" style={{ color: "var(--text-tertiary)" }}>INSTRUCTOR FEEDBACK</p>
+                      <p className="text-sm" style={{ color: "var(--text-secondary)" }}>{a.feedback}</p>
                     </div>
                   )}
                   {(a.status === "pending" || a.status === "late") && (
                     <button
                       className="mt-3 flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold"
-                      style={{ backgroundColor: "#3B82F6", color: "#fff" }}
+                      style={{ backgroundColor: "var(--accent)", color: "#fff" }}
                     >
                       <Upload size={14} /> Submit Assignment
                     </button>

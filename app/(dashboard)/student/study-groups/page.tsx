@@ -20,15 +20,15 @@ export default function StudyGroupsPage() {
     <DashboardLayout role="student" userName={p.name}>
       <div className="max-w-4xl space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-white">Study Groups</h1>
-          <p className="text-sm mt-1" style={{ color: "#94A3B8" }}>
+          <h1 className="text-2xl font-bold" style={{ color: "var(--text-primary)" }}>Study Groups</h1>
+          <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>
             Collaborate with peers on your trainings, share notes, and learn together.
           </p>
         </div>
 
         {groups.length === 0 ? (
-          <div className="rounded-2xl p-10 text-center" style={{ backgroundColor: "#1E293B", border: "1px dashed #334155" }}>
-            <p className="text-sm" style={{ color: "#475569" }}>No study groups yet.</p>
+          <div className="rounded-2xl p-10 text-center" style={{ backgroundColor: "var(--bg-surface)", border: "1px dashed var(--border-default)" }}>
+            <p className="text-sm" style={{ color: "var(--text-muted)" }}>No study groups yet.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -44,7 +44,7 @@ export default function StudyGroupsPage() {
                     onToggleJoin={() => toggleJoin(g.id, isMember)}
                   />
                   {training && (
-                    <Link href={`/student/trainings/${training.id}`} className="block text-xs font-medium px-1" style={{ color: "#3B82F6" }}>
+                    <Link href={`/student/trainings/${training.id}`} className="block text-xs font-medium px-1" style={{ color: "var(--accent)" }}>
                       View training →
                     </Link>
                   )}

@@ -1,0 +1,313 @@
+{
+  "tutorDashboard": {
+    "title": "Instructor Dashboard",
+    "subtitle": "Here's how your courses are performing this month.",
+    "newCourse": "New Course",
+    "stats": {
+      "activeCourses": "Active Courses",
+      "totalStudents": "Total Students",
+      "avgRating": "Avg. Rating",
+      "monthlyRevenue": "Monthly Revenue"
+    },
+    "myCourses": "My Courses",
+    "manageAll": "Manage all",
+    "table": {
+      "course": "Course",
+      "students": "Students",
+      "rating": "Rating",
+      "status": "Status"
+    }
+    ,
+    "statusValues": {
+      "Published": "Published",
+      "Draft": "Draft"
+    },
+    "analyticsComingSoon": "Detailed analytics, revenue charts, and student engagement coming soon"
+  },
+  "tutorStudyGroups": {
+    "title": "Study Groups",
+    "subtitle": "Create study groups for your trainings and manage who's in them.",
+    "createGroup": "Create Study Group",
+    "form": {
+      "training": "Training",
+      "groupName": "Group Name",
+      "groupNamePlaceholder": "e.g. Capstone Prep Group",
+      "description": "Description",
+      "descriptionPlaceholder": "What will this group focus on?",
+      "icon": "Icon",
+      "color": "Color",
+      "addMembers": "Add Members"
+    },
+    "createGroupAction": "Create Group",
+    "members": "{count} members",
+    "unknownTraining": "Unknown training",
+    "noMembersYet": "No members yet",
+    "selectStudentPlaceholder": "Select a student…",
+    "addAction": "Add",
+    "addPeople": "Add People",
+    "emptyState": "No study groups yet. Create one above."
+  },
+  "studentMyLearning": {
+    "title": "My Learning",
+    "summary": "{courses} courses · {trainings} trainings · {completed} completed",
+    "browseCatalog": "Browse Catalog",
+    "myCourses": "My Courses",
+    "myTrainings": "My Trainings",
+    "viewAllCourses": "View all courses",
+    "viewAllTrainings": "View all trainings",
+    "noCoursesYet": "No courses yet",
+    "browseTheCatalog": "Browse the catalog",
+    "noTrainingsYet": "No trainings yet",
+    "browseTrainingTracks": "Browse training tracks",
+    "progress": "Progress",
+    "viewDetails": "View Details",
+    "certificate": "Certificate",
+    "resume": "Resume",
+    "grade": "Grade: {grade}%"
+  },
+  "studentMyTrainings": {
+    "title": "My Trainings",
+    "summary": "{enrolled} enrolled · {completed} completed · {inProgress} in progress",
+    "browseCatalog": "Browse Catalog",
+    "stats": {
+      "enrolledPrograms": "Enrolled Programs",
+      "completed": "Completed",
+      "inProgress": "In Progress",
+      "mandatoryDone": "Mandatory Done"
+    },
+    "allCategories": "All Categories",
+    "tabs": {
+      "all": "All",
+      "in-progress": "In Progress",
+      "completed": "Completed",
+      "not-started": "Not Started"
+    },
+    "emptyState": "No training programs in this category"
+  },
+  "studentMyWorkshops": {
+    "title": "My Workshops",
+    "summary": "{count} registered · {hours}h of live sessions",
+    "browseWorkshops": "Browse Workshops",
+    "stats": {
+      "registered": "Registered",
+      "liveHours": "Live Hours",
+      "nextUp": "Next Up"
+    },
+    "emptyState": "No workshops registered yet",
+    "emptyStateDesc": "Browse upcoming hands-on sessions and save your seat."
+  },
+  "studentProfile": {
+    "editProfile": "Edit Profile",
+    "stats": {
+      "hoursLearned": "Hours Learned",
+      "coursesDone": "Courses Done",
+      "certificates": "Certificates",
+      "streak": "Streak"
+    },
+    "certificates": "Certificates",
+    "viewAll": "View all",
+    "issued": "Issued {date}",
+    "gradePercent": "{grade}% grade",
+    "learningGoal": "Learning Goal"
+  },
+  "studentSettings": {
+    "title": "Settings",
+    "subtitle": "Manage your profile, preferences, and account settings",
+    "tabs": {
+      "profile": "Profile",
+      "notifications": "Notifications",
+      "privacy": "Privacy & Security",
+      "learning": "Learning",
+      "appearance": "Appearance"
+    },
+    "personalInformation": "Personal Information",
+    "changePhoto": "Change photo",
+    "fullName": "Full Name",
+    "jobTitle": "Job Title",
+    "emailAddress": "Email Address",
+    "department": "Department",
+    "bio": "Bio",
+    "socialLinks": "Social Links",
+    "linkedIn": "LinkedIn",
+    "github": "GitHub",
+    "website": "Website",
+    "websitePlaceholder": "https://yourwebsite.com",
+    "notificationPreferences": "Notification Preferences",
+    "notifs": {
+      "courseAnnouncements": { "label": "Course Announcements", "desc": "New content, schedule changes, instructor updates" },
+      "assignmentReminders": { "label": "Assignment Reminders", "desc": "48h and 24h before due dates" },
+      "quizReminders": { "label": "Quiz Reminders", "desc": "Upcoming quiz deadlines" },
+      "discussionReplies": { "label": "Discussion Replies", "desc": "When someone replies to your threads" },
+      "liveSessionReminders": { "label": "Live Session Reminders", "desc": "1 hour before live sessions" },
+      "streakReminders": { "label": "Streak Reminders", "desc": "Daily nudge to maintain your learning streak" },
+      "weeklyDigest": { "label": "Weekly Digest", "desc": "Summary of your week's progress every Monday" },
+      "certificateEarned": { "label": "Certificate Earned", "desc": "When you earn a new certificate" }
+    },
+    "deliveryChannels": "DELIVERY CHANNELS",
+    "channels": {
+      "email": "Email",
+      "push": "Push (browser)"
+    },
+    "profileVisibility": "Profile Visibility",
+    "visibilityOptions": {
+      "leaderboards": { "label": "Show profile in leaderboards", "desc": "Your name and progress may appear in course leaderboards" },
+      "badges": { "label": "Show completion badges publicly", "desc": "Other students can see your earned certificates" },
+      "peerConnections": { "label": "Allow peer connections", "desc": "Other students can send you study group invitations" }
+    },
+    "security": "Security",
+    "changePassword": "Change Password",
+    "lastChanged": "Last changed 3 months ago",
+    "update": "Update",
+    "twoFactor": "Two-Factor Authentication",
+    "twoFactorDesc": "Add an extra layer of security",
+    "notEnabled": "Not enabled",
+    "learningPreferences": "Learning Preferences",
+    "weeklyLearningGoal": "Weekly Learning Goal (hours)",
+    "hoursPerWeek": "{hours}h/wk",
+    "timezone": "Timezone",
+    "language": "Language",
+    "learningGoal": "Learning Goal",
+    "learningGoalDesc": "Describe your professional learning objective.",
+    "appearance": "Appearance",
+    "theme": "THEME",
+    "themes": {
+      "dark": "Dark Navy",
+      "darker": "Deep Black"
+    },
+    "accentColor": "ACCENT COLOR",
+    "compactMode": "Compact Mode",
+    "compactModeDesc": "Reduce spacing for more content on screen",
+    "saveChanges": "Save Changes",
+    "saved": "Saved!"
+  },
+  "studentStudyGroups": {
+    "title": "Study Groups",
+    "subtitle": "Collaborate with peers on your trainings, share notes, and learn together.",
+    "emptyState": "No study groups yet.",
+    "viewTraining": "View training"
+  },
+  "studentDiscussions": {
+    "title": "Discussions",
+    "summary": "{count} threads across your courses and trainings",
+    "newThread": "New Thread",
+    "searchPlaceholder": "Search discussions...",
+    "allCoursesAndTrainings": "All Courses & Trainings",
+    "courses": "Courses",
+    "trainings": "Trainings",
+    "pinned": "PINNED",
+    "allThreads": "ALL THREADS",
+    "repliesAndViews": "{replies} replies · {views} views",
+    "repliesAndDate": "{replies} replies · {date}",
+    "noThreadsFound": "No threads found",
+    "solved": "Solved",
+    "instructor": "Instructor",
+    "noRepliesYet": "No replies yet — be the first to respond.",
+    "likes": "{count} likes",
+    "replyPlaceholder": "Write a reply...",
+    "selectThreadToRead": "Select a thread to read"
+  },
+  "studentSchedule": {
+    "title": "Schedule",
+    "summary": "{count} upcoming events · {month}",
+    "today": "TODAY — {date}",
+    "joinInLms": "Join in LMS",
+    "joinMeeting": "Join meeting",
+    "upcomingEvents": "Upcoming Events",
+    "todayShort": "Today",
+    "moreEvents": "+{count} more",
+    "legend": {
+      "live-session": "Live Session",
+      "assignment-due": "Assignment Due",
+      "quiz": "Quiz",
+      "exam": "Exam",
+      "workshop": "Workshop",
+      "office-hours": "Office Hours"
+    },
+    "days": {
+      "sun": "Sun",
+      "mon": "Mon",
+      "tue": "Tue",
+      "wed": "Wed",
+      "thu": "Thu",
+      "fri": "Fri",
+      "sat": "Sat"
+    },
+    "months": {
+      "0": "January", "1": "February", "2": "March", "3": "April", "4": "May", "5": "June",
+      "6": "July", "7": "August", "8": "September", "9": "October", "10": "November", "11": "December"
+    }
+  },
+  "studentProgress": {
+    "title": "Progress & Analytics",
+    "subtitle": "Your learning journey at a glance — last updated {date}",
+    "stats": {
+      "hoursLearned": "Hours Learned",
+      "hoursLearnedSub": "total lifetime",
+      "avgGrade": "Avg. Grade",
+      "avgGradeSub": "across assignments",
+      "quizzesPassed": "Quizzes Passed",
+      "quizzesPassedSub": "avg {pct}%",
+      "currentStreak": "Current Streak",
+      "currentStreakSub": "keep it going!",
+      "streakDays": "{days} days"
+    },
+    "weeklyActivity": "Weekly Learning Activity",
+    "last8Weeks": "Last 8 weeks",
+    "totalThisMonth": "Total this month:",
+    "vsLastMonth": "vs last month:",
+    "weeklyGoal": "Weekly goal:",
+    "courseProgressBreakdown": "Course Progress Breakdown",
+    "lessonsCount": "{completed}/{total} lessons",
+    "gradeSuffix": " · Grade: {grade}%",
+    "activityHeatmap": "Activity Heatmap",
+    "last28Days": "Last 28 days",
+    "less": "Less",
+    "more": "More",
+    "skillsProgress": "Skills Progress",
+    "timeByCategory": "Time by Category",
+    "achievements": "Achievements",
+    "earned": "Earned: {date}",
+    "notYetEarned": "Not yet earned",
+    "learningGoal": "Learning Goal",
+    "goals": {
+      "completeReact": "Complete React course",
+      "passTypeScript": "Pass TypeScript Module 2",
+      "gdprCert": "GDPR Compliance cert",
+      "cyberCert": "Cybersecurity cert ✓",
+      "deiCert": "DEI cert ✓"
+    }
+  },
+  "studentCertificates": {
+    "title": "My Certificates",
+    "summary": "{count} certificates earned · Verifiable credentials on your profile",
+    "stats": {
+      "certificatesEarned": "Certificates Earned",
+      "skillsDemonstrated": "Skills Demonstrated",
+      "avgGrade": "Avg Grade"
+    },
+    "noCertificatesYet": "No certificates yet",
+    "noCertificatesDesc": "Finish every lesson in a course to earn its certificate.",
+    "inProgress": "IN PROGRESS",
+    "issued": "Issued {date}",
+    "gradePercent": "{grade}% grade",
+    "allCertificates": "All certificates",
+    "noCertificateForCourse": "No certificate yet for \"{title}\"",
+    "certificateNotFound": "Certificate not found",
+    "finishToEarn": "Finish every lesson in this course to earn its certificate.",
+    "certificateNo": "Certificate no:",
+    "certificateUrl": "Certificate url: {url}",
+    "referenceNumber": "Reference Number: {ref}",
+    "certificateOfCompletion": "Certificate of Completion",
+    "instructors": "Instructors",
+    "dateLabel": "Date",
+    "lengthLabel": "Length",
+    "verifiesText": "This certificate above verifies that {studentName} successfully completed the course {courseName} on {date} as taught by {instructorName} on LearnFlow. The certificate indicates the entire course was completed as validated by the learner. The course length represents the total hours of video and lecture content across {lessons} lessons.",
+    "skillsDemonstratedTitle": "Skills Demonstrated",
+    "certificateRecipient": "Certificate Recipient:",
+    "aboutTheCourse": "About the Course:",
+    "totalLectures": "{duration} total · {lessons} lectures",
+    "download": "Download",
+    "share": "Share",
+    "backToCourse": "Back to course"
+  }
+}

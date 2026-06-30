@@ -29,10 +29,10 @@ export function PhaseTimeline({ interior }: Props) {
   const { currentPhase, phaseDeadlines } = interior
 
   return (
-    <div className="rounded-2xl p-5" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
+    <div className="rounded-2xl p-5 shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
       <div className="flex items-center justify-between mb-1">
-        <h3 className="text-xs font-bold text-white">Workflow Phase</h3>
-        <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ backgroundColor: "#3B82F615", color: "#60A5FA" }}>
+        <h3 className="text-xs font-bold" style={{ color: "var(--text-primary)" }}>Workflow Phase</h3>
+        <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ backgroundColor: "var(--accent-subtle)", color: "var(--accent)" }}>
           {PHASE_LABELS[currentPhase].long}
         </span>
       </div>
@@ -52,21 +52,21 @@ export function PhaseTimeline({ interior }: Props) {
                   className="w-8 h-8 rounded-full flex items-center justify-center"
                   style={{
                     backgroundColor:
-                      status === "done" ? "#10B98120" :
-                      status === "active" ? "#3B82F6" :
-                      "#0F172A",
+                      status === "done" ? "var(--success-bg)" :
+                      status === "active" ? "var(--accent)" :
+                      "var(--bg-surface-muted)",
                     border:
-                      status === "done" ? "2px solid #10B981" :
-                      status === "active" ? "2px solid #3B82F6" :
-                      "2px solid #334155",
+                      status === "done" ? "2px solid var(--success)" :
+                      status === "active" ? "2px solid var(--accent)" :
+                      "2px solid var(--border-default)",
                   }}
                 >
                   {status === "done" ? (
-                    <CheckCircle2 size={14} style={{ color: "#10B981" }} />
+                    <CheckCircle2 size={14} style={{ color: "var(--success)" }} />
                   ) : status === "active" ? (
                     <Clock3 size={14} color="#fff" />
                   ) : (
-                    <Circle size={14} style={{ color: "#475569" }} />
+                    <Circle size={14} style={{ color: "var(--text-muted)" }} />
                   )}
                 </div>
 
@@ -74,7 +74,7 @@ export function PhaseTimeline({ interior }: Props) {
                 <p
                   className="text-xs font-semibold mt-1.5 text-center"
                   style={{
-                    color: status === "done" ? "#10B981" : status === "active" ? "#F8FAFC" : "#475569",
+                    color: status === "done" ? "var(--success)" : status === "active" ? "var(--text-primary)" : "var(--text-muted)",
                   }}
                 >
                   {PHASE_LABELS[phase].short}
@@ -82,7 +82,7 @@ export function PhaseTimeline({ interior }: Props) {
 
                 {/* Deadline */}
                 {deadline && (
-                  <p className="text-xs mt-0.5 text-center" style={{ color: status === "active" ? "#F59E0B" : "#334155", fontSize: 10 }}>
+                  <p className="text-xs mt-0.5 text-center" style={{ color: status === "active" ? "var(--warning)" : "var(--border-default)", fontSize: 10 }}>
                     {new Date(deadline).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                   </p>
                 )}
@@ -96,8 +96,8 @@ export function PhaseTimeline({ interior }: Props) {
                     width: 36,
                     backgroundColor:
                       phaseStatus(PHASE_ORDER[idx + 1], currentPhase) !== "upcoming" || phase === currentPhase
-                        ? "#10B981"
-                        : "#334155",
+                        ? "var(--success)"
+                        : "var(--border-default)",
                   }}
                 />
               )}

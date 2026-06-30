@@ -23,7 +23,7 @@ function Toggle({ enabled, onChange }: { enabled: boolean; onChange: () => void 
     <button
       onClick={onChange}
       className="w-10 h-5 rounded-full transition-all relative flex-shrink-0"
-      style={{ backgroundColor: enabled ? "#3B82F6" : "#334155" }}
+      style={{ backgroundColor: enabled ? "var(--accent)" : "var(--border-default)" }}
     >
       <span
         className="absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform"
@@ -82,8 +82,8 @@ export default function SettingsPage() {
 
         {/* Header */}
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-white">Settings</h1>
-          <p className="text-sm mt-1" style={{ color: "#94A3B8" }}>Manage your profile, preferences, and account settings</p>
+          <h1 className="text-2xl font-bold" style={{ color: "var(--text-primary)" }}>Settings</h1>
+          <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>Manage your profile, preferences, and account settings</p>
         </div>
 
         <div className="flex gap-6">
@@ -97,10 +97,10 @@ export default function SettingsPage() {
                 className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium text-left transition-all"
                 style={{
                   backgroundColor: tab === id ? "#3B82F620" : "transparent",
-                  color: tab === id ? "#60A5FA" : "#94A3B8",
+                  color: tab === id ? "#60A5FA" : "var(--text-secondary)",
                 }}
               >
-                <Icon size={16} style={{ color: tab === id ? "#3B82F6" : "#64748B", flexShrink: 0 }} />
+                <Icon size={16} style={{ color: tab === id ? "var(--accent)" : "var(--text-tertiary)", flexShrink: 0 }} />
                 {label}
               </button>
             ))}
@@ -112,8 +112,8 @@ export default function SettingsPage() {
             {/* Profile */}
             {tab === "profile" && (
               <>
-                <div className="rounded-2xl p-6" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
-                  <h2 className="text-sm font-bold text-white mb-4">Personal Information</h2>
+                <div className="rounded-2xl p-6" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
+                  <h2 className="text-sm font-bold text-[var(--text-primary)] mb-4">Personal Information</h2>
 
                   {/* Avatar */}
                   <div className="flex items-center gap-4 mb-5">
@@ -126,71 +126,71 @@ export default function SettingsPage() {
                       </div>
                       <button
                         className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center"
-                        style={{ backgroundColor: "#334155", border: "2px solid #0F172A" }}
+                        style={{ backgroundColor: "var(--border-default)", border: "2px solid var(--bg-surface-muted)" }}
                       >
-                        <Camera size={11} style={{ color: "#94A3B8" }} />
+                        <Camera size={11} style={{ color: "var(--text-secondary)" }} />
                       </button>
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-white">{p.name}</p>
-                      <p className="text-xs" style={{ color: "#64748B" }}>{p.email}</p>
+                      <p className="text-sm font-semibold text-[var(--text-primary)]">{p.name}</p>
+                      <p className="text-xs" style={{ color: "var(--text-tertiary)" }}>{p.email}</p>
                       <button className="text-xs mt-1" style={{ color: "#3B82F6" }}>Change photo</button>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-semibold mb-1.5" style={{ color: "#94A3B8" }}>Full Name</label>
+                      <label className="block text-xs font-semibold mb-1.5" style={{ color: "var(--text-secondary)" }}>Full Name</label>
                       <input
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         className="w-full px-3 py-2.5 rounded-xl text-sm outline-none"
-                        style={{ backgroundColor: "#0F172A", border: "1px solid #334155", color: "#F8FAFC" }}
+                        style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)", color: "var(--text-primary)" }}
                         onFocus={(e) => (e.target.style.borderColor = "#3B82F6")}
-                        onBlur={(e) => (e.target.style.borderColor = "#334155")}
+                        onBlur={(e) => (e.target.style.borderColor = "var(--border-default)")}
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold mb-1.5" style={{ color: "#94A3B8" }}>Job Title</label>
+                      <label className="block text-xs font-semibold mb-1.5" style={{ color: "var(--text-secondary)" }}>Job Title</label>
                       <input
                         value={jobTitle}
                         onChange={(e) => setJobTitle(e.target.value)}
                         className="w-full px-3 py-2.5 rounded-xl text-sm outline-none"
-                        style={{ backgroundColor: "#0F172A", border: "1px solid #334155", color: "#F8FAFC" }}
+                        style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)", color: "var(--text-primary)" }}
                         onFocus={(e) => (e.target.style.borderColor = "#3B82F6")}
-                        onBlur={(e) => (e.target.style.borderColor = "#334155")}
+                        onBlur={(e) => (e.target.style.borderColor = "var(--border-default)")}
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold mb-1.5" style={{ color: "#94A3B8" }}>Email Address</label>
-                      <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm" style={{ backgroundColor: "#0F172A", border: "1px solid #334155" }}>
-                        <Mail size={14} style={{ color: "#64748B" }} />
-                        <span style={{ color: "#64748B" }}>{p.email}</span>
+                      <label className="block text-xs font-semibold mb-1.5" style={{ color: "var(--text-secondary)" }}>Email Address</label>
+                      <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm" style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)" }}>
+                        <Mail size={14} style={{ color: "var(--text-tertiary)" }} />
+                        <span style={{ color: "var(--text-tertiary)" }}>{p.email}</span>
                       </div>
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold mb-1.5" style={{ color: "#94A3B8" }}>Department</label>
-                      <div className="px-3 py-2.5 rounded-xl text-sm" style={{ backgroundColor: "#0F172A", border: "1px solid #334155", color: "#64748B" }}>
+                      <label className="block text-xs font-semibold mb-1.5" style={{ color: "var(--text-secondary)" }}>Department</label>
+                      <div className="px-3 py-2.5 rounded-xl text-sm" style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)", color: "var(--text-tertiary)" }}>
                         {p.department}
                       </div>
                     </div>
                     <div className="sm:col-span-2">
-                      <label className="block text-xs font-semibold mb-1.5" style={{ color: "#94A3B8" }}>Bio</label>
+                      <label className="block text-xs font-semibold mb-1.5" style={{ color: "var(--text-secondary)" }}>Bio</label>
                       <textarea
                         value={bio}
                         onChange={(e) => setBio(e.target.value)}
                         rows={3}
                         className="w-full px-3 py-2.5 rounded-xl text-sm outline-none resize-none"
-                        style={{ backgroundColor: "#0F172A", border: "1px solid #334155", color: "#F8FAFC" }}
+                        style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)", color: "var(--text-primary)" }}
                         onFocus={(e) => (e.target.style.borderColor = "#3B82F6")}
-                        onBlur={(e) => (e.target.style.borderColor = "#334155")}
+                        onBlur={(e) => (e.target.style.borderColor = "var(--border-default)")}
                       />
                     </div>
                   </div>
                 </div>
 
-                <div className="rounded-2xl p-6" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
-                  <h2 className="text-sm font-bold text-white mb-4">Social Links</h2>
+                <div className="rounded-2xl p-6" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
+                  <h2 className="text-sm font-bold text-[var(--text-primary)] mb-4">Social Links</h2>
                   <div className="space-y-3">
                     {[
                       { icon: Link2, label: "LinkedIn", value: p.linkedIn, placeholder: "linkedin.com/in/username" },
@@ -198,14 +198,14 @@ export default function SettingsPage() {
                       { icon: Globe, label: "Website", value: p.website, placeholder: "https://yourwebsite.com" },
                     ].map(({ icon: Icon, label, value, placeholder }) => (
                       <div key={label}>
-                        <label className="block text-xs font-semibold mb-1.5" style={{ color: "#94A3B8" }}>{label}</label>
-                        <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl" style={{ backgroundColor: "#0F172A", border: "1px solid #334155" }}>
-                          <Icon size={14} style={{ color: "#64748B", flexShrink: 0 }} />
+                        <label className="block text-xs font-semibold mb-1.5" style={{ color: "var(--text-secondary)" }}>{label}</label>
+                        <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl" style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)" }}>
+                          <Icon size={14} style={{ color: "var(--text-tertiary)", flexShrink: 0 }} />
                           <input
                             defaultValue={value}
                             placeholder={placeholder}
                             className="flex-1 text-sm bg-transparent outline-none"
-                            style={{ color: "#F8FAFC" }}
+                            style={{ color: "var(--text-primary)" }}
                           />
                         </div>
                       </div>
@@ -217,8 +217,8 @@ export default function SettingsPage() {
 
             {/* Notifications */}
             {tab === "notifications" && (
-              <div className="rounded-2xl p-6" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
-                <h2 className="text-sm font-bold text-white mb-4">Notification Preferences</h2>
+              <div className="rounded-2xl p-6" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
+                <h2 className="text-sm font-bold text-[var(--text-primary)] mb-4">Notification Preferences</h2>
                 <div className="space-y-1">
                   {[
                     { key: "courseAnnouncements" as const, label: "Course Announcements", desc: "New content, schedule changes, instructor updates" },
@@ -236,16 +236,16 @@ export default function SettingsPage() {
                       style={{ borderBottom: "1px solid #33415540" }}
                     >
                       <div>
-                        <p className="text-sm font-medium text-white">{label}</p>
-                        <p className="text-xs mt-0.5" style={{ color: "#64748B" }}>{desc}</p>
+                        <p className="text-sm font-medium text-[var(--text-primary)]">{label}</p>
+                        <p className="text-xs mt-0.5" style={{ color: "var(--text-tertiary)" }}>{desc}</p>
                       </div>
                       <Toggle enabled={notifs[key]} onChange={() => toggleNotif(key)} />
                     </div>
                   ))}
                 </div>
 
-                <div className="mt-4 pt-4" style={{ borderTop: "1px solid #334155" }}>
-                  <p className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: "#475569" }}>DELIVERY CHANNELS</p>
+                <div className="mt-4 pt-4" style={{ borderTop: "1px solid var(--border-default)" }}>
+                  <p className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: "var(--text-muted)" }}>DELIVERY CHANNELS</p>
                   <div className="flex gap-4">
                     {[
                       { key: "emailNotifs" as const, label: "Email" },
@@ -253,7 +253,7 @@ export default function SettingsPage() {
                     ].map(({ key, label }) => (
                       <div key={key} className="flex items-center gap-2">
                         <Toggle enabled={notifs[key]} onChange={() => toggleNotif(key)} />
-                        <span className="text-sm" style={{ color: "#94A3B8" }}>{label}</span>
+                        <span className="text-sm" style={{ color: "var(--text-secondary)" }}>{label}</span>
                       </div>
                     ))}
                   </div>
@@ -264,8 +264,8 @@ export default function SettingsPage() {
             {/* Privacy */}
             {tab === "privacy" && (
               <>
-                <div className="rounded-2xl p-6" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
-                  <h2 className="text-sm font-bold text-white mb-4">Profile Visibility</h2>
+                <div className="rounded-2xl p-6" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
+                  <h2 className="text-sm font-bold text-[var(--text-primary)] mb-4">Profile Visibility</h2>
                   <div className="space-y-3">
                     {[
                       { label: "Show profile in leaderboards", desc: "Your name and progress may appear in course leaderboards", enabled: true },
@@ -276,8 +276,8 @@ export default function SettingsPage() {
                       return (
                         <div key={label} className="flex items-center justify-between py-2.5" style={{ borderBottom: "1px solid #33415540" }}>
                           <div>
-                            <p className="text-sm font-medium text-white">{label}</p>
-                            <p className="text-xs mt-0.5" style={{ color: "#64748B" }}>{desc}</p>
+                            <p className="text-sm font-medium text-[var(--text-primary)]">{label}</p>
+                            <p className="text-xs mt-0.5" style={{ color: "var(--text-tertiary)" }}>{desc}</p>
                           </div>
                           <Toggle enabled={on} onChange={() => setOn(!on)} />
                         </div>
@@ -286,26 +286,26 @@ export default function SettingsPage() {
                   </div>
                 </div>
 
-                <div className="rounded-2xl p-6" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
-                  <h2 className="text-sm font-bold text-white mb-4">Security</h2>
+                <div className="rounded-2xl p-6" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
+                  <h2 className="text-sm font-bold text-[var(--text-primary)] mb-4">Security</h2>
                   <div className="space-y-3">
                     <button
                       className="w-full text-left px-4 py-3 rounded-xl flex items-center justify-between"
-                      style={{ backgroundColor: "#0F172A", border: "1px solid #334155" }}
+                      style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)" }}
                     >
                       <div>
-                        <p className="text-sm font-medium text-white">Change Password</p>
-                        <p className="text-xs mt-0.5" style={{ color: "#64748B" }}>Last changed 3 months ago</p>
+                        <p className="text-sm font-medium text-[var(--text-primary)]">Change Password</p>
+                        <p className="text-xs mt-0.5" style={{ color: "var(--text-tertiary)" }}>Last changed 3 months ago</p>
                       </div>
                       <span style={{ color: "#3B82F6", fontSize: 13 }}>Update →</span>
                     </button>
                     <button
                       className="w-full text-left px-4 py-3 rounded-xl flex items-center justify-between"
-                      style={{ backgroundColor: "#0F172A", border: "1px solid #334155" }}
+                      style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)" }}
                     >
                       <div>
-                        <p className="text-sm font-medium text-white">Two-Factor Authentication</p>
-                        <p className="text-xs mt-0.5" style={{ color: "#64748B" }}>Add an extra layer of security</p>
+                        <p className="text-sm font-medium text-[var(--text-primary)]">Two-Factor Authentication</p>
+                        <p className="text-xs mt-0.5" style={{ color: "var(--text-tertiary)" }}>Add an extra layer of security</p>
                       </div>
                       <span className="text-xs px-2 py-0.5 rounded-full" style={{ backgroundColor: "#EF444420", color: "#EF4444" }}>Not enabled</span>
                     </button>
@@ -317,11 +317,11 @@ export default function SettingsPage() {
             {/* Learning */}
             {tab === "learning" && (
               <>
-                <div className="rounded-2xl p-6" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
-                  <h2 className="text-sm font-bold text-white mb-4">Learning Preferences</h2>
+                <div className="rounded-2xl p-6" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
+                  <h2 className="text-sm font-bold text-[var(--text-primary)] mb-4">Learning Preferences</h2>
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-xs font-semibold mb-1.5" style={{ color: "#94A3B8" }}>
+                      <label className="block text-xs font-semibold mb-1.5" style={{ color: "var(--text-secondary)" }}>
                         Weekly Learning Goal (hours)
                       </label>
                       <div className="flex items-center gap-3">
@@ -333,16 +333,16 @@ export default function SettingsPage() {
                           onChange={(e) => setWeeklyGoal(e.target.value)}
                           className="flex-1 accent-blue-500"
                         />
-                        <span className="text-sm font-bold w-12 text-center text-white">{weeklyGoal}h/wk</span>
+                        <span className="text-sm font-bold w-12 text-center text-[var(--text-primary)]">{weeklyGoal}h/wk</span>
                       </div>
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold mb-1.5" style={{ color: "#94A3B8" }}>Timezone</label>
+                      <label className="block text-xs font-semibold mb-1.5" style={{ color: "var(--text-secondary)" }}>Timezone</label>
                       <select
                         value={timezone}
                         onChange={(e) => setTimezone(e.target.value)}
                         className="w-full px-3 py-2.5 rounded-xl text-sm outline-none"
-                        style={{ backgroundColor: "#0F172A", border: "1px solid #334155", color: "#F8FAFC" }}
+                        style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)", color: "var(--text-primary)" }}
                       >
                         <option>America/New_York</option>
                         <option>America/Chicago</option>
@@ -354,12 +354,12 @@ export default function SettingsPage() {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold mb-1.5" style={{ color: "#94A3B8" }}>Language</label>
+                      <label className="block text-xs font-semibold mb-1.5" style={{ color: "var(--text-secondary)" }}>Language</label>
                       <select
                         value={language}
                         onChange={(e) => setLanguage(e.target.value)}
                         className="w-full px-3 py-2.5 rounded-xl text-sm outline-none"
-                        style={{ backgroundColor: "#0F172A", border: "1px solid #334155", color: "#F8FAFC" }}
+                        style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)", color: "var(--text-primary)" }}
                       >
                         <option>English</option>
                         <option>Spanish</option>
@@ -372,16 +372,16 @@ export default function SettingsPage() {
                   </div>
                 </div>
 
-                <div className="rounded-2xl p-6" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
-                  <h2 className="text-sm font-bold text-white mb-2">Learning Goal</h2>
-                  <p className="text-xs mb-3" style={{ color: "#64748B" }}>Describe your professional learning objective.</p>
+                <div className="rounded-2xl p-6" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
+                  <h2 className="text-sm font-bold text-[var(--text-primary)] mb-2">Learning Goal</h2>
+                  <p className="text-xs mb-3" style={{ color: "var(--text-tertiary)" }}>Describe your professional learning objective.</p>
                   <textarea
                     defaultValue={p.learningGoal}
                     rows={3}
                     className="w-full px-3 py-2.5 rounded-xl text-sm outline-none resize-none"
-                    style={{ backgroundColor: "#0F172A", border: "1px solid #334155", color: "#F8FAFC" }}
+                    style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)", color: "var(--text-primary)" }}
                     onFocus={(e) => (e.target.style.borderColor = "#3B82F6")}
-                    onBlur={(e) => (e.target.style.borderColor = "#334155")}
+                    onBlur={(e) => (e.target.style.borderColor = "var(--border-default)")}
                   />
                 </div>
               </>
@@ -389,15 +389,15 @@ export default function SettingsPage() {
 
             {/* Appearance */}
             {tab === "appearance" && (
-              <div className="rounded-2xl p-6" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
-                <h2 className="text-sm font-bold text-white mb-4">Appearance</h2>
+              <div className="rounded-2xl p-6" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
+                <h2 className="text-sm font-bold text-[var(--text-primary)] mb-4">Appearance</h2>
 
                 <div className="space-y-5">
                   <div>
-                    <p className="text-xs font-semibold mb-3" style={{ color: "#94A3B8" }}>THEME</p>
+                    <p className="text-xs font-semibold mb-3" style={{ color: "var(--text-secondary)" }}>THEME</p>
                     <div className="grid grid-cols-2 gap-3">
                       {[
-                        { id: "dark" as const, label: "Dark Navy", bg: "#0F172A", sidebar: "#1E293B" },
+                        { id: "dark" as const, label: "Dark Navy", bg: "var(--bg-surface-muted)", sidebar: "var(--bg-surface)" },
                         { id: "darker" as const, label: "Deep Black", bg: "#000000", sidebar: "#0F0F0F" },
                       ].map(({ id, label, bg, sidebar }) => (
                         <button
@@ -405,22 +405,22 @@ export default function SettingsPage() {
                           onClick={() => setTheme(id)}
                           className="rounded-xl p-3 text-left transition-all"
                           style={{
-                            border: `2px solid ${theme === id ? "#3B82F6" : "#334155"}`,
-                            backgroundColor: "#0F172A",
+                            border: `2px solid ${theme === id ? "#3B82F6" : "var(--border-default)"}`,
+                            backgroundColor: "var(--bg-surface-muted)",
                           }}
                         >
                           <div className="flex rounded-lg overflow-hidden h-12 mb-2">
                             <div style={{ flex: 1, backgroundColor: sidebar }} />
                             <div style={{ flex: 3, backgroundColor: bg }} />
                           </div>
-                          <p className="text-xs font-medium" style={{ color: theme === id ? "#60A5FA" : "#94A3B8" }}>{label}</p>
+                          <p className="text-xs font-medium" style={{ color: theme === id ? "#60A5FA" : "var(--text-secondary)" }}>{label}</p>
                         </button>
                       ))}
                     </div>
                   </div>
 
                   <div>
-                    <p className="text-xs font-semibold mb-3" style={{ color: "#94A3B8" }}>ACCENT COLOR</p>
+                    <p className="text-xs font-semibold mb-3" style={{ color: "var(--text-secondary)" }}>ACCENT COLOR</p>
                     <div className="flex gap-3">
                       {accentColors.map((color) => (
                         <button
@@ -430,17 +430,17 @@ export default function SettingsPage() {
                           style={{
                             backgroundColor: color,
                             transform: accentColor === color ? "scale(1.25)" : "scale(1)",
-                            boxShadow: accentColor === color ? `0 0 0 2px #0F172A, 0 0 0 4px ${color}` : "none",
+                            boxShadow: accentColor === color ? `0 0 0 2px var(--bg-surface-muted), 0 0 0 4px ${color}` : "none",
                           }}
                         />
                       ))}
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between py-3" style={{ borderTop: "1px solid #334155" }}>
+                  <div className="flex items-center justify-between py-3" style={{ borderTop: "1px solid var(--border-default)" }}>
                     <div>
-                      <p className="text-sm font-medium text-white">Compact Mode</p>
-                      <p className="text-xs mt-0.5" style={{ color: "#64748B" }}>Reduce spacing for more content on screen</p>
+                      <p className="text-sm font-medium text-[var(--text-primary)]">Compact Mode</p>
+                      <p className="text-xs mt-0.5" style={{ color: "var(--text-tertiary)" }}>Reduce spacing for more content on screen</p>
                     </div>
                     <Toggle enabled={compactMode} onChange={() => setCompactMode(!compactMode)} />
                   </div>
@@ -454,7 +454,7 @@ export default function SettingsPage() {
                 onClick={handleSave}
                 className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all"
                 style={{
-                  backgroundColor: saved ? "#10B981" : "#3B82F6",
+                  backgroundColor: saved ? "var(--success)" : "var(--accent)",
                   color: "#fff",
                 }}
               >

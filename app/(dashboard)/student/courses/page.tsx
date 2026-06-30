@@ -29,16 +29,16 @@ const categoryIcons: Record<CourseCategory, string> = {
 
 function CourseStatusBadge({ progress, isMandatory }: { progress: number; isMandatory?: boolean }) {
   if (progress === 100)
-    return <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ backgroundColor: "#10B98120", color: "#10B981" }}>Completed</span>
+    return <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ backgroundColor: "#10B98120", color: "var(--success)" }}>Completed</span>
   if (progress > 0)
     return <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ backgroundColor: "#3B82F620", color: "#60A5FA" }}>In Progress</span>
-  return <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ backgroundColor: "#33415520", color: "#94A3B8" }}>Not Started</span>
+  return <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ backgroundColor: "#33415520", color: "var(--text-secondary)" }}>Not Started</span>
 }
 
 const levelColors: Record<string, string> = {
-  Beginner: "#10B981",
-  Intermediate: "#F59E0B",
-  Advanced: "#EF4444",
+  Beginner: "var(--success)",
+  Intermediate: "var(--warning)",
+  Advanced: "var(--danger)",
 }
 
 export default function MyCoursesPage() {
@@ -85,15 +85,15 @@ export default function MyCoursesPage() {
         {/* Header */}
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
-            <h1 className="text-2xl font-bold text-white">My Courses</h1>
-            <p className="text-sm mt-1" style={{ color: "#94A3B8" }}>
+            <h1 className="text-2xl font-bold" style={{ color: "var(--text-primary)" }}>My Courses</h1>
+            <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>
               {enrolled.length} enrolled · {counts.completed} completed · {counts["in-progress"]} in progress
             </p>
           </div>
           <Link
             href="/student/explore"
             className="flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-lg"
-            style={{ backgroundColor: "#3B82F6", color: "#fff" }}
+            style={{ backgroundColor: "var(--accent)", color: "#fff" }}
           >
             <BookOpen size={15} /> Browse Catalog
           </Link>
@@ -109,12 +109,12 @@ export default function MyCoursesPage() {
           ].map(({ label, value, sub }) => (
             <div
               key={label}
-              className="rounded-xl p-4"
-              style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
+              className="rounded-xl p-4 shadow-sm"
+              style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
             >
-              <p className="text-xl font-bold text-white">{value}</p>
-              <p className="text-xs font-medium mt-0.5" style={{ color: "#94A3B8" }}>{label}</p>
-              <p className="text-xs mt-0.5" style={{ color: "#475569" }}>{sub}</p>
+              <p className="text-xl font-bold" style={{ color: "var(--text-primary)" }}>{value}</p>
+              <p className="text-xs font-medium mt-0.5" style={{ color: "var(--text-secondary)" }}>{label}</p>
+              <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>{sub}</p>
             </div>
           ))}
         </div>
@@ -122,16 +122,16 @@ export default function MyCoursesPage() {
         {/* Category filter */}
         {categories.length > 1 && (
           <div className="flex items-center gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
-            <span className="flex items-center gap-1.5 text-xs font-semibold flex-shrink-0" style={{ color: "#64748B" }}>
+            <span className="flex items-center gap-1.5 text-xs font-semibold flex-shrink-0" style={{ color: "var(--text-tertiary)" }}>
               <Filter size={13} /> Category
             </span>
             <button
               onClick={() => setCategory("all")}
               className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex-shrink-0"
               style={{
-                backgroundColor: category === "all" ? "#3B82F6" : "#1E293B",
-                color: category === "all" ? "#fff" : "#94A3B8",
-                border: `1px solid ${category === "all" ? "#3B82F6" : "#334155"}`,
+                backgroundColor: category === "all" ? "var(--accent)" : "var(--bg-surface)",
+                color: category === "all" ? "#fff" : "var(--text-secondary)",
+                border: `1px solid ${category === "all" ? "var(--accent)" : "var(--border-default)"}`,
               }}
             >
               All
@@ -142,9 +142,9 @@ export default function MyCoursesPage() {
                 onClick={() => setCategory(c)}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex-shrink-0"
                 style={{
-                  backgroundColor: category === c ? "#3B82F6" : "#1E293B",
-                  color: category === c ? "#fff" : "#94A3B8",
-                  border: `1px solid ${category === c ? "#3B82F6" : "#334155"}`,
+                  backgroundColor: category === c ? "var(--accent)" : "var(--bg-surface)",
+                  color: category === c ? "#fff" : "var(--text-secondary)",
+                  border: `1px solid ${category === c ? "var(--accent)" : "var(--border-default)"}`,
                 }}
               >
                 <span>{categoryIcons[c]}</span> {c}
@@ -155,15 +155,15 @@ export default function MyCoursesPage() {
 
         {/* Tabs + View toggle */}
         <div className="flex items-center justify-between flex-wrap gap-3">
-          <div className="flex items-center gap-1 rounded-xl p-1" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
+          <div className="flex items-center gap-1 rounded-xl p-1 shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
             {(["all", "in-progress", "completed", "not-started"] as Tab[]).map((t) => (
               <button
                 key={t}
                 onClick={() => setTab(t)}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all"
                 style={{
-                  backgroundColor: tab === t ? "#3B82F6" : "transparent",
-                  color: tab === t ? "#fff" : "#94A3B8",
+                  backgroundColor: tab === t ? "var(--accent)" : "transparent",
+                  color: tab === t ? "#fff" : "var(--text-secondary)",
                 }}
               >
                 {t === "all" ? "All" : t === "in-progress" ? "In Progress" : t === "completed" ? "Completed" : "Not Started"}
@@ -171,7 +171,7 @@ export default function MyCoursesPage() {
                   className="text-xs px-1.5 py-0.5 rounded-full"
                   style={{
                     backgroundColor: tab === t ? "rgba(255,255,255,0.2)" : "#33415540",
-                    color: tab === t ? "#fff" : "#64748B",
+                    color: tab === t ? "#fff" : "var(--text-tertiary)",
                   }}
                 >
                   {counts[t]}
@@ -183,14 +183,14 @@ export default function MyCoursesPage() {
             <button
               onClick={() => setView("grid")}
               className="p-2 rounded-lg transition-colors"
-              style={{ backgroundColor: view === "grid" ? "#3B82F620" : "#1E293B", color: view === "grid" ? "#60A5FA" : "#64748B", border: "1px solid #334155" }}
+              style={{ backgroundColor: view === "grid" ? "#3B82F620" : "var(--bg-surface)", color: view === "grid" ? "#60A5FA" : "var(--text-tertiary)", border: "1px solid var(--border-default)" }}
             >
               <LayoutGrid size={16} />
             </button>
             <button
               onClick={() => setView("list")}
               className="p-2 rounded-lg transition-colors"
-              style={{ backgroundColor: view === "list" ? "#3B82F620" : "#1E293B", color: view === "list" ? "#60A5FA" : "#64748B", border: "1px solid #334155" }}
+              style={{ backgroundColor: view === "list" ? "#3B82F620" : "var(--bg-surface)", color: view === "list" ? "#60A5FA" : "var(--text-tertiary)", border: "1px solid var(--border-default)" }}
             >
               <List size={16} />
             </button>
@@ -200,11 +200,11 @@ export default function MyCoursesPage() {
         {/* Course Grid */}
         {filtered.length === 0 ? (
           <div
-            className="rounded-2xl p-12 text-center"
-            style={{ backgroundColor: "#1E293B", border: "1px dashed #334155" }}
+            className="rounded-2xl p-12 text-center shadow-sm"
+            style={{ backgroundColor: "var(--bg-surface)", border: "1px dashed var(--border-default)" }}
           >
-            <BookOpen size={36} className="mx-auto mb-3" style={{ color: "#334155" }} />
-            <p className="text-sm font-medium" style={{ color: "#475569" }}>No courses in this category</p>
+            <BookOpen size={36} className="mx-auto mb-3" style={{ color: "var(--border-default)" }} />
+            <p className="text-sm font-medium" style={{ color: "var(--text-muted)" }}>No courses in this category</p>
           </div>
         ) : view === "grid" ? (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -215,8 +215,8 @@ export default function MyCoursesPage() {
               return (
                 <div
                   key={course.id}
-                  className="rounded-2xl overflow-hidden flex flex-col transition-all duration-150"
-                  style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
+                  className="rounded-2xl overflow-hidden flex flex-col transition-all duration-150 shadow-sm"
+                  style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
                 >
                   <CourseThumbnail course={course} heightClass="h-32" />
 
@@ -224,14 +224,14 @@ export default function MyCoursesPage() {
                     <div className="flex items-start gap-2 mb-2 flex-wrap">
                       <CourseStatusBadge progress={course.progress!} isMandatory={course.isMandatory} />
                       {course.isMandatory && (
-                        <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ backgroundColor: "#EF444420", color: "#EF4444" }}>Required</span>
+                        <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ backgroundColor: "#EF444420", color: "var(--danger)" }}>Required</span>
                       )}
                     </div>
 
-                    <h3 className="text-sm font-bold text-white mb-1 line-clamp-2">{course.title}</h3>
-                    <p className="text-xs mb-3" style={{ color: "#64748B" }}>{course.instructor}</p>
+                    <h3 className="text-sm font-bold mb-1 line-clamp-2" style={{ color: "var(--text-primary)" }}>{course.title}</h3>
+                    <p className="text-xs mb-3" style={{ color: "var(--text-tertiary)" }}>{course.instructor}</p>
 
-                    <div className="flex items-center gap-3 mb-3 text-xs" style={{ color: "#64748B" }}>
+                    <div className="flex items-center gap-3 mb-3 text-xs" style={{ color: "var(--text-tertiary)" }}>
                       <span className="flex items-center gap-1">
                         <Clock size={11} /> {course.totalDuration}
                       </span>
@@ -243,23 +243,23 @@ export default function MyCoursesPage() {
                       </span>
                       {course.grade !== undefined && (
                         <span className="flex items-center gap-1">
-                          <Star size={11} style={{ color: "#F59E0B" }} /> {course.grade}%
+                          <Star size={11} style={{ color: "var(--warning)" }} /> {course.grade}%
                         </span>
                       )}
                     </div>
 
                     {/* Progress */}
                     <div className="mb-3">
-                      <div className="flex justify-between mb-1 text-xs" style={{ color: "#64748B" }}>
+                      <div className="flex justify-between mb-1 text-xs" style={{ color: "var(--text-tertiary)" }}>
                         <span>{completedLessons}/{totalLessons > 0 ? totalLessons : "?"} lessons</span>
                         <span>{course.progress}%</span>
                       </div>
-                      <div className="h-1.5 rounded-full" style={{ backgroundColor: "#334155" }}>
+                      <div className="h-1.5 rounded-full" style={{ backgroundColor: "var(--border-default)" }}>
                         <div
                           className="h-full rounded-full transition-all"
                           style={{
                             width: `${course.progress}%`,
-                            backgroundColor: isDone ? "#10B981" : course.thumbnailColor,
+                            backgroundColor: isDone ? "var(--success)" : course.thumbnailColor,
                           }}
                         />
                       </div>
@@ -269,7 +269,7 @@ export default function MyCoursesPage() {
                       <Link
                         href={`/student/courses/${course.id}`}
                         className="flex-1 text-center py-2 rounded-lg text-xs font-semibold transition-colors"
-                        style={{ backgroundColor: "#334155", color: "#CBD5E1" }}
+                        style={{ backgroundColor: "var(--border-default)", color: "#CBD5E1" }}
                       >
                         View Details
                       </Link>
@@ -277,7 +277,7 @@ export default function MyCoursesPage() {
                         <Link
                           href={`/student/courses/${course.id}/learn/${resumeHref}`}
                           className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold"
-                          style={{ backgroundColor: "#3B82F6", color: "#fff" }}
+                          style={{ backgroundColor: "var(--accent)", color: "#fff" }}
                         >
                           <Play size={12} fill="#fff" /> Resume
                         </Link>
@@ -286,7 +286,7 @@ export default function MyCoursesPage() {
                         <Link
                           href={`/student/certificates?course=${course.id}`}
                           className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold"
-                          style={{ backgroundColor: "#10B98120", color: "#10B981" }}
+                          style={{ backgroundColor: "#10B98120", color: "var(--success)" }}
                         >
                           <CheckCircle2 size={12} /> Certificate
                         </Link>
@@ -306,10 +306,10 @@ export default function MyCoursesPage() {
               return (
                 <div
                   key={course.id}
-                  className="rounded-2xl p-4 flex items-center gap-4 transition-all duration-150"
-                  style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
+                  className="rounded-2xl p-4 flex items-center gap-4 transition-all duration-150 shadow-sm"
+                  style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
                   onMouseEnter={(e) => (e.currentTarget.style.borderColor = "#3B82F640")}
-                  onMouseLeave={(e) => (e.currentTarget.style.borderColor = "#334155")}
+                  onMouseLeave={(e) => (e.currentTarget.style.borderColor = "var(--border-default)")}
                 >
                   <div
                     className="flex items-center justify-center w-12 h-12 rounded-xl text-2xl flex-shrink-0"
@@ -319,25 +319,25 @@ export default function MyCoursesPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap mb-0.5">
-                      <span className="text-sm font-semibold text-white">{course.title}</span>
+                      <span className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>{course.title}</span>
                       <CourseStatusBadge progress={course.progress!} />
                       {course.isMandatory && (
-                        <span className="text-xs font-bold px-1.5 py-0.5 rounded" style={{ backgroundColor: "#EF444415", color: "#EF4444" }}>Required</span>
+                        <span className="text-xs font-bold px-1.5 py-0.5 rounded" style={{ backgroundColor: "#EF444415", color: "var(--danger)" }}>Required</span>
                       )}
                     </div>
-                    <p className="text-xs mb-2" style={{ color: "#64748B" }}>
+                    <p className="text-xs mb-2" style={{ color: "var(--text-tertiary)" }}>
                       {course.instructor} · {course.level} · {course.totalDuration}
                     </p>
                     <div className="flex items-center gap-3">
-                      <div className="flex-1 h-1.5 rounded-full max-w-48" style={{ backgroundColor: "#334155" }}>
+                      <div className="flex-1 h-1.5 rounded-full max-w-48" style={{ backgroundColor: "var(--border-default)" }}>
                         <div
                           className="h-full rounded-full"
-                          style={{ width: `${course.progress}%`, backgroundColor: isDone ? "#10B981" : course.thumbnailColor }}
+                          style={{ width: `${course.progress}%`, backgroundColor: isDone ? "var(--success)" : course.thumbnailColor }}
                         />
                       </div>
-                      <span className="text-xs" style={{ color: "#64748B" }}>{course.progress}%</span>
+                      <span className="text-xs" style={{ color: "var(--text-tertiary)" }}>{course.progress}%</span>
                       {course.grade !== undefined && (
-                        <span className="text-xs flex items-center gap-0.5" style={{ color: "#F59E0B" }}>
+                        <span className="text-xs flex items-center gap-0.5" style={{ color: "var(--warning)" }}>
                           <Star size={11} /> {course.grade}%
                         </span>
                       )}
@@ -347,7 +347,7 @@ export default function MyCoursesPage() {
                     <Link
                       href={`/student/courses/${course.id}`}
                       className="p-2 rounded-lg text-xs font-semibold transition-colors"
-                      style={{ color: "#94A3B8", backgroundColor: "#334155" }}
+                      style={{ color: "var(--text-secondary)", backgroundColor: "var(--border-default)" }}
                     >
                       Details
                     </Link>
@@ -355,7 +355,7 @@ export default function MyCoursesPage() {
                       <Link
                         href={`/student/courses/${course.id}/learn/${resumeHref}`}
                         className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold"
-                        style={{ backgroundColor: "#3B82F6", color: "#fff" }}
+                        style={{ backgroundColor: "var(--accent)", color: "#fff" }}
                       >
                         <Play size={12} fill="#fff" /> Resume
                       </Link>
@@ -364,14 +364,14 @@ export default function MyCoursesPage() {
                       <Link
                         href={`/student/certificates?course=${course.id}`}
                         className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold"
-                        style={{ backgroundColor: "#10B98120", color: "#10B981" }}
+                        style={{ backgroundColor: "#10B98120", color: "var(--success)" }}
                       >
                         <CheckCircle2 size={12} /> Certificate
                       </Link>
                     )}
                     <Link
                       href={`/student/courses/${course.id}`}
-                      style={{ color: "#64748B" }}
+                      style={{ color: "var(--text-tertiary)" }}
                     >
                       <ChevronRight size={16} />
                     </Link>

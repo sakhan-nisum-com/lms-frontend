@@ -17,17 +17,17 @@ export default function InstructorsPage() {
   )
 
   return (
-    <main style={{ backgroundColor: "#0f172a", color: "#f8fafc", minHeight: "calc(100vh - var(--app-header-height, 150px))" }}>
+    <main style={{ backgroundColor: "var(--bg-canvas)", color: "var(--text-primary)", minHeight: "calc(100vh - var(--app-header-height, 150px))" }}>
       <div style={{ maxWidth: 1280, margin: "0 auto", padding: "28px 24px 64px" }}>
 
-        <h1 className="text-3xl font-bold text-white mb-2">Our Instructors</h1>
-        <p className="text-sm mb-6" style={{ color: "#94a3b8" }}>
+        <h1 className="text-3xl font-bold mb-2" style={{ color: "var(--text-primary)" }}>Our Instructors</h1>
+        <p className="text-sm mb-6" style={{ color: "var(--text-secondary)" }}>
           {INSTRUCTORS.length} expert instructors teaching real-world skills across engineering, data, design, business, and more.
         </p>
 
         {/* Search */}
         <div className="relative mb-8" style={{ maxWidth: 420 }}>
-          <Search size={16} style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "#64748b" }} />
+          <Search size={16} style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "var(--text-muted)" }} />
           <input
             type="text"
             value={query}
@@ -36,15 +36,15 @@ export default function InstructorsPage() {
             className="w-full outline-none"
             style={{
               padding: "10px 14px 10px 38px", borderRadius: 100, fontSize: 14,
-              backgroundColor: "#1e293b", border: "1px solid #334155", color: "#f8fafc",
+              backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)", color: "var(--text-primary)",
             }}
           />
         </div>
 
         {filtered.length === 0 ? (
-          <div className="rounded-2xl p-12 text-center" style={{ backgroundColor: "#1e293b", border: "1px dashed #334155" }}>
-            <p className="text-sm font-medium text-white mb-1">No instructors found</p>
-            <p className="text-xs" style={{ color: "#64748b" }}>Try a different search term.</p>
+          <div className="rounded-2xl p-12 text-center" style={{ backgroundColor: "var(--bg-surface)", border: "1px dashed var(--border-default)" }}>
+            <p className="text-sm font-medium mb-1" style={{ color: "var(--text-primary)" }}>No instructors found</p>
+            <p className="text-xs" style={{ color: "var(--text-tertiary)" }}>Try a different search term.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -54,10 +54,10 @@ export default function InstructorsPage() {
                 <Link
                   key={instructor.id}
                   href={`/instructors/${instructor.id}`}
-                  className="rounded-2xl p-5 transition-all duration-150"
-                  style={{ backgroundColor: "#1e293b", border: "1px solid #334155", textDecoration: "none" }}
+                  className="rounded-2xl p-5 transition-all duration-150 shadow-sm"
+                  style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)", textDecoration: "none" }}
                   onMouseEnter={(e) => (e.currentTarget.style.borderColor = `${instructor.color}60`)}
-                  onMouseLeave={(e) => (e.currentTarget.style.borderColor = "#334155")}
+                  onMouseLeave={(e) => (e.currentTarget.style.borderColor = "var(--border-default)")}
                 >
                   <div className="flex items-center gap-3 mb-3">
                     <div
@@ -67,15 +67,15 @@ export default function InstructorsPage() {
                       {instructor.avatar}
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-bold text-white truncate">{instructor.name}</p>
-                      <p className="text-xs truncate" style={{ color: "#64748b" }}>{instructor.title}</p>
+                      <p className="text-sm font-bold truncate" style={{ color: "var(--text-primary)" }}>{instructor.name}</p>
+                      <p className="text-xs truncate" style={{ color: "var(--text-tertiary)" }}>{instructor.title}</p>
                     </div>
                   </div>
-                  <p className="text-xs leading-relaxed mb-4 line-clamp-2" style={{ color: "#94a3b8" }}>{instructor.bio}</p>
-                  <div className="flex items-center gap-3 mb-3 text-xs" style={{ color: "#64748b" }}>
+                  <p className="text-xs leading-relaxed mb-4 line-clamp-2" style={{ color: "var(--text-secondary)" }}>{instructor.bio}</p>
+                  <div className="flex items-center gap-3 mb-3 text-xs" style={{ color: "var(--text-tertiary)" }}>
                     <span className="flex items-center gap-1">
                       <Star size={11} fill="#F59E0B" style={{ color: "#F59E0B" }} />
-                      <strong className="text-white">{stats.rating}</strong>
+                      <strong style={{ color: "var(--text-primary)" }}>{stats.rating}</strong>
                     </span>
                     <span className="flex items-center gap-1"><Users size={11} /> {stats.studentsCount >= 1000 ? `${(stats.studentsCount / 1000).toFixed(0)}k` : stats.studentsCount}</span>
                     <span className="flex items-center gap-1"><BookOpen size={11} /> {stats.coursesCount} {stats.coursesCount === 1 ? "course" : "courses"}</span>

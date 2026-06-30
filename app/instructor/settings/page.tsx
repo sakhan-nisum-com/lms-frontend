@@ -37,7 +37,7 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
     <button
       onClick={() => onChange(!checked)}
       className="relative inline-flex items-center w-10 h-5 rounded-full transition-colors flex-shrink-0"
-      style={{ backgroundColor: checked ? "#3B82F6" : "#334155" }}
+      style={{ backgroundColor: checked ? "var(--accent)" : "var(--border-default)" }}
       aria-checked={checked}
       role="switch"
     >
@@ -62,10 +62,10 @@ function InputField({
 }) {
   return (
     <div>
-      <label className="block text-xs font-medium mb-1.5" style={{ color: "#94A3B8" }}>{label}</label>
+      <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--text-secondary)" }}>{label}</label>
       <div className="relative">
         {Icon && (
-          <Icon size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: "#475569" }} />
+          <Icon size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: "var(--text-muted)" }} />
         )}
         <input
           type={type}
@@ -73,16 +73,17 @@ function InputField({
           readOnly={readOnly}
           onChange={(e) => onChange?.(e.target.value)}
           placeholder={placeholder}
-          className="w-full py-2.5 rounded-xl text-sm text-white placeholder-slate-600 outline-none transition-colors"
+          className="w-full py-2.5 rounded-xl text-sm placeholder-slate-600 outline-none transition-colors"
           style={{
             paddingLeft: Icon ? "2.5rem" : "0.875rem",
             paddingRight: "0.875rem",
-            backgroundColor: readOnly ? "#0F172A" : "#1E293B",
-            border: "1px solid #334155",
+            backgroundColor: readOnly ? "var(--bg-surface-muted)" : "var(--bg-surface)",
+            border: "1px solid var(--border-default)",
             opacity: readOnly ? 0.6 : 1,
+            color: "var(--text-primary)",
           }}
-          onFocus={(e) => { if (!readOnly) e.target.style.borderColor = "#3B82F6" }}
-          onBlur={(e) => { e.target.style.borderColor = "#334155" }}
+          onFocus={(e) => { if (!readOnly) e.target.style.borderColor = "var(--accent)" }}
+          onBlur={(e) => { e.target.style.borderColor = "var(--border-default)" }}
         />
       </div>
     </div>
@@ -111,31 +112,31 @@ function ProfileTab() {
     <div className="space-y-6 max-w-2xl">
       {/* Avatar */}
       <div
-        className="rounded-2xl p-5"
-        style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
+        className="rounded-2xl p-5 shadow-sm"
+        style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
       >
-        <h3 className="text-sm font-semibold text-white mb-4">Profile Photo</h3>
+        <h3 className="text-sm font-semibold mb-4" style={{ color: "var(--text-primary)" }}>Profile Photo</h3>
         <div className="flex items-center gap-5">
           <div className="relative">
             <div
               className="flex items-center justify-center w-20 h-20 rounded-full text-2xl font-bold text-white"
-              style={{ backgroundColor: "#3B82F6" }}
+              style={{ backgroundColor: "var(--accent)" }}
             >
               JS
             </div>
             <button
               className="absolute bottom-0 right-0 flex items-center justify-center w-7 h-7 rounded-full text-white transition-colors hover:opacity-80"
-              style={{ backgroundColor: "#1E293B", border: "2px solid #0F172A" }}
+              style={{ backgroundColor: "var(--bg-surface)", border: "2px solid var(--bg-surface-muted)" }}
             >
               <Camera size={13} />
             </button>
           </div>
           <div>
-            <p className="text-sm font-medium text-white">Jane Smith</p>
-            <p className="text-xs mt-0.5 mb-3" style={{ color: "#64748B" }}>JPG or PNG, max 2MB</p>
+            <p className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>Jane Smith</p>
+            <p className="text-xs mt-0.5 mb-3" style={{ color: "var(--text-tertiary)" }}>JPG or PNG, max 2MB</p>
             <button
               className="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors hover:opacity-80"
-              style={{ backgroundColor: "#334155", color: "#CBD5E1" }}
+              style={{ backgroundColor: "var(--border-default)", color: "var(--text-secondary)" }}
             >
               Upload new photo
             </button>
@@ -145,10 +146,10 @@ function ProfileTab() {
 
       {/* Basic info */}
       <div
-        className="rounded-2xl p-5 space-y-4"
-        style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
+        className="rounded-2xl p-5 space-y-4 shadow-sm"
+        style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
       >
-        <h3 className="text-sm font-semibold text-white">Basic Information</h3>
+        <h3 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Basic Information</h3>
         <div className="grid grid-cols-2 gap-4">
           <InputField label="First name" value={form.firstName} onChange={(v) => upd("firstName", v)} placeholder="Jane" />
           <InputField label="Last name"  value={form.lastName}  onChange={(v) => upd("lastName", v)}  placeholder="Smith" />
@@ -156,45 +157,45 @@ function ProfileTab() {
         <InputField label="Email address" value={form.email} readOnly icon={Mail} />
 
         <div>
-          <label className="block text-xs font-medium mb-1.5" style={{ color: "#94A3B8" }}>Teaching specialty</label>
+          <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--text-secondary)" }}>Teaching specialty</label>
           <div className="relative">
-            <Briefcase size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none z-10" style={{ color: "#475569" }} />
+            <Briefcase size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none z-10" style={{ color: "var(--text-muted)" }} />
             <select
               value={form.specialty}
               onChange={(e) => upd("specialty", e.target.value)}
               className="w-full pl-9 pr-4 py-2.5 rounded-xl text-sm outline-none appearance-none"
-              style={{ backgroundColor: "#1E293B", border: "1px solid #334155", color: "#F8FAFC" }}
-              onFocus={(e) => (e.target.style.borderColor = "#3B82F6")}
-              onBlur={(e) => (e.target.style.borderColor = "#334155")}
+              style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)", color: "var(--text-primary)" }}
+              onFocus={(e) => (e.target.style.borderColor = "var(--accent)")}
+              onBlur={(e) => (e.target.style.borderColor = "var(--border-default)")}
             >
               {SPECIALTIES.map((s) => (
-                <option key={s} value={s} style={{ backgroundColor: "#1E293B" }}>{s}</option>
+                <option key={s} value={s} style={{ backgroundColor: "var(--bg-surface)" }}>{s}</option>
               ))}
             </select>
           </div>
         </div>
 
         <div>
-          <label className="block text-xs font-medium mb-1.5" style={{ color: "#94A3B8" }}>Bio</label>
+          <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--text-secondary)" }}>Bio</label>
           <textarea
             rows={4}
             value={form.bio}
             onChange={(e) => upd("bio", e.target.value)}
-            className="w-full px-3.5 py-2.5 rounded-xl text-sm text-white placeholder-slate-600 outline-none resize-none"
-            style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
-            onFocus={(e) => (e.target.style.borderColor = "#3B82F6")}
-            onBlur={(e) => (e.target.style.borderColor = "#334155")}
+            className="w-full px-3.5 py-2.5 rounded-xl text-sm placeholder-slate-600 outline-none resize-none"
+            style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)", color: "var(--text-primary)" }}
+            onFocus={(e) => (e.target.style.borderColor = "var(--accent)")}
+            onBlur={(e) => (e.target.style.borderColor = "var(--border-default)")}
           />
-          <p className="text-xs mt-1 text-right" style={{ color: "#475569" }}>{form.bio.length}/500</p>
+          <p className="text-xs mt-1 text-right" style={{ color: "var(--text-muted)" }}>{form.bio.length}/500</p>
         </div>
       </div>
 
       {/* Social links */}
       <div
-        className="rounded-2xl p-5 space-y-4"
-        style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
+        className="rounded-2xl p-5 space-y-4 shadow-sm"
+        style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
       >
-        <h3 className="text-sm font-semibold text-white">Social Links</h3>
+        <h3 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Social Links</h3>
         <InputField label="Website"  value={form.website}  onChange={(v) => upd("website", v)}  icon={Globe}   placeholder="https://yoursite.com" />
         <InputField label="LinkedIn" value={form.linkedin} onChange={(v) => upd("linkedin", v)} icon={Link2}   placeholder="linkedin.com/in/username" />
         <InputField label="Twitter"  value={form.twitter}  onChange={(v) => upd("twitter", v)}  icon={AtSign}  placeholder="@username" />
@@ -202,7 +203,7 @@ function ProfileTab() {
 
       <button
         className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white hover:opacity-90"
-        style={{ backgroundColor: "#3B82F6" }}
+        style={{ backgroundColor: "var(--accent)" }}
       >
         <Save size={15} />
         Save changes
@@ -221,14 +222,14 @@ function AccountTab() {
     <div className="space-y-5 max-w-2xl">
       {/* Change email */}
       <div
-        className="rounded-2xl p-5 space-y-4"
-        style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
+        className="rounded-2xl p-5 space-y-4 shadow-sm"
+        style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
       >
-        <h3 className="text-sm font-semibold text-white">Email Address</h3>
-        <div className="flex items-center gap-3 px-4 py-3 rounded-xl" style={{ backgroundColor: "#0F172A" }}>
-          <Mail size={15} style={{ color: "#3B82F6" }} />
-          <p className="text-sm flex-1 text-white">jane@example.com</p>
-          <button className="text-xs font-semibold transition-colors hover:text-blue-400" style={{ color: "#3B82F6" }}>
+        <h3 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Email Address</h3>
+        <div className="flex items-center gap-3 px-4 py-3 rounded-xl" style={{ backgroundColor: "var(--bg-surface-muted)" }}>
+          <Mail size={15} style={{ color: "var(--accent)" }} />
+          <p className="text-sm flex-1" style={{ color: "var(--text-primary)" }}>jane@example.com</p>
+          <button className="text-xs font-semibold transition-colors hover:text-blue-400" style={{ color: "var(--accent)" }}>
             Change
           </button>
         </div>
@@ -236,34 +237,34 @@ function AccountTab() {
 
       {/* Change password */}
       <div
-        className="rounded-2xl p-5 space-y-4"
-        style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
+        className="rounded-2xl p-5 space-y-4 shadow-sm"
+        style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
       >
-        <h3 className="text-sm font-semibold text-white">Change Password</h3>
+        <h3 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Change Password</h3>
         {[
           { key: "current", label: "Current password",  show: showCurrent, setShow: setShowCurrent },
           { key: "newPw",   label: "New password",      show: showNew,     setShow: setShowNew     },
           { key: "confirm", label: "Confirm new password", show: showConfirm, setShow: setShowConfirm },
         ].map(({ key, label, show, setShow }) => (
           <div key={key}>
-            <label className="block text-xs font-medium mb-1.5" style={{ color: "#94A3B8" }}>{label}</label>
+            <label className="block text-xs font-medium mb-1.5" style={{ color: "var(--text-secondary)" }}>{label}</label>
             <div className="relative">
-              <Lock size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: "#475569" }} />
+              <Lock size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: "var(--text-muted)" }} />
               <input
                 type={show ? "text" : "password"}
                 value={passwords[key as keyof typeof passwords]}
                 onChange={(e) => setPasswords((p) => ({ ...p, [key]: e.target.value }))}
                 placeholder="••••••••"
-                className="w-full pl-9 pr-11 py-2.5 rounded-xl text-sm text-white placeholder-slate-600 outline-none"
-                style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
-                onFocus={(e) => (e.target.style.borderColor = "#3B82F6")}
-                onBlur={(e) => (e.target.style.borderColor = "#334155")}
+                className="w-full pl-9 pr-11 py-2.5 rounded-xl text-sm placeholder-slate-600 outline-none"
+                style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)", color: "var(--text-primary)" }}
+                onFocus={(e) => (e.target.style.borderColor = "var(--accent)")}
+                onBlur={(e) => (e.target.style.borderColor = "var(--border-default)")}
               />
               <button
                 type="button"
                 onClick={() => setShow(!show)}
                 className="absolute right-3.5 top-1/2 -translate-y-1/2 transition-colors hover:text-slate-300"
-                style={{ color: "#475569" }}
+                style={{ color: "var(--text-muted)" }}
               >
                 {show ? <EyeOff size={14} /> : <Eye size={14} />}
               </button>
@@ -272,7 +273,7 @@ function AccountTab() {
         ))}
         <button
           className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white hover:opacity-90 mt-2"
-          style={{ backgroundColor: "#3B82F6" }}
+          style={{ backgroundColor: "var(--accent)" }}
         >
           <Save size={14} />
           Update password
@@ -285,7 +286,7 @@ function AccountTab() {
         style={{ backgroundColor: "#EF444408", border: "1px solid #EF444430" }}
       >
         <div className="flex items-start gap-3">
-          <AlertTriangle size={17} style={{ color: "#EF4444", flexShrink: 0, marginTop: 1 }} />
+          <AlertTriangle size={17} style={{ color: "var(--danger)", flexShrink: 0, marginTop: 1 }} />
           <div className="flex-1">
             <h3 className="text-sm font-semibold" style={{ color: "#FCA5A5" }}>Danger Zone</h3>
             <p className="text-xs mt-1 mb-4" style={{ color: "#6B2020" }}>
@@ -293,7 +294,7 @@ function AccountTab() {
             </p>
             <button
               className="px-4 py-2 rounded-xl text-sm font-semibold transition-colors hover:opacity-80"
-              style={{ backgroundColor: "#EF444420", color: "#EF4444", border: "1px solid #EF444430" }}
+              style={{ backgroundColor: "#EF444420", color: "var(--danger)", border: "1px solid #EF444430" }}
             >
               Delete instructor account
             </button>
@@ -350,20 +351,20 @@ function NotificationsTab() {
       {groups.map((group) => (
         <div
           key={group.title}
-          className="rounded-2xl overflow-hidden"
-          style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
+          className="rounded-2xl overflow-hidden shadow-sm"
+          style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
         >
-          <div className="px-5 py-3" style={{ borderBottom: "1px solid #334155" }}>
-            <h3 className="text-xs font-semibold uppercase tracking-wider" style={{ color: "#64748B" }}>
+          <div className="px-5 py-3" style={{ borderBottom: "1px solid var(--border-default)" }}>
+            <h3 className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-tertiary)" }}>
               {group.title}
             </h3>
           </div>
-          <div className="divide-y" style={{ borderColor: "#334155" }}>
+          <div className="divide-y" style={{ borderColor: "var(--border-default)" }}>
             {group.items.map(({ key, label, desc }) => (
               <div key={key} className="flex items-center justify-between px-5 py-4 gap-4">
                 <div>
-                  <p className="text-sm font-medium text-white">{label}</p>
-                  <p className="text-xs mt-0.5" style={{ color: "#64748B" }}>{desc}</p>
+                  <p className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>{label}</p>
+                  <p className="text-xs mt-0.5" style={{ color: "var(--text-tertiary)" }}>{desc}</p>
                 </div>
                 <Toggle
                   checked={prefs[key as keyof typeof prefs]}
@@ -377,7 +378,7 @@ function NotificationsTab() {
 
       <button
         className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white hover:opacity-90"
-        style={{ backgroundColor: "#3B82F6" }}
+        style={{ backgroundColor: "var(--accent)" }}
       >
         <Save size={15} />
         Save preferences
@@ -393,10 +394,10 @@ function PayoutTab() {
     <div className="space-y-5 max-w-2xl">
       {/* Method selector */}
       <div
-        className="rounded-2xl p-5"
-        style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
+        className="rounded-2xl p-5 shadow-sm"
+        style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
       >
-        <h3 className="text-sm font-semibold text-white mb-4">Payout Method</h3>
+        <h3 className="text-sm font-semibold mb-4" style={{ color: "var(--text-primary)" }}>Payout Method</h3>
         <div className="grid grid-cols-2 gap-3">
           {(["bank", "paypal"] as const).map((m) => (
             <button
@@ -404,24 +405,24 @@ function PayoutTab() {
               onClick={() => setMethod(m)}
               className="flex flex-col items-start gap-1 p-4 rounded-xl transition-colors"
               style={{
-                backgroundColor: method === m ? "#3B82F620" : "#0F172A",
-                border: `1px solid ${method === m ? "#3B82F6" : "#334155"}`,
+                backgroundColor: method === m ? "#3B82F620" : "var(--bg-surface-muted)",
+                border: `1px solid ${method === m ? "var(--accent)" : "var(--border-default)"}`,
               }}
             >
               <div className="flex items-center gap-2">
                 <div
                   className="w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center"
-                  style={{ borderColor: method === m ? "#3B82F6" : "#475569" }}
+                  style={{ borderColor: method === m ? "var(--accent)" : "var(--text-muted)" }}
                 >
                   {method === m && (
-                    <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: "#3B82F6" }} />
+                    <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: "var(--accent)" }} />
                   )}
                 </div>
-                <span className="text-sm font-semibold text-white capitalize">
+                <span className="text-sm font-semibold capitalize" style={{ color: "var(--text-primary)" }}>
                   {m === "bank" ? "Bank Transfer" : "PayPal"}
                 </span>
               </div>
-              <p className="text-xs ml-5" style={{ color: "#64748B" }}>
+              <p className="text-xs ml-5" style={{ color: "var(--text-tertiary)" }}>
                 {m === "bank" ? "Direct deposit, 3-5 business days" : "Instant to your PayPal account"}
               </p>
             </button>
@@ -432,10 +433,10 @@ function PayoutTab() {
       {/* Bank details */}
       {method === "bank" && (
         <div
-          className="rounded-2xl p-5 space-y-4"
-          style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
+          className="rounded-2xl p-5 space-y-4 shadow-sm"
+          style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
         >
-          <h3 className="text-sm font-semibold text-white">Bank Account Details</h3>
+          <h3 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Bank Account Details</h3>
           <InputField label="Account holder name" value="Jane Smith"           placeholder="Full legal name"    />
           <div className="grid grid-cols-2 gap-4">
             <InputField label="Routing number" value="021000021"               placeholder="9-digit routing #"  />
@@ -448,23 +449,23 @@ function PayoutTab() {
       {/* PayPal */}
       {method === "paypal" && (
         <div
-          className="rounded-2xl p-5 space-y-4"
-          style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
+          className="rounded-2xl p-5 space-y-4 shadow-sm"
+          style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
         >
-          <h3 className="text-sm font-semibold text-white">PayPal Account</h3>
+          <h3 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>PayPal Account</h3>
           <InputField label="PayPal email" value="jane@example.com" icon={Mail} placeholder="PayPal email address" />
         </div>
       )}
 
       {/* Payout history */}
       <div
-        className="rounded-2xl overflow-hidden"
-        style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
+        className="rounded-2xl overflow-hidden shadow-sm"
+        style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
       >
-        <div className="px-5 py-3.5" style={{ borderBottom: "1px solid #334155" }}>
-          <h3 className="text-sm font-semibold text-white">Payout History</h3>
+        <div className="px-5 py-3.5" style={{ borderBottom: "1px solid var(--border-default)" }}>
+          <h3 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Payout History</h3>
         </div>
-        <div className="divide-y" style={{ borderColor: "#334155" }}>
+        <div className="divide-y" style={{ borderColor: "var(--border-default)" }}>
           {[
             { date: "Jun 2, 2025",  amount: "$840.00",  status: "paid" },
             { date: "May 26, 2025", amount: "$630.00",  status: "paid" },
@@ -473,17 +474,17 @@ function PayoutTab() {
           ].map((p, i) => (
             <div key={i} className="flex items-center justify-between px-5 py-3.5">
               <div>
-                <p className="text-sm font-medium text-white">{p.amount}</p>
-                <p className="text-xs mt-0.5" style={{ color: "#64748B" }}>{p.date}</p>
+                <p className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>{p.amount}</p>
+                <p className="text-xs mt-0.5" style={{ color: "var(--text-tertiary)" }}>{p.date}</p>
               </div>
               <div className="flex items-center gap-3">
                 <span
                   className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
-                  style={{ color: "#10B981", backgroundColor: "#10B98118" }}
+                  style={{ color: "var(--success)", backgroundColor: "#10B98118" }}
                 >
                   Paid
                 </span>
-                <button style={{ color: "#3B82F6" }}>
+                <button style={{ color: "var(--accent)" }}>
                   <ChevronRight size={15} />
                 </button>
               </div>
@@ -494,7 +495,7 @@ function PayoutTab() {
 
       <button
         className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white hover:opacity-90"
-        style={{ backgroundColor: "#3B82F6" }}
+        style={{ backgroundColor: "var(--accent)" }}
       >
         <Save size={15} />
         Save payout settings
@@ -530,11 +531,11 @@ export default function SettingsPage() {
               className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors text-left"
               style={{
                 backgroundColor: activeTab === key ? "#3B82F620" : "transparent",
-                color: activeTab === key ? "#60A5FA" : "#94A3B8",
+                color: activeTab === key ? "#60A5FA" : "var(--text-secondary)",
                 border: activeTab === key ? "1px solid #3B82F630" : "1px solid transparent",
               }}
             >
-              <Icon size={16} style={{ color: activeTab === key ? "#3B82F6" : "inherit", flexShrink: 0 }} />
+              <Icon size={16} style={{ color: activeTab === key ? "var(--accent)" : "inherit", flexShrink: 0 }} />
               {label}
             </button>
           ))}

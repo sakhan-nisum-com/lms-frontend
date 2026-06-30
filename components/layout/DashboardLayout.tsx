@@ -17,14 +17,14 @@ export function DashboardLayout({
   return (
     <div
       className="flex overflow-hidden"
-      style={{ backgroundColor: "#0F172A", height: "calc(100vh - var(--app-header-height, 150px))" }}
+      style={{ backgroundColor: "var(--bg-canvas)", height: "calc(100vh - var(--app-header-height, 150px))" }}
     >
       <Sidebar role={role} />
       <div className="flex flex-col flex-1 overflow-hidden">
         <Topbar role={role} userName={userName} />
         <main
           className="flex-1 overflow-y-auto p-6"
-          style={{ backgroundColor: "#0F172A" }}
+          style={{ backgroundColor: "var(--bg-canvas)" }}
         >
           {children}
         </main>

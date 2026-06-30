@@ -25,7 +25,7 @@ const LEVEL_OPTIONS: CourseLevel[] = ["Beginner", "Intermediate", "Advanced"]
 
 const statusColors: Record<CourseStatus, React.CSSProperties> = {
   published: { backgroundColor: "#10B98120", color: "#34D399" },
-  draft: { backgroundColor: "#64748B20", color: "#94A3B8" },
+  draft: { backgroundColor: "#64748B20", color: "var(--text-secondary)" },
   "pending-review": { backgroundColor: "#F59E0B20", color: "#FCD34D" },
   unpublished: { backgroundColor: "#EF444420", color: "#F87171" },
 }
@@ -142,14 +142,14 @@ export default function AdminCourseDetailPage({ params }: { params: Promise<{ id
       <div className="max-w-6xl space-y-6">
         {/* Breadcrumb */}
         <div className="flex items-center justify-between flex-wrap gap-3">
-          <Link href="/admin/courses" className="flex items-center gap-1.5 text-sm w-fit" style={{ color: "#64748B" }}>
+          <Link href="/admin/courses" className="flex items-center gap-1.5 text-sm w-fit" style={{ color: "var(--text-tertiary)" }}>
             <ChevronLeft size={15} /> Back to Courses
           </Link>
           {!isEditing && (
             <button
               onClick={startEditing}
               className="flex items-center gap-1.5 text-sm font-semibold px-3.5 py-2 rounded-lg"
-              style={{ backgroundColor: "#3B82F6", color: "#fff" }}
+              style={{ backgroundColor: "var(--accent)", color: "#fff" }}
             >
               <Pencil size={14} /> Edit Course
             </button>
@@ -158,105 +158,105 @@ export default function AdminCourseDetailPage({ params }: { params: Promise<{ id
 
         {/* Edit form */}
         {isEditing && (
-          <div className="rounded-2xl p-6 space-y-4" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
-            <h2 className="text-base font-bold text-white">Edit Course Details</h2>
+          <div className="rounded-2xl p-6 space-y-4 shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
+            <h2 className="text-base font-bold" style={{ color: "var(--text-primary)" }}>Edit Course Details</h2>
 
             <div>
-              <label className="text-xs font-semibold block mb-1.5" style={{ color: "#94A3B8" }}>Title</label>
+              <label className="text-xs font-semibold block mb-1.5" style={{ color: "var(--text-secondary)" }}>Title</label>
               <input
                 value={form.title}
                 onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
                 className="w-full px-3 py-2.5 rounded-lg text-sm outline-none"
-                style={{ backgroundColor: "#0F172A", border: "1px solid #334155", color: "#F8FAFC" }}
+                style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)", color: "var(--text-primary)" }}
               />
             </div>
 
             <div>
-              <label className="text-xs font-semibold block mb-1.5" style={{ color: "#94A3B8" }}>Short Description</label>
+              <label className="text-xs font-semibold block mb-1.5" style={{ color: "var(--text-secondary)" }}>Short Description</label>
               <textarea
                 value={form.shortDesc}
                 onChange={(e) => setForm((f) => ({ ...f, shortDesc: e.target.value }))}
                 rows={2}
                 className="w-full px-3 py-2.5 rounded-lg text-sm outline-none resize-none"
-                style={{ backgroundColor: "#0F172A", border: "1px solid #334155", color: "#F8FAFC" }}
+                style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)", color: "var(--text-primary)" }}
               />
             </div>
 
             <div>
-              <label className="text-xs font-semibold block mb-1.5" style={{ color: "#94A3B8" }}>Full Description</label>
+              <label className="text-xs font-semibold block mb-1.5" style={{ color: "var(--text-secondary)" }}>Full Description</label>
               <textarea
                 value={form.description}
                 onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
                 rows={4}
                 className="w-full px-3 py-2.5 rounded-lg text-sm outline-none resize-none"
-                style={{ backgroundColor: "#0F172A", border: "1px solid #334155", color: "#F8FAFC" }}
+                style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)", color: "var(--text-primary)" }}
               />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="text-xs font-semibold block mb-1.5" style={{ color: "#94A3B8" }}>Category</label>
+                <label className="text-xs font-semibold block mb-1.5" style={{ color: "var(--text-secondary)" }}>Category</label>
                 <select
                   value={form.category}
                   onChange={(e) => setForm((f) => ({ ...f, category: e.target.value as CourseCategory }))}
                   className="w-full px-3 py-2.5 rounded-lg text-sm outline-none"
-                  style={{ backgroundColor: "#0F172A", border: "1px solid #334155", color: "#F8FAFC" }}
+                  style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)", color: "var(--text-primary)" }}
                 >
                   {CATEGORY_OPTIONS.map((c) => <option key={c} value={c}>{c}</option>)}
                 </select>
               </div>
               <div>
-                <label className="text-xs font-semibold block mb-1.5" style={{ color: "#94A3B8" }}>Level</label>
+                <label className="text-xs font-semibold block mb-1.5" style={{ color: "var(--text-secondary)" }}>Level</label>
                 <select
                   value={form.level}
                   onChange={(e) => setForm((f) => ({ ...f, level: e.target.value as CourseLevel }))}
                   className="w-full px-3 py-2.5 rounded-lg text-sm outline-none"
-                  style={{ backgroundColor: "#0F172A", border: "1px solid #334155", color: "#F8FAFC" }}
+                  style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)", color: "var(--text-primary)" }}
                 >
                   {LEVEL_OPTIONS.map((l) => <option key={l} value={l}>{l}</option>)}
                 </select>
               </div>
               <div>
-                <label className="text-xs font-semibold block mb-1.5" style={{ color: "#94A3B8" }}>Price</label>
+                <label className="text-xs font-semibold block mb-1.5" style={{ color: "var(--text-secondary)" }}>Price</label>
                 <input
                   value={form.price}
                   onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))}
                   placeholder="e.g. 149 or Free"
                   className="w-full px-3 py-2.5 rounded-lg text-sm outline-none"
-                  style={{ backgroundColor: "#0F172A", border: "1px solid #334155", color: "#F8FAFC" }}
+                  style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)", color: "var(--text-primary)" }}
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-semibold block mb-1.5" style={{ color: "#94A3B8" }}>Instructor Name</label>
+                <label className="text-xs font-semibold block mb-1.5" style={{ color: "var(--text-secondary)" }}>Instructor Name</label>
                 <input
                   value={form.instructor}
                   onChange={(e) => setForm((f) => ({ ...f, instructor: e.target.value }))}
                   className="w-full px-3 py-2.5 rounded-lg text-sm outline-none"
-                  style={{ backgroundColor: "#0F172A", border: "1px solid #334155", color: "#F8FAFC" }}
+                  style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)", color: "var(--text-primary)" }}
                 />
               </div>
               <div>
-                <label className="text-xs font-semibold block mb-1.5" style={{ color: "#94A3B8" }}>Instructor Title</label>
+                <label className="text-xs font-semibold block mb-1.5" style={{ color: "var(--text-secondary)" }}>Instructor Title</label>
                 <input
                   value={form.instructorTitle}
                   onChange={(e) => setForm((f) => ({ ...f, instructorTitle: e.target.value }))}
                   className="w-full px-3 py-2.5 rounded-lg text-sm outline-none"
-                  style={{ backgroundColor: "#0F172A", border: "1px solid #334155", color: "#F8FAFC" }}
+                  style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)", color: "var(--text-primary)" }}
                 />
               </div>
             </div>
 
             <div>
-              <label className="text-xs font-semibold block mb-1.5" style={{ color: "#94A3B8" }}>Tags (comma-separated)</label>
+              <label className="text-xs font-semibold block mb-1.5" style={{ color: "var(--text-secondary)" }}>Tags (comma-separated)</label>
               <input
                 value={form.tags}
                 onChange={(e) => setForm((f) => ({ ...f, tags: e.target.value }))}
                 placeholder="React, Next.js, TypeScript"
                 className="w-full px-3 py-2.5 rounded-lg text-sm outline-none"
-                style={{ backgroundColor: "#0F172A", border: "1px solid #334155", color: "#F8FAFC" }}
+                style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)", color: "var(--text-primary)" }}
               />
             </div>
 
@@ -264,31 +264,31 @@ export default function AdminCourseDetailPage({ params }: { params: Promise<{ id
               <button
                 onClick={() => setForm((f) => ({ ...f, isMandatory: !f.isMandatory }))}
                 className="text-xs font-semibold px-3.5 py-2 rounded-lg"
-                style={{ backgroundColor: form.isMandatory ? "#EF444420" : "#334155", color: form.isMandatory ? "#F87171" : "#94A3B8" }}
+                style={{ backgroundColor: form.isMandatory ? "#EF444420" : "var(--border-default)", color: form.isMandatory ? "#F87171" : "var(--text-secondary)" }}
               >
                 {form.isMandatory ? "Mandatory" : "Optional"}
               </button>
               <button
                 onClick={() => setForm((f) => ({ ...f, certificateOffered: !f.certificateOffered }))}
                 className="text-xs font-semibold px-3.5 py-2 rounded-lg"
-                style={{ backgroundColor: form.certificateOffered ? "#F59E0B20" : "#334155", color: form.certificateOffered ? "#FCD34D" : "#94A3B8" }}
+                style={{ backgroundColor: form.certificateOffered ? "#F59E0B20" : "var(--border-default)", color: form.certificateOffered ? "#FCD34D" : "var(--text-secondary)" }}
               >
                 {form.certificateOffered ? "Certificate Offered" : "No Certificate"}
               </button>
             </div>
 
-            <div className="flex justify-end gap-2 pt-2" style={{ borderTop: "1px solid #334155" }}>
+            <div className="flex justify-end gap-2 pt-2" style={{ borderTop: "1px solid var(--border-default)" }}>
               <button
                 onClick={() => setIsEditing(false)}
                 className="px-4 py-2 rounded-xl text-sm font-semibold"
-                style={{ backgroundColor: "#334155", color: "#94A3B8" }}
+                style={{ backgroundColor: "var(--border-default)", color: "var(--text-secondary)" }}
               >
                 Cancel
               </button>
               <button
                 onClick={handleSaveContent}
                 className="px-4 py-2 rounded-xl text-sm font-semibold"
-                style={{ backgroundColor: "#3B82F6", color: "#fff" }}
+                style={{ backgroundColor: "var(--accent)", color: "#fff" }}
               >
                 Save Changes
               </button>
@@ -298,7 +298,7 @@ export default function AdminCourseDetailPage({ params }: { params: Promise<{ id
 
         {/* Hero */}
         {!isEditing && (
-        <div className="rounded-2xl p-6 relative overflow-hidden" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
+        <div className="rounded-2xl p-6 relative overflow-hidden shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
           <div
             className="absolute top-0 right-0 w-64 h-64 rounded-full pointer-events-none"
             style={{ background: `radial-gradient(circle, ${course.thumbnailColor}18 0%, transparent 70%)`, transform: "translate(30%, -30%)" }}
@@ -327,13 +327,13 @@ export default function AdminCourseDetailPage({ params }: { params: Promise<{ id
                 })}
               </div>
 
-              <h1 className="text-2xl font-bold text-white mb-2">{content.title}</h1>
-              <p className="text-sm mb-4 leading-relaxed" style={{ color: "#94A3B8" }}>{content.shortDesc}</p>
+              <h1 className="text-2xl font-bold mb-2" style={{ color: "var(--text-primary)" }}>{content.title}</h1>
+              <p className="text-sm mb-4 leading-relaxed" style={{ color: "var(--text-secondary)" }}>{content.shortDesc}</p>
 
-              <div className="flex items-center gap-5 flex-wrap text-sm" style={{ color: "#64748B" }}>
+              <div className="flex items-center gap-5 flex-wrap text-sm" style={{ color: "var(--text-tertiary)" }}>
                 <span className="flex items-center gap-1.5">
-                  <Star size={14} style={{ color: "#F59E0B" }} fill="#F59E0B" />
-                  <strong className="text-white">{course.rating}</strong>
+                  <Star size={14} style={{ color: "var(--warning)" }} fill="#F59E0B" />
+                  <strong style={{ color: "var(--text-primary)" }}>{course.rating}</strong>
                   <span>({course.reviewCount.toLocaleString()} reviews)</span>
                 </span>
                 <span className="flex items-center gap-1.5"><Users size={14} /> {course.studentsCount.toLocaleString()} students</span>
@@ -341,29 +341,29 @@ export default function AdminCourseDetailPage({ params }: { params: Promise<{ id
                 <span className="flex items-center gap-1.5"><BookOpen size={14} /> {totalLessons} lessons</span>
               </div>
 
-              <p className="text-sm mt-4" style={{ color: "#94A3B8" }}>
+              <p className="text-sm mt-4" style={{ color: "var(--text-secondary)" }}>
                 Instructor:{" "}
                 {instructorProfile ? (
-                  <Link href={`/instructors/${instructorProfile.id}`} className="font-bold text-white hover:underline">
+                  <Link href={`/instructors/${instructorProfile.id}`} className="font-bold hover:underline" style={{ color: "var(--text-primary)" }}>
                     {content.instructor}
                   </Link>
                 ) : (
-                  <strong className="text-white">{content.instructor}</strong>
+                  <strong style={{ color: "var(--text-primary)" }}>{content.instructor}</strong>
                 )}
-                <span className="ml-2" style={{ color: "#64748B" }}>{content.instructorTitle}</span>
+                <span className="ml-2" style={{ color: "var(--text-tertiary)" }}>{content.instructorTitle}</span>
               </p>
             </div>
 
             {/* Admin moderation panel */}
-            <div className="lg:w-72 rounded-xl p-5 flex-shrink-0 space-y-4" style={{ backgroundColor: "#0F172A", border: "1px solid #334155" }}>
+            <div className="lg:w-72 rounded-xl p-5 flex-shrink-0 space-y-4" style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)" }}>
               <CourseThumbnail course={course} heightClass="h-28" roundedClass="rounded-lg" />
 
-              <div className="text-xl font-bold text-white">
+              <div className="text-xl font-bold" style={{ color: "var(--text-primary)" }}>
                 {content.price === "Free" ? "Free" : `$${content.price}`}
               </div>
 
               <div>
-                <label className="text-xs font-semibold block mb-1.5" style={{ color: "#94A3B8" }}>Status</label>
+                <label className="text-xs font-semibold block mb-1.5" style={{ color: "var(--text-secondary)" }}>Status</label>
                 <select
                   value={entry.status}
                   onChange={(e) => setStatus(course.id, e.target.value as CourseStatus)}
@@ -378,7 +378,7 @@ export default function AdminCourseDetailPage({ params }: { params: Promise<{ id
               </div>
 
               <div>
-                <label className="text-xs font-semibold block mb-1.5" style={{ color: "#94A3B8" }}>Catalog Badges</label>
+                <label className="text-xs font-semibold block mb-1.5" style={{ color: "var(--text-secondary)" }}>Catalog Badges</label>
                 <div className="space-y-2">
                   {(["featured", "premium", "topRated"] as CourseBadge[]).map((b) => {
                     const { icon: Icon, color, label } = badgeMeta[b]
@@ -388,7 +388,7 @@ export default function AdminCourseDetailPage({ params }: { params: Promise<{ id
                         key={b}
                         onClick={() => toggleBadge(course.id, b)}
                         className="flex items-center justify-center gap-1.5 w-full text-xs font-semibold px-3 py-2 rounded-lg"
-                        style={{ backgroundColor: active ? `${color}20` : "#334155", color: active ? color : "#94A3B8" }}
+                        style={{ backgroundColor: active ? `${color}20` : "var(--border-default)", color: active ? color : "var(--text-secondary)" }}
                       >
                         <Icon size={13} /> {active ? `${label} ✓` : `Mark ${label}`}
                       </button>
@@ -398,8 +398,8 @@ export default function AdminCourseDetailPage({ params }: { params: Promise<{ id
               </div>
 
               {content.certificateOffered && (
-                <div className="flex items-center gap-2 text-xs" style={{ color: "#64748B" }}>
-                  <Award size={13} style={{ color: "#F59E0B" }} /> Certificate of completion included
+                <div className="flex items-center gap-2 text-xs" style={{ color: "var(--text-tertiary)" }}>
+                  <Award size={13} style={{ color: "var(--warning)" }} /> Certificate of completion included
                 </div>
               )}
             </div>
@@ -409,13 +409,13 @@ export default function AdminCourseDetailPage({ params }: { params: Promise<{ id
 
         {/* Tabs */}
         {!isEditing && (<>
-        <div className="flex items-center gap-1 border-b overflow-x-auto" style={{ borderColor: "#334155" }}>
+        <div className="flex items-center gap-1 border-b overflow-x-auto" style={{ borderColor: "var(--border-default)" }}>
           {(["overview", "curriculum", "assignments", "quizzes", "resources", "discussions", "reviews"] as Tab[]).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
               className="px-4 py-2.5 text-sm font-medium capitalize transition-colors relative flex-shrink-0"
-              style={{ color: tab === t ? "#60A5FA" : "#64748B" }}
+              style={{ color: tab === t ? "#60A5FA" : "var(--text-tertiary)" }}
             >
               {t === "quizzes" ? "Quizzes & Exams" : t}
               {t === "assignments" && courseAssignments.length > 0 && (
@@ -427,7 +427,7 @@ export default function AdminCourseDetailPage({ params }: { params: Promise<{ id
               {t === "discussions" && courseDiscussions.length > 0 && (
                 <span className="ml-1.5 text-xs px-1.5 py-0.5 rounded-full" style={{ backgroundColor: "#3B82F620", color: "#60A5FA" }}>{courseDiscussions.length}</span>
               )}
-              {tab === t && <span className="absolute bottom-0 left-0 right-0 h-0.5 rounded-t" style={{ backgroundColor: "#3B82F6" }} />}
+              {tab === t && <span className="absolute bottom-0 left-0 right-0 h-0.5 rounded-t" style={{ backgroundColor: "var(--accent)" }} />}
             </button>
           ))}
         </div>
@@ -437,17 +437,17 @@ export default function AdminCourseDetailPage({ params }: { params: Promise<{ id
           {tab === "overview" && (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2 space-y-6">
-                <div className="rounded-2xl p-5" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
-                  <h3 className="text-sm font-bold text-white mb-3">About This Course</h3>
-                  <p className="text-sm leading-relaxed" style={{ color: "#94A3B8" }}>{content.description}</p>
+                <div className="rounded-2xl p-5 shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
+                  <h3 className="text-sm font-bold mb-3" style={{ color: "var(--text-primary)" }}>About This Course</h3>
+                  <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>{content.description}</p>
                 </div>
               </div>
               <div className="space-y-4">
-                <div className="rounded-2xl p-5" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
-                  <h3 className="text-sm font-bold text-white mb-3">Course Tags</h3>
+                <div className="rounded-2xl p-5 shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
+                  <h3 className="text-sm font-bold mb-3" style={{ color: "var(--text-primary)" }}>Course Tags</h3>
                   <div className="flex flex-wrap gap-2">
                     {content.tags.map((tag) => (
-                      <span key={tag} className="text-xs px-2 py-1 rounded-lg" style={{ backgroundColor: "#334155", color: "#CBD5E1" }}>{tag}</span>
+                      <span key={tag} className="text-xs px-2 py-1 rounded-lg" style={{ backgroundColor: "var(--border-default)", color: "#CBD5E1" }}>{tag}</span>
                     ))}
                   </div>
                 </div>
@@ -458,30 +458,30 @@ export default function AdminCourseDetailPage({ params }: { params: Promise<{ id
           {tab === "curriculum" && (
             <div className="space-y-3">
               {course.sections.length === 0 ? (
-                <div className="rounded-2xl p-10 text-center" style={{ backgroundColor: "#1E293B", border: "1px dashed #334155" }}>
-                  <p className="text-sm" style={{ color: "#475569" }}>Curriculum details coming soon.</p>
+                <div className="rounded-2xl p-10 text-center shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px dashed var(--border-default)" }}>
+                  <p className="text-sm" style={{ color: "var(--text-muted)" }}>Curriculum details coming soon.</p>
                 </div>
               ) : course.sections.map((section) => {
                 const open = openSections.has(section.id)
                 return (
-                  <div key={section.id} className="rounded-2xl overflow-hidden" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
+                  <div key={section.id} className="rounded-2xl overflow-hidden shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
                     <button
                       className="w-full flex items-center gap-3 px-5 py-4 text-left transition-colors"
                       onClick={() => toggleSection(section.id)}
-                      style={{ backgroundColor: open ? "#0F172A" : "#1E293B" }}
+                      style={{ backgroundColor: open ? "var(--bg-surface-muted)" : "var(--bg-surface)" }}
                     >
-                      <ChevronDown size={16} style={{ color: "#64748B", transform: open ? "rotate(0deg)" : "rotate(-90deg)", transition: "transform 0.2s" }} />
-                      <span className="text-sm font-semibold text-white flex-1">{section.title}</span>
-                      <span className="text-xs" style={{ color: "#64748B" }}>{section.lessons.length} lessons</span>
+                      <ChevronDown size={16} style={{ color: "var(--text-tertiary)", transform: open ? "rotate(0deg)" : "rotate(-90deg)", transition: "transform 0.2s" }} />
+                      <span className="text-sm font-semibold flex-1" style={{ color: "var(--text-primary)" }}>{section.title}</span>
+                      <span className="text-xs" style={{ color: "var(--text-tertiary)" }}>{section.lessons.length} lessons</span>
                     </button>
                     {open && (
-                      <div className="divide-y" style={{ borderColor: "#1E293B" }}>
+                      <div className="divide-y" style={{ borderColor: "var(--bg-surface)" }}>
                         {section.lessons.map((lesson) => (
                           <div key={lesson.id} className="flex items-center gap-3 px-5 py-3" style={{ backgroundColor: "#172033" }}>
                             <div className="flex-shrink-0 w-5 flex items-center justify-center">{lessonTypeIcon(lesson.type)}</div>
                             <span className="flex-1 text-sm" style={{ color: "#CBD5E1" }}>{lesson.title}</span>
-                            <span className="text-xs capitalize flex-shrink-0" style={{ color: "#475569" }}>{lesson.type}</span>
-                            <span className="text-xs flex-shrink-0" style={{ color: "#475569" }}>{lesson.duration}</span>
+                            <span className="text-xs capitalize flex-shrink-0" style={{ color: "var(--text-muted)" }}>{lesson.type}</span>
+                            <span className="text-xs flex-shrink-0" style={{ color: "var(--text-muted)" }}>{lesson.duration}</span>
                           </div>
                         ))}
                       </div>
@@ -495,18 +495,18 @@ export default function AdminCourseDetailPage({ params }: { params: Promise<{ id
           {tab === "assignments" && (
             <div className="space-y-3">
               {courseAssignments.length === 0 ? (
-                <div className="rounded-2xl p-10 text-center" style={{ backgroundColor: "#1E293B", border: "1px dashed #334155" }}>
-                  <ClipboardList size={32} className="mx-auto mb-3" style={{ color: "#334155" }} />
-                  <p className="text-sm" style={{ color: "#475569" }}>No assignments attached to this course.</p>
+                <div className="rounded-2xl p-10 text-center shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px dashed var(--border-default)" }}>
+                  <ClipboardList size={32} className="mx-auto mb-3" style={{ color: "var(--border-default)" }} />
+                  <p className="text-sm" style={{ color: "var(--text-muted)" }}>No assignments attached to this course.</p>
                 </div>
               ) : courseAssignments.map((a) => (
-                <div key={a.id} className="rounded-2xl p-5" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
+                <div key={a.id} className="rounded-2xl p-5 shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
                   <div className="flex items-start justify-between gap-3 mb-2">
-                    <p className="text-sm font-semibold text-white">{a.title}</p>
-                    <span className="text-xs font-semibold px-2 py-0.5 rounded-full flex-shrink-0 capitalize" style={{ backgroundColor: "#33415560", color: "#94A3B8" }}>{a.type}</span>
+                    <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>{a.title}</p>
+                    <span className="text-xs font-semibold px-2 py-0.5 rounded-full flex-shrink-0 capitalize" style={{ backgroundColor: "#33415560", color: "var(--text-secondary)" }}>{a.type}</span>
                   </div>
-                  <p className="text-sm mb-3" style={{ color: "#94A3B8" }}>{a.description}</p>
-                  <div className="flex items-center gap-4 text-xs flex-wrap" style={{ color: "#64748B" }}>
+                  <p className="text-sm mb-3" style={{ color: "var(--text-secondary)" }}>{a.description}</p>
+                  <div className="flex items-center gap-4 text-xs flex-wrap" style={{ color: "var(--text-tertiary)" }}>
                     <span>Due {a.dueDate}</span>
                     <span>Max grade: {a.maxGrade}</span>
                     <span className="capitalize">Format: {a.submissionFormat}</span>
@@ -519,15 +519,15 @@ export default function AdminCourseDetailPage({ params }: { params: Promise<{ id
           {tab === "quizzes" && (
             <div className="space-y-3">
               {courseQuizzes.length === 0 ? (
-                <div className="rounded-2xl p-10 text-center" style={{ backgroundColor: "#1E293B", border: "1px dashed #334155" }}>
-                  <Brain size={32} className="mx-auto mb-3" style={{ color: "#334155" }} />
-                  <p className="text-sm" style={{ color: "#475569" }}>No quizzes attached to this course.</p>
+                <div className="rounded-2xl p-10 text-center shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px dashed var(--border-default)" }}>
+                  <Brain size={32} className="mx-auto mb-3" style={{ color: "var(--border-default)" }} />
+                  <p className="text-sm" style={{ color: "var(--text-muted)" }}>No quizzes attached to this course.</p>
                 </div>
               ) : courseQuizzes.map((q) => (
-                <div key={q.id} className="rounded-2xl p-5" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
-                  <p className="text-sm font-semibold text-white mb-1">{q.title}</p>
-                  <p className="text-sm mb-3" style={{ color: "#94A3B8" }}>{q.description}</p>
-                  <div className="flex items-center gap-4 text-xs flex-wrap" style={{ color: "#64748B" }}>
+                <div key={q.id} className="rounded-2xl p-5 shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
+                  <p className="text-sm font-semibold mb-1" style={{ color: "var(--text-primary)" }}>{q.title}</p>
+                  <p className="text-sm mb-3" style={{ color: "var(--text-secondary)" }}>{q.description}</p>
+                  <div className="flex items-center gap-4 text-xs flex-wrap" style={{ color: "var(--text-tertiary)" }}>
                     <span>{q.questions.length} questions</span>
                     <span>{q.timeLimit} min</span>
                     <span>Pass: {q.passingScore}%</span>
@@ -539,15 +539,15 @@ export default function AdminCourseDetailPage({ params }: { params: Promise<{ id
           )}
 
           {tab === "resources" && (
-            <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
+            <div className="rounded-2xl overflow-hidden shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
               {resources.map((r, i) => (
-                <div key={r.name} className="flex items-center gap-4 px-5 py-3.5" style={{ borderBottom: i < resources.length - 1 ? "1px solid #1E293B40" : "none", backgroundColor: i % 2 === 0 ? "#1A2535" : "#1E293B" }}>
-                  <div className="flex items-center justify-center w-9 h-9 rounded-lg text-xs font-bold flex-shrink-0" style={{ backgroundColor: "#334155", color: "#94A3B8" }}>{r.type}</div>
+                <div key={r.name} className="flex items-center gap-4 px-5 py-3.5" style={{ borderBottom: i < resources.length - 1 ? "1px solid #1E293B40" : "none", backgroundColor: i % 2 === 0 ? "#1A2535" : "var(--bg-surface)" }}>
+                  <div className="flex items-center justify-center w-9 h-9 rounded-lg text-xs font-bold flex-shrink-0" style={{ backgroundColor: "var(--border-default)", color: "var(--text-secondary)" }}>{r.type}</div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-white truncate">{r.name}</p>
-                    {r.size !== "—" && <p className="text-xs mt-0.5" style={{ color: "#64748B" }}>{r.size}</p>}
+                    <p className="text-sm font-medium truncate" style={{ color: "var(--text-primary)" }}>{r.name}</p>
+                    {r.size !== "—" && <p className="text-xs mt-0.5" style={{ color: "var(--text-tertiary)" }}>{r.size}</p>}
                   </div>
-                  <Download size={14} style={{ color: "#475569" }} />
+                  <Download size={14} style={{ color: "var(--text-muted)" }} />
                 </div>
               ))}
             </div>
@@ -556,26 +556,26 @@ export default function AdminCourseDetailPage({ params }: { params: Promise<{ id
           {tab === "discussions" && (
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <p className="text-sm" style={{ color: "#64748B" }}>{courseDiscussions.length} threads</p>
-                <Link href="/admin/discussions" className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg" style={{ backgroundColor: "#334155", color: "#CBD5E1" }}>
+                <p className="text-sm" style={{ color: "var(--text-tertiary)" }}>{courseDiscussions.length} threads</p>
+                <Link href="/admin/discussions" className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg" style={{ backgroundColor: "var(--border-default)", color: "#CBD5E1" }}>
                   <MessageSquare size={13} /> Moderate Discussions
                 </Link>
               </div>
               {courseDiscussions.length === 0 ? (
-                <div className="rounded-2xl p-8 text-center" style={{ backgroundColor: "#1E293B", border: "1px dashed #334155" }}>
-                  <p className="text-sm" style={{ color: "#475569" }}>No discussions yet for this course.</p>
+                <div className="rounded-2xl p-8 text-center shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px dashed var(--border-default)" }}>
+                  <p className="text-sm" style={{ color: "var(--text-muted)" }}>No discussions yet for this course.</p>
                 </div>
               ) : courseDiscussions.map((d) => (
-                <div key={d.id} className="rounded-2xl p-4" style={{ backgroundColor: "#1E293B", border: `1px solid ${d.isPinned ? "#3B82F640" : "#334155"}` }}>
+                <div key={d.id} className="rounded-2xl p-4 shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: `1px solid ${d.isPinned ? "#3B82F640" : "var(--border-default)"}` }}>
                   <div className="flex items-start gap-3">
-                    <div className="flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold flex-shrink-0" style={{ backgroundColor: "#3B82F6", color: "#fff" }}>{d.authorAvatar}</div>
+                    <div className="flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold flex-shrink-0" style={{ backgroundColor: "var(--accent)", color: "#fff" }}>{d.authorAvatar}</div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-sm font-semibold text-white">{d.title}</span>
+                        <span className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>{d.title}</span>
                         {d.isPinned && <span className="text-xs px-1.5 py-0.5 rounded" style={{ backgroundColor: "#3B82F620", color: "#60A5FA" }}>Pinned</span>}
                         {d.isSolved && <span className="text-xs px-1.5 py-0.5 rounded" style={{ backgroundColor: "#10B98120", color: "#10B981" }}>Solved</span>}
                       </div>
-                      <p className="text-xs mt-0.5" style={{ color: "#64748B" }}>{d.author} · {d.createdAt} · {d.replies} replies · {d.views} views</p>
+                      <p className="text-xs mt-0.5" style={{ color: "var(--text-tertiary)" }}>{d.author} · {d.createdAt} · {d.replies} replies · {d.views} views</p>
                     </div>
                   </div>
                 </div>
@@ -585,32 +585,32 @@ export default function AdminCourseDetailPage({ params }: { params: Promise<{ id
 
           {tab === "reviews" && (
             <div className="space-y-4">
-              <div className="rounded-2xl p-5 flex items-center gap-8" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
+              <div className="rounded-2xl p-5 flex items-center gap-8 shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
                 <div className="text-center">
-                  <div className="text-5xl font-black text-white">{course.rating}</div>
+                  <div className="text-5xl font-black" style={{ color: "var(--text-primary)" }}>{course.rating}</div>
                   <div className="flex items-center gap-0.5 justify-center mt-1">
                     {[1, 2, 3, 4, 5].map((s) => (
-                      <Star key={s} size={14} fill={s <= Math.round(course.rating) ? "#F59E0B" : "none"} style={{ color: "#F59E0B" }} />
+                      <Star key={s} size={14} fill={s <= Math.round(course.rating) ? "#F59E0B" : "none"} style={{ color: "var(--warning)" }} />
                     ))}
                   </div>
-                  <p className="text-xs mt-1" style={{ color: "#64748B" }}>{course.reviewCount.toLocaleString()} reviews</p>
+                  <p className="text-xs mt-1" style={{ color: "var(--text-tertiary)" }}>{course.reviewCount.toLocaleString()} reviews</p>
                 </div>
               </div>
               {reviews.map((r) => (
-                <div key={r.name} className="rounded-2xl p-4" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
+                <div key={r.name} className="rounded-2xl p-4 shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
                   <div className="flex items-center gap-3 mb-2">
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0" style={{ backgroundColor: "#334155", color: "#94A3B8" }}>{r.name[0]}</div>
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0" style={{ backgroundColor: "var(--border-default)", color: "var(--text-secondary)" }}>{r.name[0]}</div>
                     <div>
-                      <p className="text-sm font-semibold text-white">{r.name}</p>
+                      <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>{r.name}</p>
                       <div className="flex items-center gap-1">
                         {[1, 2, 3, 4, 5].map((s) => (
-                          <Star key={s} size={11} fill={s <= r.rating ? "#F59E0B" : "none"} style={{ color: "#F59E0B" }} />
+                          <Star key={s} size={11} fill={s <= r.rating ? "#F59E0B" : "none"} style={{ color: "var(--warning)" }} />
                         ))}
-                        <span className="text-xs ml-1" style={{ color: "#64748B" }}>{r.date}</span>
+                        <span className="text-xs ml-1" style={{ color: "var(--text-tertiary)" }}>{r.date}</span>
                       </div>
                     </div>
                   </div>
-                  <p className="text-sm" style={{ color: "#94A3B8" }}>{r.comment}</p>
+                  <p className="text-sm" style={{ color: "var(--text-secondary)" }}>{r.comment}</p>
                 </div>
               ))}
             </div>
@@ -619,7 +619,7 @@ export default function AdminCourseDetailPage({ params }: { params: Promise<{ id
         </>)}
 
         <div className="flex items-center justify-end">
-          <Link href="/admin/courses" className="flex items-center gap-1.5 text-sm font-medium" style={{ color: "#3B82F6" }}>
+          <Link href="/admin/courses" className="flex items-center gap-1.5 text-sm font-medium" style={{ color: "var(--accent)" }}>
             Back to all courses <ChevronRight size={15} />
           </Link>
         </div>

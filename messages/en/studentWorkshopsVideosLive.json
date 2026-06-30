@@ -1,0 +1,164 @@
+{
+  "studentWorkshops": {
+    "title": "Workshops",
+    "subtitle": "Intensive hands-on sessions with expert instructors",
+    "myWorkshops": "My Workshops",
+    "stats": {
+      "upcoming": "Upcoming",
+      "registered": "Registered",
+      "completed": "Completed"
+    },
+    "allKinds": "All Kinds",
+    "filters": {
+      "all": "All",
+      "registered": "Registered"
+    },
+    "searchPlaceholder": "Search workshops...",
+    "noResultsTitle": "No workshops found",
+    "kindMeta": {
+      "live": "Live Workshop",
+      "lab": "Hands-on Lab",
+      "in-person": "In-Person",
+      "panel": "Panel Discussion",
+      "hackathon": "Hackathon"
+    },
+    "card": {
+      "registered": "Registered",
+      "seats": "{attendees}/{maxAttendees} seats",
+      "onlyLeft": "Only {count} left!",
+      "spotsAvailable": "{count} spots available",
+      "speakersOnPanel": "{count} speakers on the panel",
+      "topPrize": "Top prize: {reward}",
+      "handsOnExercises": "{count} hands-on exercises",
+      "free": "Free",
+      "startsIn": "Starts in",
+      "started": "Started!",
+      "details": "Details",
+      "registerFree": "Register Free",
+      "registerPrice": "Register — ${price}"
+    }
+  },
+  "studentWorkshopDetail": {
+    "backToWorkshops": "Back to Workshops",
+    "share": "Share",
+    "registered": "Registered",
+    "registeredExclaim": "✓ Registered!",
+    "youAreRegistered": "✓ You're Registered!",
+    "onlySpotsLeft": "Only {count} spots left",
+    "seatsFilled": "{attendees}/{maxAttendees} seats filled",
+    "onlyLeft": "Only {count} left!",
+    "spotsAvailable": "{count} spots available",
+    "free": "Free",
+    "registerFree": "Register — Free",
+    "registerPrice": "Register — ${price}",
+    "tabs": {
+      "overview": "Overview",
+      "assignment": "Assignment",
+      "assignmentBadge": "Due Jun 20",
+      "peerReview": "Peer Reviews",
+      "peerReviewBadge": "{count} due",
+      "live": "Live Session",
+      "progress": "Progress & Grades"
+    },
+    "aboutThis": "About This {kind}",
+    "environmentSetup": "Environment & Setup",
+    "handsOnExercises": "Hands-on Exercises",
+    "exercisesDone": "{done}/{total} done",
+    "venue": "Venue",
+    "mapPreview": "Map preview",
+    "whatToBring": "What to Bring",
+    "speakerLineup": "Speaker Lineup",
+    "askThePanel": "Ask the Panel",
+    "questionPlaceholder": "Type your question…",
+    "submittedQuestion": "Submitted: \"{question}\"",
+    "eventTimeline": "Event Timeline",
+    "prizes": "Prizes",
+    "judgingCriteria": "Judging Criteria",
+    "workshopAgenda": "Workshop Agenda",
+    "registeredAlready": "{count} already registered",
+    "liveSessionDuration": "{duration} live session",
+    "hostedBy": "Hosted By",
+    "moderator": "Moderator",
+    "instructor": "Instructor",
+    "findATeam": "Find a Team",
+    "findATeamDesc": "Flying solo? We'll match you with other registered builders before kickoff.",
+    "joinTeamMatching": "Join Team Matching",
+    "studentsAlsoBought": "Students Also Bought",
+    "recommendedForYou": "Recommended For You"
+  },
+  "studentVideos": {
+    "title": "Video Library",
+    "subtitle": "{count} videos across {categories} categories",
+    "searchPlaceholder": "Search videos, instructors...",
+    "continueWatching": "Continue Watching",
+    "trendingNow": "Trending Now",
+    "allVideos": "All Videos",
+    "results": "Results ({count})",
+    "minutesWatched": "{watched} / {duration} min watched · {progress}%",
+    "noResultsTitle": "No videos found",
+    "noResultsSubtitle": "Try different keywords or category",
+    "free": "FREE",
+    "categories": {
+      "All": "All",
+      "React": "React",
+      "TypeScript": "TypeScript",
+      "System Design": "System Design",
+      "DevOps": "DevOps",
+      "Security": "Security",
+      "Data Science": "Data Science",
+      "UI/UX": "UI/UX",
+      "Career": "Career"
+    },
+    "levels": {
+      "Beginner": "Beginner",
+      "Intermediate": "Intermediate",
+      "Advanced": "Advanced"
+    }
+  },
+  "studentVideoPlayer": {
+    "videoLibrary": "Video Library",
+    "goToCourse": "Go to Course",
+    "videoContent": "Video content — {title}",
+    "views": "{count} views",
+    "save": "Save",
+    "share": "Share",
+    "tabs": {
+      "playlist": "Playlist",
+      "transcript": "Transcript",
+      "comments": "Comments"
+    },
+    "minutesShort": "{count} min",
+    "commentPlaceholder": "Add a comment…"
+  },
+  "studentLive": {
+    "title": "Live Classes",
+    "subtitle": "Join live sessions, watch replays, and learn in real-time",
+    "liveNowBadge": "{count} LIVE NOW",
+    "liveNow": "Live Now",
+    "watching": "{count} watching",
+    "minutes": "{count} min",
+    "tabs": {
+      "all": "All",
+      "live": "Live",
+      "upcoming": "Upcoming",
+      "recordings": "Recordings"
+    },
+    "searchPlaceholder": "Search sessions...",
+    "todaysSchedule": "Today's Schedule",
+    "comingUp": "Coming Up",
+    "pastRecordings": "Past Recordings",
+    "seeAllInLibrary": "See all in Video Library",
+    "joinLiveSession": "Join Live Session",
+    "registerAt": "Register — {time}",
+    "live": "LIVE"
+  },
+  "studentLiveRoom": {
+    "back": "Back",
+    "instructorSharingScreen": "Instructor is sharing screen",
+    "host": "HOST",
+    "recording": "RECORDING",
+    "chat": "Chat",
+    "people": "People ({count})",
+    "messagePlaceholder": "Type a message…"
+  }
+}

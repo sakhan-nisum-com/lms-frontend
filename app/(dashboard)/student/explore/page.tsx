@@ -87,15 +87,15 @@ export default function ExplorePage() {
 
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-bold text-white">Explore Catalog</h1>
-          <p className="text-sm mt-1" style={{ color: "#94A3B8" }}>
+          <h1 className="text-2xl font-bold" style={{ color: "var(--text-primary)" }}>Explore Catalog</h1>
+          <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>
             {COURSES.length} courses across engineering, data, compliance, design, and more
           </p>
         </div>
 
         {/* Search bar */}
         <div className="relative">
-          <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: "#64748B" }} />
+          <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: "var(--text-tertiary)" }} />
           <input
             type="text"
             placeholder="Search courses, topics, instructors..."
@@ -103,19 +103,19 @@ export default function ExplorePage() {
             onChange={(e) => setQuery(e.target.value)}
             className="w-full pl-12 pr-4 py-3.5 rounded-2xl text-sm outline-none"
             style={{
-              backgroundColor: "#1E293B",
-              border: "1px solid #334155",
-              color: "#F8FAFC",
+              backgroundColor: "var(--bg-surface)",
+              border: "1px solid var(--border-default)",
+              color: "var(--text-primary)",
             }}
-            onFocus={(e) => (e.target.style.borderColor = "#3B82F6")}
-            onBlur={(e) => (e.target.style.borderColor = "#334155")}
+            onFocus={(e) => (e.target.style.borderColor = "var(--accent)")}
+            onBlur={(e) => (e.target.style.borderColor = "var(--border-default)")}
           />
           {query && (
             <button
               className="absolute right-4 top-1/2 -translate-y-1/2"
               onClick={() => setQuery("")}
             >
-              <X size={15} style={{ color: "#64748B" }} />
+              <X size={15} style={{ color: "var(--text-tertiary)" }} />
             </button>
           )}
         </div>
@@ -128,9 +128,9 @@ export default function ExplorePage() {
               onClick={() => setCategory(value as CourseCategory | "all")}
               className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-medium transition-all flex-shrink-0"
               style={{
-                backgroundColor: category === value ? "#3B82F6" : "#1E293B",
-                color: category === value ? "#fff" : "#94A3B8",
-                border: `1px solid ${category === value ? "#3B82F6" : "#334155"}`,
+                backgroundColor: category === value ? "var(--accent)" : "var(--bg-surface)",
+                color: category === value ? "#fff" : "var(--text-secondary)",
+                border: `1px solid ${category === value ? "var(--accent)" : "var(--border-default)"}`,
               }}
             >
               <span style={{ fontSize: 14 }}>{icon}</span> {label}
@@ -142,18 +142,18 @@ export default function ExplorePage() {
         {!hasFilters && (
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <Zap size={16} style={{ color: "#F59E0B" }} fill="#F59E0B" />
-              <h2 className="text-base font-bold text-white">Featured Courses</h2>
+              <Zap size={16} style={{ color: "var(--warning)" }} fill="var(--warning)" />
+              <h2 className="text-base font-bold" style={{ color: "var(--text-primary)" }}>Featured Courses</h2>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {featured.map((course) => (
                 <Link
                   key={course.id}
                   href={`/student/courses/${course.id}`}
-                  className="rounded-2xl overflow-hidden transition-all duration-150 group"
-                  style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
+                  className="rounded-2xl overflow-hidden transition-all duration-150 group shadow-sm"
+                  style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
                   onMouseEnter={(e) => (e.currentTarget.style.borderColor = `${course.thumbnailColor}60`)}
-                  onMouseLeave={(e) => (e.currentTarget.style.borderColor = "#334155")}
+                  onMouseLeave={(e) => (e.currentTarget.style.borderColor = "var(--border-default)")}
                 >
                   <CourseThumbnail course={course} locked={course.price !== "Free" && !enrolledIds.has(course.id)} />
                   <div className="p-4">
@@ -165,18 +165,18 @@ export default function ExplorePage() {
                         {course.category}
                       </span>
                       {enrolledIds.has(course.id) && (
-                        <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ backgroundColor: "#10B98120", color: "#10B981" }}>Enrolled</span>
+                        <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ backgroundColor: "#10B98120", color: "var(--success)" }}>Enrolled</span>
                       )}
                     </div>
-                    <h3 className="text-sm font-bold text-white mb-1 line-clamp-2">{course.title}</h3>
-                    <p className="text-xs mb-2" style={{ color: "#64748B" }}>{course.instructor}</p>
-                    <div className="flex items-center justify-between text-xs" style={{ color: "#64748B" }}>
+                    <h3 className="text-sm font-bold mb-1 line-clamp-2" style={{ color: "var(--text-primary)" }}>{course.title}</h3>
+                    <p className="text-xs mb-2" style={{ color: "var(--text-tertiary)" }}>{course.instructor}</p>
+                    <div className="flex items-center justify-between text-xs" style={{ color: "var(--text-tertiary)" }}>
                       <span className="flex items-center gap-1">
-                        <Star size={11} fill="#F59E0B" style={{ color: "#F59E0B" }} />
-                        <strong className="text-white">{course.rating}</strong>
+                        <Star size={11} fill="var(--warning)" style={{ color: "var(--warning)" }} />
+                        <strong style={{ color: "var(--text-primary)" }}>{course.rating}</strong>
                         <span>({course.reviewCount.toLocaleString()})</span>
                       </span>
-                      <span className="font-bold" style={{ color: course.price === "Free" ? "#10B981" : "#F8FAFC" }}>
+                      <span className="font-bold" style={{ color: course.price === "Free" ? "var(--success)" : "var(--text-primary)" }}>
                         {course.price === "Free" ? "Free" : `$${course.price}`}
                       </span>
                     </div>
@@ -191,18 +191,18 @@ export default function ExplorePage() {
         {!hasFilters && (
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <TrendingUp size={16} style={{ color: "#3B82F6" }} />
-              <h2 className="text-base font-bold text-white">Trending Now</h2>
+              <TrendingUp size={16} style={{ color: "var(--accent)" }} />
+              <h2 className="text-base font-bold" style={{ color: "var(--text-primary)" }}>Trending Now</h2>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               {trending.map((course, i) => (
                 <Link
                   key={course.id}
                   href={`/student/courses/${course.id}`}
-                  className="rounded-xl p-3 flex items-center gap-3 transition-all"
-                  style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
+                  className="rounded-xl p-3 flex items-center gap-3 transition-all shadow-sm"
+                  style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
                 >
-                  <span className="text-lg font-black flex-shrink-0" style={{ color: "#334155" }}>
+                  <span className="text-lg font-black flex-shrink-0" style={{ color: "var(--border-default)" }}>
                     {String(i + 1).padStart(2, "0")}
                   </span>
                   <div
@@ -212,10 +212,10 @@ export default function ExplorePage() {
                     {course.thumbnail}
                   </div>
                   <div className="min-w-0">
-                    <p className="text-xs font-semibold text-white truncate">{course.title}</p>
+                    <p className="text-xs font-semibold truncate" style={{ color: "var(--text-primary)" }}>{course.title}</p>
                     <div className="flex items-center gap-1 mt-0.5">
-                      <Star size={10} fill="#F59E0B" style={{ color: "#F59E0B" }} />
-                      <span className="text-xs" style={{ color: "#64748B" }}>{course.rating}</span>
+                      <Star size={10} fill="var(--warning)" style={{ color: "var(--warning)" }} />
+                      <span className="text-xs" style={{ color: "var(--text-tertiary)" }}>{course.rating}</span>
                     </div>
                   </div>
                 </Link>
@@ -228,9 +228,9 @@ export default function ExplorePage() {
         <div>
           <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
             <div className="flex items-center gap-3">
-              <h2 className="text-base font-bold text-white">
+              <h2 className="text-base font-bold" style={{ color: "var(--text-primary)" }}>
                 {hasFilters ? `Results` : "All Courses"}
-                <span className="ml-2 text-sm font-normal" style={{ color: "#64748B" }}>({filtered.length})</span>
+                <span className="ml-2 text-sm font-normal" style={{ color: "var(--text-tertiary)" }}>({filtered.length})</span>
               </h2>
             </div>
 
@@ -240,14 +240,14 @@ export default function ExplorePage() {
                 onClick={() => setFilterOpen(!filterOpen)}
                 className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors"
                 style={{
-                  backgroundColor: filterOpen ? "#3B82F620" : "#1E293B",
-                  color: filterOpen ? "#60A5FA" : "#94A3B8",
-                  border: "1px solid #334155",
+                  backgroundColor: filterOpen ? "#3B82F620" : "var(--bg-surface)",
+                  color: filterOpen ? "#60A5FA" : "var(--text-secondary)",
+                  border: "1px solid var(--border-default)",
                 }}
               >
                 <Filter size={14} /> Filters
                 {(selectedLevels.size > 0 || showFreeOnly) && (
-                  <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: "#3B82F6" }} />
+                  <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: "var(--accent)" }} />
                 )}
               </button>
 
@@ -256,7 +256,7 @@ export default function ExplorePage() {
                 value={sort}
                 onChange={(e) => setSort(e.target.value as SortOption)}
                 className="px-3 py-2 rounded-lg text-sm outline-none"
-                style={{ backgroundColor: "#1E293B", border: "1px solid #334155", color: "#94A3B8" }}
+                style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)", color: "var(--text-secondary)" }}
               >
                 <option value="popular">Most Popular</option>
                 <option value="rating">Highest Rated</option>
@@ -270,11 +270,11 @@ export default function ExplorePage() {
           {/* Filter panel */}
           {filterOpen && (
             <div
-              className="rounded-2xl p-4 mb-4 flex items-center gap-8 flex-wrap"
-              style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
+              className="rounded-2xl p-4 mb-4 flex items-center gap-8 flex-wrap shadow-sm"
+              style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
             >
               <div>
-                <p className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: "#475569" }}>Level</p>
+                <p className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: "var(--text-muted)" }}>Level</p>
                 <div className="flex gap-2">
                   {levels.map((l) => (
                     <button
@@ -282,8 +282,8 @@ export default function ExplorePage() {
                       onClick={() => toggleLevel(l)}
                       className="px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors"
                       style={{
-                        backgroundColor: selectedLevels.has(l) ? `${levelColors[l]}30` : "#334155",
-                        color: selectedLevels.has(l) ? levelColors[l] : "#94A3B8",
+                        backgroundColor: selectedLevels.has(l) ? `${levelColors[l]}30` : "var(--border-default)",
+                        color: selectedLevels.has(l) ? levelColors[l] : "var(--text-secondary)",
                         border: `1px solid ${selectedLevels.has(l) ? levelColors[l] : "transparent"}`,
                       }}
                     >
@@ -293,14 +293,14 @@ export default function ExplorePage() {
                 </div>
               </div>
               <div>
-                <p className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: "#475569" }}>Price</p>
+                <p className="text-xs font-bold uppercase tracking-wider mb-2" style={{ color: "var(--text-muted)" }}>Price</p>
                 <button
                   onClick={() => setShowFreeOnly(!showFreeOnly)}
                   className="px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors"
                   style={{
-                    backgroundColor: showFreeOnly ? "#10B98130" : "#334155",
-                    color: showFreeOnly ? "#10B981" : "#94A3B8",
-                    border: `1px solid ${showFreeOnly ? "#10B981" : "transparent"}`,
+                    backgroundColor: showFreeOnly ? "#10B98130" : "var(--border-default)",
+                    color: showFreeOnly ? "var(--success)" : "var(--text-secondary)",
+                    border: `1px solid ${showFreeOnly ? "var(--success)" : "transparent"}`,
                   }}
                 >
                   Free Only
@@ -309,7 +309,7 @@ export default function ExplorePage() {
               {(selectedLevels.size > 0 || showFreeOnly) && (
                 <button
                   className="ml-auto text-xs"
-                  style={{ color: "#EF4444" }}
+                  style={{ color: "var(--danger)" }}
                   onClick={() => { setSelectedLevels(new Set()); setShowFreeOnly(false) }}
                 >
                   Clear filters
@@ -321,11 +321,11 @@ export default function ExplorePage() {
           {filtered.length === 0 ? (
             <div
               className="rounded-2xl p-12 text-center"
-              style={{ backgroundColor: "#1E293B", border: "1px dashed #334155" }}
+              style={{ backgroundColor: "var(--bg-surface)", border: "1px dashed var(--border-default)" }}
             >
-              <Search size={36} className="mx-auto mb-3" style={{ color: "#334155" }} />
+              <Search size={36} className="mx-auto mb-3" style={{ color: "var(--border-default)" }} />
               <p className="text-sm font-medium text-white mb-1">No courses found</p>
-              <p className="text-xs" style={{ color: "#64748B" }}>Try adjusting your search or filters.</p>
+              <p className="text-xs" style={{ color: "var(--text-tertiary)" }}>Try adjusting your search or filters.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -334,9 +334,9 @@ export default function ExplorePage() {
                   key={course.id}
                   href={`/student/courses/${course.id}`}
                   className="rounded-2xl overflow-hidden flex flex-col transition-all duration-150"
-                  style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
+                  style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
                   onMouseEnter={(e) => (e.currentTarget.style.borderColor = `${course.thumbnailColor}50`)}
-                  onMouseLeave={(e) => (e.currentTarget.style.borderColor = "#334155")}
+                  onMouseLeave={(e) => (e.currentTarget.style.borderColor = "var(--border-default)")}
                 >
                   <CourseThumbnail course={course} locked={course.price !== "Free" && !enrolledIds.has(course.id)} />
                   <div className="p-4 flex flex-col flex-1">
@@ -356,13 +356,13 @@ export default function ExplorePage() {
                     </div>
 
                     <h3 className="text-sm font-bold text-white mb-1 line-clamp-2">{course.title}</h3>
-                    <p className="text-xs mb-3" style={{ color: "#64748B" }}>{course.instructor} · {course.instructorTitle.split("@")[1]?.trim() ?? course.instructorTitle}</p>
+                    <p className="text-xs mb-3" style={{ color: "var(--text-tertiary)" }}>{course.instructor} · {course.instructorTitle.split("@")[1]?.trim() ?? course.instructorTitle}</p>
 
-                    <p className="text-xs mb-3 line-clamp-2 flex-1" style={{ color: "#94A3B8" }}>{course.shortDesc}</p>
+                    <p className="text-xs mb-3 line-clamp-2 flex-1" style={{ color: "var(--text-secondary)" }}>{course.shortDesc}</p>
 
-                    <div className="flex items-center gap-3 mb-3 text-xs" style={{ color: "#64748B" }}>
+                    <div className="flex items-center gap-3 mb-3 text-xs" style={{ color: "var(--text-tertiary)" }}>
                       <span className="flex items-center gap-0.5">
-                        <Star size={11} fill="#F59E0B" style={{ color: "#F59E0B" }} />
+                        <Star size={11} fill="var(--warning)" style={{ color: "#F59E0B" }} />
                         <strong className="text-white ml-0.5">{course.rating}</strong>
                         <span className="ml-0.5">({course.reviewCount.toLocaleString()})</span>
                       </span>
@@ -376,7 +376,7 @@ export default function ExplorePage() {
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <span className="text-base font-bold" style={{ color: course.price === "Free" ? "#10B981" : "#F8FAFC" }}>
+                      <span className="text-base font-bold" style={{ color: course.price === "Free" ? "#10B981" : "var(--text-primary)" }}>
                         {course.price === "Free" ? "Free" : `$${course.price}`}
                       </span>
                       <div className="flex items-center gap-1 text-xs font-semibold" style={{ color: "#3B82F6" }}>

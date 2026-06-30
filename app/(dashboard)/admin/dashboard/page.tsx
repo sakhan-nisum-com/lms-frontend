@@ -2,6 +2,7 @@
 
 import { DashboardLayout } from "@/components/layout/DashboardLayout"
 import Link from "next/link"
+import { useTranslations } from "next-intl"
 import {
   Users, BookOpen, DollarSign, ShieldAlert, ChevronRight,
   UserPlus, GraduationCap, AlertTriangle, CheckCircle2, ArrowUpRight,
@@ -23,6 +24,7 @@ const severityColors: Record<string, string> = {
 }
 
 export default function AdminDashboardPage() {
+  const t = useTranslations("adminDashboard")
   const { users } = usePlatformUsers()
   const { getEntry } = useCourseModeration()
 
@@ -59,15 +61,15 @@ export default function AdminDashboardPage() {
         {/* Header */}
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
-            <h1 className="text-2xl font-bold text-white">Admin Dashboard</h1>
-            <p className="text-sm mt-1" style={{ color: "#94A3B8" }}>
+            <h1 className="text-2xl font-bold" style={{ color: "var(--text-primary)" }}>Admin Dashboard</h1>
+            <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>
               Platform-wide overview of users, content, and revenue.
             </p>
           </div>
           <Link
             href="/admin/audit-log"
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white transition-opacity hover:opacity-90"
-            style={{ backgroundColor: "#3B82F6" }}
+            style={{ backgroundColor: "var(--accent)" }}
           >
             View Audit Log <ChevronRight size={16} />
           </Link>
@@ -78,8 +80,8 @@ export default function AdminDashboardPage() {
           {stats.map(({ label, value, icon: Icon, color, sub }) => (
             <div
               key={label}
-              className="rounded-2xl p-5"
-              style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
+              className="rounded-2xl p-5 shadow-sm"
+              style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
             >
               <div
                 className="flex items-center justify-center w-10 h-10 rounded-xl mb-3"
@@ -87,17 +89,17 @@ export default function AdminDashboardPage() {
               >
                 <Icon size={20} style={{ color }} />
               </div>
-              <div className="text-2xl font-bold text-white">{value}</div>
-              <div className="text-xs mt-0.5" style={{ color: "#64748B" }}>{label}</div>
-              <div className="text-xs mt-1.5" style={{ color: "#475569" }}>{sub}</div>
+              <div className="text-2xl font-bold" style={{ color: "var(--text-primary)" }}>{value}</div>
+              <div className="text-xs mt-0.5" style={{ color: "var(--text-tertiary)" }}>{label}</div>
+              <div className="text-xs mt-1.5" style={{ color: "var(--text-muted)" }}>{sub}</div>
             </div>
           ))}
         </div>
 
         {/* Breakdown + signups */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          <div className="rounded-2xl p-5" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
-            <h2 className="text-sm font-semibold text-white mb-4">Users by Role</h2>
+          <div className="rounded-2xl p-5 shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
+            <h2 className="text-sm font-semibold mb-4" style={{ color: "var(--text-primary)" }}>Users by Role</h2>
             <div className="space-y-3">
               {[
                 { label: "Students", count: students.length, color: "#3B82F6" },
@@ -106,10 +108,10 @@ export default function AdminDashboardPage() {
               ].map(({ label, count, color }) => (
                 <div key={label}>
                   <div className="flex items-center justify-between text-xs mb-1">
-                    <span style={{ color: "#94A3B8" }}>{label}</span>
-                    <span className="font-semibold text-white">{count}</span>
+                    <span style={{ color: "var(--text-secondary)" }}>{label}</span>
+                    <span className="font-semibold" style={{ color: "var(--text-primary)" }}>{count}</span>
                   </div>
-                  <div className="h-1.5 rounded-full" style={{ backgroundColor: "#334155" }}>
+                  <div className="h-1.5 rounded-full" style={{ backgroundColor: "var(--border-default)" }}>
                     <div
                       className="h-full rounded-full"
                       style={{ width: `${(count / users.length) * 100}%`, backgroundColor: color }}
@@ -120,9 +122,9 @@ export default function AdminDashboardPage() {
             </div>
           </div>
 
-          <div className="rounded-2xl p-5" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
+          <div className="rounded-2xl p-5 shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-sm font-semibold text-white">New Signups (7 days)</h2>
+              <h2 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>New Signups (7 days)</h2>
               <span className="flex items-center gap-1 text-xs font-semibold" style={{ color: "#34D399" }}>
                 <ArrowUpRight size={13} /> +18%
               </span>
@@ -132,9 +134,9 @@ export default function AdminDashboardPage() {
                 <div key={i} className="flex-1 flex flex-col items-center gap-1.5">
                   <div
                     className="w-full rounded-md"
-                    style={{ height: `${(v / maxSignup) * 60}px`, backgroundColor: "#3B82F6", minHeight: 4 }}
+                    style={{ height: `${(v / maxSignup) * 60}px`, backgroundColor: "var(--accent)", minHeight: 4 }}
                   />
-                  <span className="text-xs" style={{ color: "#64748B" }}>{WEEK_LABELS[i]}</span>
+                  <span className="text-xs" style={{ color: "var(--text-tertiary)" }}>{WEEK_LABELS[i]}</span>
                 </div>
               ))}
             </div>
@@ -144,10 +146,10 @@ export default function AdminDashboardPage() {
         {/* Main grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
           {/* Recent signups */}
-          <div className="rounded-2xl p-5" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
+          <div className="rounded-2xl p-5 shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-sm font-semibold text-white">Recent Signups</h2>
-              <Link href="/admin/users" className="text-xs font-medium" style={{ color: "#3B82F6" }}>
+              <h2 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Recent Signups</h2>
+              <Link href="/admin/users" className="text-xs font-medium" style={{ color: "var(--accent)" }}>
                 View all
               </Link>
             </div>
@@ -156,25 +158,25 @@ export default function AdminDashboardPage() {
                 <div key={u.id} className="flex items-center gap-3">
                   <div
                     className="flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold text-white flex-shrink-0"
-                    style={{ backgroundColor: "#334155" }}
+                    style={{ backgroundColor: "var(--border-default)" }}
                   >
                     {u.avatar}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-semibold text-white truncate">{u.name}</p>
-                    <p className="text-xs capitalize" style={{ color: "#64748B" }}>{u.role} · {u.joinedDate}</p>
+                    <p className="text-xs font-semibold truncate" style={{ color: "var(--text-primary)" }}>{u.name}</p>
+                    <p className="text-xs capitalize" style={{ color: "var(--text-tertiary)" }}>{u.role} · {u.joinedDate}</p>
                   </div>
-                  <UserPlus size={13} style={{ color: "#475569" }} />
+                  <UserPlus size={13} style={{ color: "var(--text-muted)" }} />
                 </div>
               ))}
             </div>
           </div>
 
           {/* Recent transactions */}
-          <div className="rounded-2xl p-5" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
+          <div className="rounded-2xl p-5 shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-sm font-semibold text-white">Recent Payments</h2>
-              <Link href="/admin/transactions" className="text-xs font-medium" style={{ color: "#3B82F6" }}>
+              <h2 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Recent Payments</h2>
+              <Link href="/admin/transactions" className="text-xs font-medium" style={{ color: "var(--accent)" }}>
                 View all
               </Link>
             </div>
@@ -182,8 +184,8 @@ export default function AdminDashboardPage() {
               {recentTransactions.map((t) => (
                 <div key={t.id} className="flex items-center justify-between gap-2">
                   <div className="min-w-0">
-                    <p className="text-xs font-semibold text-white truncate">{t.userName}</p>
-                    <p className="text-xs truncate" style={{ color: "#64748B" }}>{t.courseName}</p>
+                    <p className="text-xs font-semibold truncate" style={{ color: "var(--text-primary)" }}>{t.userName}</p>
+                    <p className="text-xs truncate" style={{ color: "var(--text-tertiary)" }}>{t.courseName}</p>
                   </div>
                   <span
                     className="text-xs font-bold flex-shrink-0"
@@ -197,10 +199,10 @@ export default function AdminDashboardPage() {
           </div>
 
           {/* Recent activity */}
-          <div className="rounded-2xl p-5" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
+          <div className="rounded-2xl p-5 shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-sm font-semibold text-white">Recent Activity</h2>
-              <Link href="/admin/audit-log" className="text-xs font-medium" style={{ color: "#3B82F6" }}>
+              <h2 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Recent Activity</h2>
+              <Link href="/admin/audit-log" className="text-xs font-medium" style={{ color: "var(--accent)" }}>
                 View all
               </Link>
             </div>
@@ -212,10 +214,10 @@ export default function AdminDashboardPage() {
                     style={{ backgroundColor: severityColors[a.severity] }}
                   />
                   <div className="min-w-0">
-                    <p className="text-xs text-white leading-snug">
+                    <p className="text-xs leading-snug" style={{ color: "var(--text-primary)" }}>
                       <span className="font-semibold">{a.actor}</span> {a.action.toLowerCase()}
                     </p>
-                    <p className="text-xs truncate" style={{ color: "#64748B" }}>{a.target}</p>
+                    <p className="text-xs truncate" style={{ color: "var(--text-tertiary)" }}>{a.target}</p>
                   </div>
                 </div>
               ))}
@@ -226,37 +228,37 @@ export default function AdminDashboardPage() {
         {/* Pending approvals */}
         <div>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-base font-semibold text-white">Pending Approvals</h2>
+            <h2 className="text-base font-semibold" style={{ color: "var(--text-primary)" }}>Pending Approvals</h2>
           </div>
           {pendingUsers.length === 0 && pendingCourses.length === 0 ? (
-            <div className="rounded-2xl p-8 text-center" style={{ backgroundColor: "#1E293B", border: "1px dashed #334155" }}>
-              <CheckCircle2 size={28} className="mx-auto mb-2" style={{ color: "#10B981" }} />
-              <p className="text-sm" style={{ color: "#475569" }}>Nothing pending review right now.</p>
+            <div className="rounded-2xl p-8 text-center shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px dashed var(--border-default)" }}>
+              <CheckCircle2 size={28} className="mx-auto mb-2" style={{ color: "var(--success)" }} />
+              <p className="text-sm" style={{ color: "var(--text-muted)" }}>Nothing pending review right now.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {pendingUsers.map((u) => (
-                <div key={u.id} className="rounded-2xl p-4 flex items-center gap-3" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
+                <div key={u.id} className="rounded-2xl p-4 flex items-center gap-3 shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
                   <div className="flex items-center justify-center w-9 h-9 rounded-lg" style={{ backgroundColor: "#F59E0B20" }}>
-                    <UserPlus size={16} style={{ color: "#F59E0B" }} />
+                    <UserPlus size={16} style={{ color: "var(--warning)" }} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-white truncate">{u.name}</p>
-                    <p className="text-xs capitalize" style={{ color: "#64748B" }}>{u.role} application awaiting review</p>
+                    <p className="text-sm font-semibold truncate" style={{ color: "var(--text-primary)" }}>{u.name}</p>
+                    <p className="text-xs capitalize" style={{ color: "var(--text-tertiary)" }}>{u.role} application awaiting review</p>
                   </div>
-                  <Link href="/admin/users" className="text-xs font-semibold flex-shrink-0" style={{ color: "#3B82F6" }}>Review</Link>
+                  <Link href="/admin/users" className="text-xs font-semibold flex-shrink-0" style={{ color: "var(--accent)" }}>Review</Link>
                 </div>
               ))}
               {pendingCourses.map((c) => (
-                <div key={c.id} className="rounded-2xl p-4 flex items-center gap-3" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
+                <div key={c.id} className="rounded-2xl p-4 flex items-center gap-3 shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
                   <div className="flex items-center justify-center w-9 h-9 rounded-lg" style={{ backgroundColor: "#8B5CF620" }}>
                     <GraduationCap size={16} style={{ color: "#8B5CF6" }} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-white truncate">{c.title}</p>
-                    <p className="text-xs" style={{ color: "#64748B" }}>Course awaiting publish review</p>
+                    <p className="text-sm font-semibold truncate" style={{ color: "var(--text-primary)" }}>{c.title}</p>
+                    <p className="text-xs" style={{ color: "var(--text-tertiary)" }}>Course awaiting publish review</p>
                   </div>
-                  <Link href="/admin/courses" className="text-xs font-semibold flex-shrink-0" style={{ color: "#3B82F6" }}>Review</Link>
+                  <Link href="/admin/courses" className="text-xs font-semibold flex-shrink-0" style={{ color: "var(--accent)" }}>Review</Link>
                 </div>
               ))}
             </div>
@@ -264,8 +266,8 @@ export default function AdminDashboardPage() {
         </div>
 
         {suspendedUsers.length > 0 && (
-          <div className="rounded-2xl p-4 flex items-center gap-3" style={{ backgroundColor: "#EF444410", border: "1px solid #EF444430" }}>
-            <AlertTriangle size={18} style={{ color: "#EF4444" }} />
+          <div className="rounded-2xl p-4 flex items-center gap-3 shadow-sm" style={{ backgroundColor: "#EF444410", border: "1px solid #EF444430" }}>
+            <AlertTriangle size={18} style={{ color: "var(--danger)" }} />
             <p className="text-sm" style={{ color: "#FCA5A5" }}>
               {suspendedUsers.length} account{suspendedUsers.length > 1 ? "s" : ""} currently suspended.{" "}
               <Link href="/admin/users" className="font-semibold" style={{ color: "#F87171" }}>Review in Users →</Link>

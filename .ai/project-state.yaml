@@ -1,0 +1,83 @@
+framework_version: 1.1.0
+project_name: LMS Frontend
+
+# Stack declaration — agents read this to apply correct standards and patterns.
+stack:
+  ui_tool: hand-coded           # UI was hand-coded directly (no Lovable/Figma export)
+  frontend: nextjs              # Next.js 16 + React 19 + Chakra UI v3 + Tailwind v4
+  backend: external             # backend lives outside this repo — not yet onboarded
+  database: unknown
+  migrations: none
+
+current_phase: ui_iteration
+
+# Onboarding note: project had no .ai/ artifacts before this session.
+# Entered via existing-project-onboarding workflow, Entry Point A
+# (UI exists but is not yet client-approved/frozen) -> UI Iteration.
+onboarding:
+  status: in_progress
+  entry_point: A
+  notes: >
+    Existing dark navy/blue UI was hand-built without design tokens.
+    Reverse-engineered current palette (see design-tokens.md) and
+    collected new brand/style direction directly from project owner
+    before starting the enterprise visual refresh.
+
+ui:
+  status: in_progress
+  iteration: 3
+  notes: >
+    Enterprise light-theme rollout complete across the ENTIRE app: shared
+    dashboard shell (Sidebar/Topbar/DashboardLayout), all app/(dashboard)/**
+    screens (admin, student, tutor), the separate /instructor/* portal shell
+    (InstructorSidebar/InstructorPageShell) and all instructor pages
+    (including the two large builders: CourseEditor.tsx, trainings/new),
+    the global SiteHeader (kept dark intentionally as brand chrome, same
+    tokens as the sidebar), all 4 auth pages (instructor + student
+    login/register, split-screen pattern: dark branded panel + light form
+    panel), and all public marketing pages (home, course catalog,
+    instructor directory/profile). Dark mode toggle implemented and
+    verified everywhere. Intentionally left dark (see ADR
+    2026-06-29-video-call-ui-stays-dark.md): the video player
+    (student/videos/[id]), three live "call room" screens
+    (student/live/[id], student/live-session/[id], instructor's
+    live-session/[id]) and their chat panel, and CourseThumbnail's
+    image-legibility scrim.
+    QA note: background agents used for the bulk rollout repeatedly hit
+    session limits/stalls/connection drops, leaving silent partial work
+    in several files (e.g. only 5/471 lines touched in one file despite
+    showing as "modified"). Caught via a var(--) density audit + a
+    hex-boundary regex sweep for border-shorthand strings and an
+    input-text-left-white bug that were missed by quote-anchored
+    substitution. Full safe-color audit is clean as of this iteration.
+    Awaiting client visual sign-off before UI Freeze.
+
+claude_enhancement:
+  status: pending
+
+frontend:
+  status: pending
+
+contracts:
+  status: pending
+  agent: contract-architect
+  workflow: workflows/contract-phase.md
+  openapi: contracts/api/openapi.yaml
+
+schema:
+  status: blocked
+
+backend:
+  status: blocked
+
+integration:
+  status: blocked
+
+qa:
+  status: pending
+
+security:
+  status: pending
+
+release:
+  status: pending

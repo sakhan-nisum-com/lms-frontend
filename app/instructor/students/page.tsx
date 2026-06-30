@@ -106,16 +106,16 @@ const STUDENTS = [
 ]
 
 const STATS = [
-  { label: "Total Enrolled",    value: "3,842", icon: Users,     color: "#3B82F6", bg: "#3B82F615" },
-  { label: "Active This Week",  value: "286",   icon: UserCheck, color: "#10B981", bg: "#10B98115" },
+  { label: "Total Enrolled",    value: "3,842", icon: Users,     color: "var(--accent)", bg: "#3B82F615" },
+  { label: "Active This Week",  value: "286",   icon: UserCheck, color: "var(--success)", bg: "#10B98115" },
   { label: "Avg. Completion",   value: "74%",   icon: TrendingUp,color: "#8B5CF6", bg: "#8B5CF615" },
-  { label: "New This Month",    value: "142",   icon: Calendar,  color: "#F59E0B", bg: "#F59E0B15" },
+  { label: "New This Month",    value: "142",   icon: Calendar,  color: "var(--warning)", bg: "#F59E0B15" },
 ]
 
 const STATUS_MAP: Record<string, { label: string; color: string; bg: string }> = {
-  active:    { label: "Active",    color: "#10B981", bg: "#10B98118" },
-  inactive:  { label: "Inactive",  color: "#64748B", bg: "#33415518" },
-  completed: { label: "Completed", color: "#3B82F6", bg: "#3B82F618" },
+  active:    { label: "Active",    color: "var(--success)", bg: "#10B98118" },
+  inactive:  { label: "Inactive",  color: "var(--text-tertiary)", bg: "#33415518" },
+  completed: { label: "Completed", color: "var(--accent)", bg: "#3B82F618" },
 }
 
 function initials(name: string) {
@@ -156,16 +156,16 @@ export default function StudentsPage() {
           {STATS.map(({ label, value, icon: Icon, color, bg }) => (
             <div
               key={label}
-              className="rounded-2xl p-4"
-              style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
+              className="rounded-2xl p-4 shadow-sm"
+              style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
             >
               <div className="flex items-center justify-between mb-3">
-                <p className="text-xs font-medium" style={{ color: "#64748B" }}>{label}</p>
+                <p className="text-xs font-medium" style={{ color: "var(--text-tertiary)" }}>{label}</p>
                 <div className="flex items-center justify-center w-8 h-8 rounded-xl" style={{ backgroundColor: bg }}>
                   <Icon size={15} style={{ color }} />
                 </div>
               </div>
-              <p className="text-2xl font-bold text-white">{value}</p>
+              <p className="text-2xl font-bold" style={{ color: "var(--text-primary)" }}>{value}</p>
             </div>
           ))}
         </div>
@@ -174,15 +174,15 @@ export default function StudentsPage() {
         <div className="flex flex-col sm:flex-row gap-3">
           <div
             className="flex items-center gap-2 px-3 py-2.5 rounded-xl flex-1 max-w-sm"
-            style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
+            style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
           >
-            <Search size={14} style={{ color: "#475569" }} />
+            <Search size={14} style={{ color: "var(--text-muted)" }} />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by name or email..."
               className="bg-transparent outline-none text-sm flex-1 placeholder-slate-600"
-              style={{ color: "#F8FAFC" }}
+              style={{ color: "var(--text-primary)" }}
             />
           </div>
 
@@ -193,9 +193,9 @@ export default function StudentsPage() {
                 onClick={() => setStatusFilter(s)}
                 className="px-3 py-2 rounded-xl text-xs font-medium capitalize transition-colors"
                 style={{
-                  backgroundColor: statusFilter === s ? "#334155" : "#1E293B",
-                  color: statusFilter === s ? "#F8FAFC" : "#64748B",
-                  border: "1px solid #334155",
+                  backgroundColor: statusFilter === s ? "var(--border-default)" : "var(--bg-surface)",
+                  color: statusFilter === s ? "var(--text-primary)" : "var(--text-tertiary)",
+                  border: "1px solid var(--border-default)",
                 }}
               >
                 {s === "all" ? "All" : s.charAt(0).toUpperCase() + s.slice(1)}
@@ -216,16 +216,16 @@ export default function StudentsPage() {
 
         {/* Table */}
         <div
-          className="rounded-2xl overflow-hidden"
-          style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
+          className="rounded-2xl overflow-hidden shadow-sm"
+          style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
         >
           {/* Table header */}
           <div
             className="grid items-center px-5 py-3 text-xs font-semibold uppercase tracking-wide"
             style={{
               gridTemplateColumns: "32px 1fr 120px 160px 110px 90px 40px",
-              borderBottom: "1px solid #334155",
-              color: "#475569",
+              borderBottom: "1px solid var(--border-default)",
+              color: "var(--text-muted)",
             }}
           >
             <input
@@ -243,7 +243,7 @@ export default function StudentsPage() {
           </div>
 
           {/* Rows */}
-          <div className="divide-y" style={{ borderColor: "#334155" }}>
+          <div className="divide-y" style={{ borderColor: "var(--border-default)" }}>
             {filtered.map((student, i) => {
               const avatarColor = AVATAR_COLORS[i % AVATAR_COLORS.length]
               const isSelected = selected.includes(student.id)
@@ -273,8 +273,8 @@ export default function StudentsPage() {
                       {initials(student.name)}
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-medium text-white truncate">{student.name}</p>
-                      <p className="text-xs truncate" style={{ color: "#64748B" }}>{student.email}</p>
+                      <p className="text-sm font-medium truncate" style={{ color: "var(--text-primary)" }}>{student.name}</p>
+                      <p className="text-xs truncate" style={{ color: "var(--text-tertiary)" }}>{student.email}</p>
                     </div>
                   </div>
 
@@ -290,11 +290,11 @@ export default function StudentsPage() {
 
                   {/* Courses */}
                   <div className="hidden md:block min-w-0">
-                    <p className="text-xs truncate" style={{ color: "#94A3B8" }}>
+                    <p className="text-xs truncate" style={{ color: "var(--text-secondary)" }}>
                       {student.courses[0]}
                     </p>
                     {student.courses.length > 1 && (
-                      <p className="text-xs" style={{ color: "#475569" }}>
+                      <p className="text-xs" style={{ color: "var(--text-muted)" }}>
                         +{student.courses.length - 1} more
                       </p>
                     )}
@@ -303,16 +303,16 @@ export default function StudentsPage() {
                   {/* Progress */}
                   <div className="hidden md:block">
                     <div className="flex items-center gap-2">
-                      <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: "#334155" }}>
+                      <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: "var(--border-default)" }}>
                         <div
                           className="h-full rounded-full"
                           style={{
                             width: `${student.progress}%`,
-                            backgroundColor: student.progress === 100 ? "#10B981" : "#3B82F6",
+                            backgroundColor: student.progress === 100 ? "var(--success)" : "var(--accent)",
                           }}
                         />
                       </div>
-                      <span className="text-xs font-medium w-8 text-right" style={{ color: "#94A3B8" }}>
+                      <span className="text-xs font-medium w-8 text-right" style={{ color: "var(--text-secondary)" }}>
                         {student.progress}%
                       </span>
                     </div>
@@ -320,13 +320,13 @@ export default function StudentsPage() {
 
                   {/* Last active */}
                   <div className="hidden lg:block">
-                    <p className="text-xs" style={{ color: "#64748B" }}>{student.lastActive}</p>
+                    <p className="text-xs" style={{ color: "var(--text-tertiary)" }}>{student.lastActive}</p>
                   </div>
 
                   {/* Actions */}
                   <button
                     className="p-1.5 rounded-lg hover:bg-white/5 transition-colors"
-                    style={{ color: "#64748B" }}
+                    style={{ color: "var(--text-tertiary)" }}
                   >
                     <MoreHorizontal size={14} />
                   </button>
@@ -338,7 +338,7 @@ export default function StudentsPage() {
           {/* Footer */}
           <div
             className="flex items-center justify-between px-5 py-3 text-xs"
-            style={{ borderTop: "1px solid #334155", color: "#475569" }}
+            style={{ borderTop: "1px solid var(--border-default)", color: "var(--text-muted)" }}
           >
             <span>Showing {filtered.length} of {STUDENTS.length} students</span>
             <div className="flex items-center gap-1">
@@ -347,14 +347,14 @@ export default function StudentsPage() {
                   key={p}
                   className="w-7 h-7 rounded-lg text-xs font-medium transition-colors"
                   style={{
-                    backgroundColor: p === 1 ? "#3B82F6" : "transparent",
-                    color: p === 1 ? "#fff" : "#64748B",
+                    backgroundColor: p === 1 ? "var(--accent)" : "transparent",
+                    color: p === 1 ? "#fff" : "var(--text-tertiary)",
                   }}
                 >
                   {p}
                 </button>
               ))}
-              <button className="w-7 h-7 rounded-lg text-xs font-medium transition-colors hover:bg-white/5 flex items-center justify-center" style={{ color: "#64748B" }}>
+              <button className="w-7 h-7 rounded-lg text-xs font-medium transition-colors hover:bg-white/5 flex items-center justify-center" style={{ color: "var(--text-tertiary)" }}>
                 <ChevronDown size={12} style={{ transform: "rotate(-90deg)" }} />
               </button>
             </div>
@@ -363,10 +363,10 @@ export default function StudentsPage() {
 
         {/* Course enrollment breakdown */}
         <div
-          className="rounded-2xl p-5"
-          style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
+          className="rounded-2xl p-5 shadow-sm"
+          style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
         >
-          <h3 className="text-sm font-semibold text-white mb-4">Enrollment by Course</h3>
+          <h3 className="text-sm font-semibold mb-4" style={{ color: "var(--text-primary)" }}>Enrollment by Course</h3>
           <div className="space-y-3">
             {[
               { name: "React & TypeScript Masterclass", count: 1204, max: 1204, color: "#3B82F6" },
@@ -375,14 +375,14 @@ export default function StudentsPage() {
               { name: "GraphQL with Apollo",            count: 312,  max: 1204, color: "#EC4899" },
             ].map(({ name, count, max, color }) => (
               <div key={name} className="flex items-center gap-3">
-                <p className="text-xs w-48 truncate flex-shrink-0" style={{ color: "#94A3B8" }}>{name}</p>
-                <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ backgroundColor: "#334155" }}>
+                <p className="text-xs w-48 truncate flex-shrink-0" style={{ color: "var(--text-secondary)" }}>{name}</p>
+                <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ backgroundColor: "var(--border-default)" }}>
                   <div
                     className="h-full rounded-full transition-all"
                     style={{ width: `${(count / max) * 100}%`, backgroundColor: color }}
                   />
                 </div>
-                <span className="text-xs font-semibold w-12 text-right text-white">{count.toLocaleString()}</span>
+                <span className="text-xs font-semibold w-12 text-right" style={{ color: "var(--text-primary)" }}>{count.toLocaleString()}</span>
               </div>
             ))}
           </div>

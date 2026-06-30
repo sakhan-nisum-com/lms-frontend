@@ -26,9 +26,9 @@ const TABS = [
 ]
 
 const STATUS_MAP: Record<string, { label: string; color: string; bg: string }> = {
-  published: { label: "Published", color: "#10B981", bg: "#10B98118" },
-  draft:     { label: "Draft",     color: "#64748B", bg: "#33415518" },
-  review:    { label: "In Review", color: "#F59E0B", bg: "#F59E0B18" },
+  published: { label: "Published", color: "var(--success)", bg: "#10B98118" },
+  draft:     { label: "Draft",     color: "var(--text-tertiary)", bg: "#33415518" },
+  review:    { label: "In Review", color: "var(--warning)", bg: "#F59E0B18" },
 }
 
 function StatusBadge({ status }: { status: string }) {
@@ -48,8 +48,8 @@ function CourseCard({ course }: { course: (typeof COURSES)[0] }) {
 
   return (
     <div
-      className="rounded-2xl overflow-hidden flex flex-col transition-colors"
-      style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
+      className="rounded-2xl overflow-hidden flex flex-col transition-colors shadow-sm"
+      style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
     >
       {/* Thumbnail */}
       <div
@@ -69,7 +69,7 @@ function CourseCard({ course }: { course: (typeof COURSES)[0] }) {
           <button
             onClick={() => setMenuOpen(!menuOpen)}
             className="p-1.5 rounded-lg transition-colors hover:bg-white/10"
-            style={{ color: "#94A3B8" }}
+            style={{ color: "var(--text-secondary)" }}
           >
             <MoreHorizontal size={15} />
           </button>
@@ -78,12 +78,12 @@ function CourseCard({ course }: { course: (typeof COURSES)[0] }) {
               <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} />
               <div
                 className="absolute right-0 top-8 z-20 w-36 rounded-xl overflow-hidden py-1"
-                style={{ backgroundColor: "#0F172A", border: "1px solid #334155" }}
+                style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)" }}
               >
                 {[
-                  { icon: Edit2,  label: "Edit course",  color: "#94A3B8" },
-                  { icon: Eye,    label: "Preview",       color: "#94A3B8" },
-                  { icon: Trash2, label: "Delete",        color: "#EF4444" },
+                  { icon: Edit2,  label: "Edit course",  color: "var(--text-secondary)" },
+                  { icon: Eye,    label: "Preview",       color: "var(--text-secondary)" },
+                  { icon: Trash2, label: "Delete",        color: "var(--danger)" },
                 ].map(({ icon: Icon, label, color }) => (
                   <button
                     key={label}
@@ -109,15 +109,15 @@ function CourseCard({ course }: { course: (typeof COURSES)[0] }) {
         >
           {course.category}
         </span>
-        <h3 className="text-sm font-semibold text-white leading-snug mb-1.5 line-clamp-2">
+        <h3 className="text-sm font-semibold leading-snug mb-1.5 line-clamp-2" style={{ color: "var(--text-primary)" }}>
           {course.title}
         </h3>
-        <p className="text-xs leading-relaxed mb-4 flex-1 line-clamp-2" style={{ color: "#64748B" }}>
+        <p className="text-xs leading-relaxed mb-4 flex-1 line-clamp-2" style={{ color: "var(--text-tertiary)" }}>
           {course.description}
         </p>
 
         {/* Stats */}
-        <div className="flex items-center gap-3 text-xs mb-3" style={{ color: "#64748B" }}>
+        <div className="flex items-center gap-3 text-xs mb-3" style={{ color: "var(--text-tertiary)" }}>
           <span className="flex items-center gap-1">
             <Users size={11} /> {course.students.toLocaleString()}
           </span>
@@ -129,21 +129,21 @@ function CourseCard({ course }: { course: (typeof COURSES)[0] }) {
           </span>
         </div>
 
-        <div className="flex items-center justify-between pt-3" style={{ borderTop: "1px solid #334155" }}>
+        <div className="flex items-center justify-between pt-3" style={{ borderTop: "1px solid var(--border-default)" }}>
           <div>
-            <span className="text-sm font-bold text-white">{course.price}</span>
-            <p className="text-xs mt-0.5" style={{ color: "#475569" }}>
-              Revenue: <span style={{ color: "#64748B" }}>{course.revenue}</span>
+            <span className="text-sm font-bold" style={{ color: "var(--text-primary)" }}>{course.price}</span>
+            <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>
+              Revenue: <span style={{ color: "var(--text-tertiary)" }}>{course.revenue}</span>
             </p>
           </div>
           {course.rating > 0 ? (
-            <span className="flex items-center gap-1 text-xs font-medium" style={{ color: "#F59E0B" }}>
+            <span className="flex items-center gap-1 text-xs font-medium" style={{ color: "var(--warning)" }}>
               <Star size={12} fill="#F59E0B" />
               {course.rating}
-              <span style={{ color: "#475569" }}>({course.reviews})</span>
+              <span style={{ color: "var(--text-muted)" }}>({course.reviews})</span>
             </span>
           ) : (
-            <span className="text-xs" style={{ color: "#475569" }}>No reviews yet</span>
+            <span className="text-xs" style={{ color: "var(--text-muted)" }}>No reviews yet</span>
           )}
         </div>
 
@@ -158,7 +158,7 @@ function CourseCard({ course }: { course: (typeof COURSES)[0] }) {
           <Link
             href={`/instructor/courses/${course.id}`}
             className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold transition-colors hover:bg-white/5"
-            style={{ backgroundColor: "#334155", color: "#CBD5E1" }}
+            style={{ backgroundColor: "var(--border-default)", color: "var(--text-secondary)" }}
           >
             <Eye size={12} /> Preview
           </Link>
@@ -190,7 +190,7 @@ export default function CoursesPage() {
         <Link
           href="/instructor/courses/new"
           className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-semibold text-white hover:opacity-90"
-          style={{ backgroundColor: "#3B82F6" }}
+          style={{ backgroundColor: "var(--accent)" }}
         >
           <Plus size={15} />
           <span className="hidden sm:inline">New Course</span>
@@ -200,23 +200,23 @@ export default function CoursesPage() {
       <div className="space-y-5">
         {/* Tabs + search */}
         <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-          <div className="flex items-center gap-1 p-1 rounded-xl" style={{ backgroundColor: "#1E293B" }}>
+          <div className="flex items-center gap-1 p-1 rounded-xl" style={{ backgroundColor: "var(--bg-surface)" }}>
             {TABS.map((tab) => (
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
                 style={{
-                  backgroundColor: activeTab === tab.key ? "#334155" : "transparent",
-                  color: activeTab === tab.key ? "#F8FAFC" : "#64748B",
+                  backgroundColor: activeTab === tab.key ? "var(--border-default)" : "transparent",
+                  color: activeTab === tab.key ? "var(--text-primary)" : "var(--text-tertiary)",
                 }}
               >
                 {tab.label}
                 <span
                   className="px-1.5 py-0.5 rounded-full text-xs font-bold"
                   style={{
-                    backgroundColor: activeTab === tab.key ? "#3B82F6" : "#33415580",
-                    color: activeTab === tab.key ? "#fff" : "#64748B",
+                    backgroundColor: activeTab === tab.key ? "var(--accent)" : "#33415580",
+                    color: activeTab === tab.key ? "#fff" : "var(--text-tertiary)",
                   }}
                 >
                   {tab.count}
@@ -231,9 +231,9 @@ export default function CoursesPage() {
               onChange={(e) => setCategory(e.target.value)}
               className="px-3 py-2 rounded-xl text-sm outline-none appearance-none"
               style={{
-                backgroundColor: "#1E293B",
-                border: "1px solid #334155",
-                color: category === "all" ? "#64748B" : "#F8FAFC",
+                backgroundColor: "var(--bg-surface)",
+                border: "1px solid var(--border-default)",
+                color: category === "all" ? "var(--text-tertiary)" : "var(--text-primary)",
               }}
             >
               <option value="all">All Categories</option>
@@ -244,15 +244,15 @@ export default function CoursesPage() {
 
             <div
               className="flex items-center gap-2 px-3 py-2 rounded-xl"
-              style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
+              style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
             >
-              <Search size={13} style={{ color: "#475569" }} />
+              <Search size={13} style={{ color: "var(--text-muted)" }} />
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search courses..."
                 className="bg-transparent outline-none text-sm w-40 placeholder-slate-600"
-                style={{ color: "#F8FAFC" }}
+                style={{ color: "var(--text-primary)" }}
               />
             </div>
           </div>
@@ -267,17 +267,17 @@ export default function CoursesPage() {
           </div>
         ) : (
           <div
-            className="flex flex-col items-center justify-center py-20 rounded-2xl"
-            style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
+            className="flex flex-col items-center justify-center py-20 rounded-2xl shadow-sm"
+            style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
           >
-            <BookOpen size={36} style={{ color: "#334155" }} />
-            <p className="mt-3 text-sm font-medium" style={{ color: "#64748B" }}>
+            <BookOpen size={36} style={{ color: "var(--border-default)" }} />
+            <p className="mt-3 text-sm font-medium" style={{ color: "var(--text-tertiary)" }}>
               No courses found
             </p>
             <Link
               href="/instructor/courses/new"
               className="mt-4 flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white hover:opacity-90"
-              style={{ backgroundColor: "#3B82F6" }}
+              style={{ backgroundColor: "var(--accent)" }}
             >
               <Plus size={14} /> Create your first course
             </Link>

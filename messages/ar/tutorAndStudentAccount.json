@@ -1,0 +1,313 @@
+{
+  "tutorDashboard": {
+    "title": "لوحة تحكم المدرب",
+    "subtitle": "هذا أداء دوراتك خلال هذا الشهر.",
+    "newCourse": "دورة جديدة",
+    "stats": {
+      "activeCourses": "الدورات النشطة",
+      "totalStudents": "إجمالي الطلاب",
+      "avgRating": "التقييم المتوسط",
+      "monthlyRevenue": "الإيرادات الشهرية"
+    },
+    "myCourses": "دوراتي",
+    "manageAll": "إدارة الكل",
+    "table": {
+      "course": "الدورة",
+      "students": "الطلاب",
+      "rating": "التقييم",
+      "status": "الحالة"
+    }
+    ,
+    "statusValues": {
+      "Published": "منشورة",
+      "Draft": "مسودة"
+    },
+    "analyticsComingSoon": "التحليلات التفصيلية ومخططات الإيرادات ومدى تفاعل الطلاب قريبًا"
+  },
+  "tutorStudyGroups": {
+    "title": "مجموعات الدراسة",
+    "subtitle": "أنشئ مجموعات دراسة لبرامجك التدريبية وأدر أعضاءها.",
+    "createGroup": "إنشاء مجموعة دراسة",
+    "form": {
+      "training": "البرنامج التدريبي",
+      "groupName": "اسم المجموعة",
+      "groupNamePlaceholder": "مثال: مجموعة التحضير لمشروع التخرج",
+      "description": "الوصف",
+      "descriptionPlaceholder": "على ماذا ستركز هذه المجموعة؟",
+      "icon": "الأيقونة",
+      "color": "اللون",
+      "addMembers": "إضافة أعضاء"
+    },
+    "createGroupAction": "إنشاء المجموعة",
+    "members": "{count} أعضاء",
+    "unknownTraining": "برنامج تدريبي غير معروف",
+    "noMembersYet": "لا يوجد أعضاء بعد",
+    "selectStudentPlaceholder": "اختر طالبًا…",
+    "addAction": "إضافة",
+    "addPeople": "إضافة أشخاص",
+    "emptyState": "لا توجد مجموعات دراسة بعد. أنشئ واحدة أعلاه."
+  },
+  "studentMyLearning": {
+    "title": "تعلّمي",
+    "summary": "{courses} دورات · {trainings} برامج تدريبية · {completed} مكتملة",
+    "browseCatalog": "تصفح الكتالوج",
+    "myCourses": "دوراتي",
+    "myTrainings": "برامجي التدريبية",
+    "viewAllCourses": "عرض كل الدورات",
+    "viewAllTrainings": "عرض كل البرامج التدريبية",
+    "noCoursesYet": "لا توجد دورات بعد",
+    "browseTheCatalog": "تصفح الكتالوج",
+    "noTrainingsYet": "لا توجد برامج تدريبية بعد",
+    "browseTrainingTracks": "تصفح مسارات التدريب",
+    "progress": "التقدم",
+    "viewDetails": "عرض التفاصيل",
+    "certificate": "الشهادة",
+    "resume": "استكمال",
+    "grade": "الدرجة: {grade}%"
+  },
+  "studentMyTrainings": {
+    "title": "برامجي التدريبية",
+    "summary": "{enrolled} مسجَّل · {completed} مكتمل · {inProgress} قيد التقدم",
+    "browseCatalog": "تصفح الكتالوج",
+    "stats": {
+      "enrolledPrograms": "البرامج المسجَّلة",
+      "completed": "مكتملة",
+      "inProgress": "قيد التقدم",
+      "mandatoryDone": "الإلزامي المكتمل"
+    },
+    "allCategories": "كل الفئات",
+    "tabs": {
+      "all": "الكل",
+      "in-progress": "قيد التقدم",
+      "completed": "مكتمل",
+      "not-started": "لم يبدأ"
+    },
+    "emptyState": "لا توجد برامج تدريبية في هذه الفئة"
+  },
+  "studentMyWorkshops": {
+    "title": "ورش عملي",
+    "summary": "{count} مسجَّل · {hours} ساعة من الجلسات المباشرة",
+    "browseWorkshops": "تصفح الورش",
+    "stats": {
+      "registered": "مسجَّل",
+      "liveHours": "ساعات مباشرة",
+      "nextUp": "القادم"
+    },
+    "emptyState": "لم تسجَّل في أي ورشة بعد",
+    "emptyStateDesc": "تصفح الجلسات التطبيقية القادمة واحجز مقعدك."
+  },
+  "studentProfile": {
+    "editProfile": "تعديل الملف الشخصي",
+    "stats": {
+      "hoursLearned": "ساعات التعلّم",
+      "coursesDone": "الدورات المكتملة",
+      "certificates": "الشهادات",
+      "streak": "التتابع"
+    },
+    "certificates": "الشهادات",
+    "viewAll": "عرض الكل",
+    "issued": "صدرت في {date}",
+    "gradePercent": "الدرجة {grade}%",
+    "learningGoal": "هدف التعلّم"
+  },
+  "studentSettings": {
+    "title": "الإعدادات",
+    "subtitle": "إدارة ملفك الشخصي وتفضيلاتك وإعدادات حسابك",
+    "tabs": {
+      "profile": "الملف الشخصي",
+      "notifications": "الإشعارات",
+      "privacy": "الخصوصية والأمان",
+      "learning": "التعلّم",
+      "appearance": "المظهر"
+    },
+    "personalInformation": "المعلومات الشخصية",
+    "changePhoto": "تغيير الصورة",
+    "fullName": "الاسم الكامل",
+    "jobTitle": "المسمى الوظيفي",
+    "emailAddress": "البريد الإلكتروني",
+    "department": "القسم",
+    "bio": "نبذة شخصية",
+    "socialLinks": "روابط التواصل",
+    "linkedIn": "لينكدإن",
+    "github": "جيت هاب",
+    "website": "الموقع الإلكتروني",
+    "websitePlaceholder": "https://yourwebsite.com",
+    "notificationPreferences": "تفضيلات الإشعارات",
+    "notifs": {
+      "courseAnnouncements": { "label": "إعلانات الدورة", "desc": "محتوى جديد، تغييرات في الجدول، تحديثات من المدرب" },
+      "assignmentReminders": { "label": "تذكيرات الواجبات", "desc": "قبل 48 و24 ساعة من تاريخ التسليم" },
+      "quizReminders": { "label": "تذكيرات الاختبارات", "desc": "مواعيد الاختبارات القادمة" },
+      "discussionReplies": { "label": "ردود النقاشات", "desc": "عند رد أحدهم على مواضيعك" },
+      "liveSessionReminders": { "label": "تذكيرات الجلسات المباشرة", "desc": "قبل ساعة واحدة من الجلسات المباشرة" },
+      "streakReminders": { "label": "تذكيرات التتابع", "desc": "تنبيه يومي للحفاظ على تتابع تعلّمك" },
+      "weeklyDigest": { "label": "الملخص الأسبوعي", "desc": "ملخص تقدمك الأسبوعي كل يوم اثنين" },
+      "certificateEarned": { "label": "الحصول على شهادة", "desc": "عند حصولك على شهادة جديدة" }
+    },
+    "deliveryChannels": "قنوات الإشعارات",
+    "channels": {
+      "email": "البريد الإلكتروني",
+      "push": "إشعارات المتصفح"
+    },
+    "profileVisibility": "ظهور الملف الشخصي",
+    "visibilityOptions": {
+      "leaderboards": { "label": "إظهار ملفي في لوحات الصدارة", "desc": "قد يظهر اسمك وتقدمك في لوحات صدارة الدورات" },
+      "badges": { "label": "إظهار شعارات الإنجاز للجميع", "desc": "يمكن للطلاب الآخرين رؤية شهاداتك المكتسبة" },
+      "peerConnections": { "label": "السماح بتواصل الزملاء", "desc": "يمكن للطلاب الآخرين دعوتك إلى مجموعات الدراسة" }
+    },
+    "security": "الأمان",
+    "changePassword": "تغيير كلمة المرور",
+    "lastChanged": "آخر تغيير قبل 3 أشهر",
+    "update": "تحديث",
+    "twoFactor": "المصادقة الثنائية",
+    "twoFactorDesc": "أضف طبقة حماية إضافية",
+    "notEnabled": "غير مفعّلة",
+    "learningPreferences": "تفضيلات التعلّم",
+    "weeklyLearningGoal": "هدف التعلّم الأسبوعي (ساعات)",
+    "hoursPerWeek": "{hours} ساعة/أسبوع",
+    "timezone": "المنطقة الزمنية",
+    "language": "اللغة",
+    "learningGoal": "هدف التعلّم",
+    "learningGoalDesc": "صِف هدفك التعليمي المهني.",
+    "appearance": "المظهر",
+    "theme": "السمة",
+    "themes": {
+      "dark": "كحلي غامق",
+      "darker": "أسود عميق"
+    },
+    "accentColor": "اللون المميز",
+    "compactMode": "العرض المضغوط",
+    "compactModeDesc": "تقليل التباعد لعرض محتوى أكثر على الشاشة",
+    "saveChanges": "حفظ التغييرات",
+    "saved": "تم الحفظ!"
+  },
+  "studentStudyGroups": {
+    "title": "مجموعات الدراسة",
+    "subtitle": "تعاون مع زملائك في برامجك التدريبية، وشارك الملاحظات، وتعلّموا معًا.",
+    "emptyState": "لا توجد مجموعات دراسة بعد.",
+    "viewTraining": "عرض البرنامج التدريبي"
+  },
+  "studentDiscussions": {
+    "title": "النقاشات",
+    "summary": "{count} مواضيع عبر دوراتك وبرامجك التدريبية",
+    "newThread": "موضوع جديد",
+    "searchPlaceholder": "البحث في النقاشات...",
+    "allCoursesAndTrainings": "كل الدورات والبرامج التدريبية",
+    "courses": "الدورات",
+    "trainings": "البرامج التدريبية",
+    "pinned": "مثبَّت",
+    "allThreads": "كل المواضيع",
+    "repliesAndViews": "{replies} ردود · {views} مشاهدة",
+    "repliesAndDate": "{replies} ردود · {date}",
+    "noThreadsFound": "لم يتم العثور على مواضيع",
+    "solved": "محلول",
+    "instructor": "مدرب",
+    "noRepliesYet": "لا توجد ردود بعد — كن أول من يرد.",
+    "likes": "{count} إعجاب",
+    "replyPlaceholder": "اكتب ردًا...",
+    "selectThreadToRead": "اختر موضوعًا لقراءته"
+  },
+  "studentSchedule": {
+    "title": "الجدول الزمني",
+    "summary": "{count} فعاليات قادمة · {month}",
+    "today": "اليوم — {date}",
+    "joinInLms": "الانضمام عبر النظام",
+    "joinMeeting": "الانضمام إلى الاجتماع",
+    "upcomingEvents": "الفعاليات القادمة",
+    "todayShort": "اليوم",
+    "moreEvents": "+{count} أخرى",
+    "legend": {
+      "live-session": "جلسة مباشرة",
+      "assignment-due": "تسليم واجب",
+      "quiz": "اختبار قصير",
+      "exam": "امتحان",
+      "workshop": "ورشة عمل",
+      "office-hours": "ساعات مكتبية"
+    },
+    "days": {
+      "sun": "أحد",
+      "mon": "إثنين",
+      "tue": "ثلاثاء",
+      "wed": "أربعاء",
+      "thu": "خميس",
+      "fri": "جمعة",
+      "sat": "سبت"
+    },
+    "months": {
+      "0": "يناير", "1": "فبراير", "2": "مارس", "3": "أبريل", "4": "مايو", "5": "يونيو",
+      "6": "يوليو", "7": "أغسطس", "8": "سبتمبر", "9": "أكتوبر", "10": "نوفمبر", "11": "ديسمبر"
+    }
+  },
+  "studentProgress": {
+    "title": "التقدم والتحليلات",
+    "subtitle": "رحلتك التعليمية في نظرة واحدة — آخر تحديث {date}",
+    "stats": {
+      "hoursLearned": "ساعات التعلّم",
+      "hoursLearnedSub": "إجمالي مدى الحياة",
+      "avgGrade": "المعدل المتوسط",
+      "avgGradeSub": "عبر الواجبات",
+      "quizzesPassed": "الاختبارات الناجحة",
+      "quizzesPassedSub": "بمعدل {pct}%",
+      "currentStreak": "التتابع الحالي",
+      "currentStreakSub": "حافظ على الاستمرار!",
+      "streakDays": "{days} أيام"
+    },
+    "weeklyActivity": "النشاط الأسبوعي للتعلّم",
+    "last8Weeks": "آخر 8 أسابيع",
+    "totalThisMonth": "إجمالي هذا الشهر:",
+    "vsLastMonth": "مقارنة بالشهر الماضي:",
+    "weeklyGoal": "الهدف الأسبوعي:",
+    "courseProgressBreakdown": "تفصيل تقدم الدورات",
+    "lessonsCount": "{completed}/{total} درس",
+    "gradeSuffix": " · الدرجة: {grade}%",
+    "activityHeatmap": "خريطة النشاط الحرارية",
+    "last28Days": "آخر 28 يومًا",
+    "less": "أقل",
+    "more": "أكثر",
+    "skillsProgress": "تقدم المهارات",
+    "timeByCategory": "الوقت حسب الفئة",
+    "achievements": "الإنجازات",
+    "earned": "تم الحصول عليها: {date}",
+    "notYetEarned": "لم يتم الحصول عليها بعد",
+    "learningGoal": "هدف التعلّم",
+    "goals": {
+      "completeReact": "إكمال دورة React",
+      "passTypeScript": "النجاح في الوحدة 2 من TypeScript",
+      "gdprCert": "شهادة الامتثال لـ GDPR",
+      "cyberCert": "شهادة الأمن السيبراني ✓",
+      "deiCert": "شهادة التنوع والشمول ✓"
+    }
+  },
+  "studentCertificates": {
+    "title": "شهاداتي",
+    "summary": "{count} شهادات مكتسبة · بيانات اعتماد قابلة للتحقق على ملفك الشخصي",
+    "stats": {
+      "certificatesEarned": "الشهادات المكتسبة",
+      "skillsDemonstrated": "المهارات المُثبتة",
+      "avgGrade": "المعدل المتوسط"
+    },
+    "noCertificatesYet": "لا توجد شهادات بعد",
+    "noCertificatesDesc": "أكمل كل درس في الدورة للحصول على شهادتها.",
+    "inProgress": "قيد التقدم",
+    "issued": "صدرت في {date}",
+    "gradePercent": "الدرجة {grade}%",
+    "allCertificates": "كل الشهادات",
+    "noCertificateForCourse": "لا توجد شهادة بعد لـ \"{title}\"",
+    "certificateNotFound": "الشهادة غير موجودة",
+    "finishToEarn": "أكمل كل درس في هذه الدورة للحصول على شهادتها.",
+    "certificateNo": "رقم الشهادة:",
+    "certificateUrl": "رابط الشهادة: {url}",
+    "referenceNumber": "الرقم المرجعي: {ref}",
+    "certificateOfCompletion": "شهادة إتمام",
+    "instructors": "المدربون",
+    "dateLabel": "التاريخ",
+    "lengthLabel": "المدة",
+    "verifiesText": "تثبت هذه الشهادة أعلاه أن {studentName} أكمل بنجاح دورة {courseName} في {date} بإشراف {instructorName} عبر LearnFlow. تشير الشهادة إلى أن الدورة كاملة قد أُنجزت كما تحقق منها المتعلّم. تمثل مدة الدورة إجمالي ساعات الفيديو والمحتوى التعليمي عبر {lessons} درسًا.",
+    "skillsDemonstratedTitle": "المهارات المُثبتة",
+    "certificateRecipient": "مستلم الشهادة:",
+    "aboutTheCourse": "عن الدورة:",
+    "totalLectures": "{duration} إجمالاً · {lessons} محاضرة",
+    "download": "تنزيل",
+    "share": "مشاركة",
+    "backToCourse": "العودة إلى الدورة"
+  }
+}

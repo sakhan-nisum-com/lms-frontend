@@ -22,8 +22,8 @@ export function RecommendedSection({ title, items }: RecommendedSectionProps) {
   if (items.length === 0) return null
 
   return (
-    <div className="rounded-2xl p-5" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
-      <h3 className="text-sm font-bold text-white mb-4">{title}</h3>
+    <div className="rounded-2xl p-5 shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
+      <h3 className="text-sm font-bold mb-4" style={{ color: "var(--text-primary)" }}>{title}</h3>
       <div className="space-y-1">
         {items.map((item) => (
           <Link
@@ -31,7 +31,7 @@ export function RecommendedSection({ title, items }: RecommendedSectionProps) {
             href={item.href}
             className="flex items-center gap-3 p-2 rounded-xl transition-colors"
             style={{ textDecoration: "none" }}
-            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#0F172A")}
+            onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "var(--bg-surface-muted)")}
             onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
           >
             <div
@@ -41,14 +41,14 @@ export function RecommendedSection({ title, items }: RecommendedSectionProps) {
               {item.thumbnail}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-white truncate leading-snug">{item.title}</p>
-              <p className="text-xs truncate mt-0.5" style={{ color: "#64748B" }}>{item.meta}</p>
+              <p className="text-sm font-semibold truncate leading-snug" style={{ color: "var(--text-primary)" }}>{item.title}</p>
+              <p className="text-xs truncate mt-0.5" style={{ color: "var(--text-tertiary)" }}>{item.meta}</p>
               {item.rating !== undefined && (
                 <div className="flex items-center gap-1 mt-0.5">
-                  <span className="text-xs font-bold" style={{ color: "#F59E0B" }}>{item.rating}</span>
-                  <Star size={10} fill="#F59E0B" style={{ color: "#F59E0B" }} />
+                  <span className="text-xs font-bold" style={{ color: "var(--warning)" }}>{item.rating}</span>
+                  <Star size={10} fill="#F59E0B" style={{ color: "var(--warning)" }} />
                   {item.reviewCount !== undefined && (
-                    <span className="text-xs" style={{ color: "#475569" }}>({item.reviewCount.toLocaleString()})</span>
+                    <span className="text-xs" style={{ color: "var(--text-muted)" }}>({item.reviewCount.toLocaleString()})</span>
                   )}
                 </div>
               )}
@@ -56,7 +56,7 @@ export function RecommendedSection({ title, items }: RecommendedSectionProps) {
             {item.priceLabel && (
               <span
                 className="text-sm font-bold flex-shrink-0"
-                style={{ color: item.priceLabel === "Free" ? "#10B981" : "#F8FAFC" }}
+                style={{ color: item.priceLabel === "Free" ? "var(--success)" : "var(--text-primary)" }}
               >
                 {item.priceLabel}
               </span>

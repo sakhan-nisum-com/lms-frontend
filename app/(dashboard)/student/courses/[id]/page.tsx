@@ -27,12 +27,12 @@ const levelColors: Record<string, string> = { Beginner: "#10B981", Intermediate:
 
 const lessonTypeIcon = (type: string) => {
   switch (type) {
-    case "video": return <Video size={13} style={{ color: "#3B82F6" }} />
+    case "video": return <Video size={13} style={{ color: "var(--accent)" }} />
     case "quiz": return <HelpCircle size={13} style={{ color: "#8B5CF6" }} />
-    case "reading": return <FileText size={13} style={{ color: "#10B981" }} />
-    case "assignment": return <PenLine size={13} style={{ color: "#F59E0B" }} />
+    case "reading": return <FileText size={13} style={{ color: "var(--success)" }} />
+    case "assignment": return <PenLine size={13} style={{ color: "var(--warning)" }} />
     case "live": return <Wifi size={13} style={{ color: "#EC4899" }} />
-    default: return <Video size={13} style={{ color: "#3B82F6" }} />
+    default: return <Video size={13} style={{ color: "var(--accent)" }} />
   }
 }
 
@@ -142,16 +142,16 @@ function CourseDetailContent({ id }: { id: string }) {
       <div className="max-w-6xl space-y-6">
 
         {/* Breadcrumb */}
-        <div className="flex items-center gap-1.5 text-xs" style={{ color: "#64748B" }}>
-          <Link href="/student/courses" style={{ color: "#3B82F6" }}>My Courses</Link>
+        <div className="flex items-center gap-1.5 text-xs" style={{ color: "var(--text-tertiary)" }}>
+          <Link href="/student/courses" style={{ color: "var(--accent)" }}>My Courses</Link>
           <ChevronRight size={12} />
-          <span className="text-white">{course.title}</span>
+          <span style={{ color: "var(--text-primary)" }}>{course.title}</span>
         </div>
 
         {/* Hero */}
         <div
-          className="rounded-2xl p-6 relative overflow-hidden"
-          style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
+          className="rounded-2xl p-6 relative overflow-hidden shadow-sm"
+          style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
         >
           <div
             className="absolute top-0 right-0 w-64 h-64 rounded-full pointer-events-none"
@@ -177,19 +177,19 @@ function CourseDetailContent({ id }: { id: string }) {
                   {course.level}
                 </span>
                 {course.isMandatory && (
-                  <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ backgroundColor: "#EF444420", color: "#EF4444" }}>
+                  <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ backgroundColor: "#EF444420", color: "var(--danger)" }}>
                     Mandatory
                   </span>
                 )}
               </div>
 
-              <h1 className="text-2xl font-bold text-white mb-2">{course.title}</h1>
-              <p className="text-sm mb-4 leading-relaxed" style={{ color: "#94A3B8" }}>{course.shortDesc}</p>
+              <h1 className="text-2xl font-bold mb-2" style={{ color: "var(--text-primary)" }}>{course.title}</h1>
+              <p className="text-sm mb-4 leading-relaxed" style={{ color: "var(--text-secondary)" }}>{course.shortDesc}</p>
 
-              <div className="flex items-center gap-5 flex-wrap text-sm" style={{ color: "#64748B" }}>
+              <div className="flex items-center gap-5 flex-wrap text-sm" style={{ color: "var(--text-tertiary)" }}>
                 <span className="flex items-center gap-1.5">
-                  <Star size={14} style={{ color: "#F59E0B" }} fill="#F59E0B" />
-                  <strong className="text-white">{course.rating}</strong>
+                  <Star size={14} style={{ color: "var(--warning)" }} fill="var(--warning)" />
+                  <strong style={{ color: "var(--text-primary)" }}>{course.rating}</strong>
                   <span>({course.reviewCount.toLocaleString()} reviews)</span>
                 </span>
                 <span className="flex items-center gap-1.5">
@@ -206,37 +206,37 @@ function CourseDetailContent({ id }: { id: string }) {
                 </span>
               </div>
 
-              <p className="text-sm mt-4" style={{ color: "#94A3B8" }}>
+              <p className="text-sm mt-4" style={{ color: "var(--text-secondary)" }}>
                 Instructor:{" "}
                 {instructorProfile ? (
-                  <Link href={`/instructors/${instructorProfile.id}`} className="font-bold text-white hover:underline">
+                  <Link href={`/instructors/${instructorProfile.id}`} className="font-bold hover:underline" style={{ color: "var(--text-primary)" }}>
                     {course.instructor}
                   </Link>
                 ) : (
-                  <strong className="text-white">{course.instructor}</strong>
+                  <strong style={{ color: "var(--text-primary)" }}>{course.instructor}</strong>
                 )}
-                <span className="ml-2" style={{ color: "#64748B" }}>{course.instructorTitle}</span>
+                <span className="ml-2" style={{ color: "var(--text-tertiary)" }}>{course.instructorTitle}</span>
               </p>
             </div>
 
             {/* Right panel */}
             <div
               className="lg:w-72 rounded-xl p-5 flex-shrink-0"
-              style={{ backgroundColor: "#0F172A", border: "1px solid #334155" }}
+              style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)" }}
             >
               <CourseThumbnail course={course} heightClass="h-28 mb-4" roundedClass="rounded-lg" locked={course.price !== "Free" && !isEnrolled} />
 
               {isEnrolled ? (
                 <>
                   <div className="mb-3">
-                    <div className="flex justify-between text-xs mb-1" style={{ color: "#64748B" }}>
+                    <div className="flex justify-between text-xs mb-1" style={{ color: "var(--text-tertiary)" }}>
                       <span>{completedLessons}/{totalLessons} lessons</span>
-                      <span style={{ color: progressPct === 100 ? "#10B981" : "#94A3B8" }}>{progressPct}% complete</span>
+                      <span style={{ color: progressPct === 100 ? "var(--success)" : "var(--text-secondary)" }}>{progressPct}% complete</span>
                     </div>
-                    <div className="h-2 rounded-full" style={{ backgroundColor: "#334155" }}>
+                    <div className="h-2 rounded-full" style={{ backgroundColor: "var(--border-default)" }}>
                       <div
                         className="h-full rounded-full transition-all duration-500"
-                        style={{ width: `${progressPct}%`, backgroundColor: progressPct === 100 ? "#10B981" : course.thumbnailColor }}
+                        style={{ width: `${progressPct}%`, backgroundColor: progressPct === 100 ? "var(--success)" : course.thumbnailColor }}
                       />
                     </div>
                   </div>
@@ -244,7 +244,7 @@ function CourseDetailContent({ id }: { id: string }) {
                     <Link
                       href="/student/certificates"
                       className="block w-full text-center py-3 rounded-xl text-sm font-bold"
-                      style={{ backgroundColor: "#10B981", color: "#fff" }}
+                      style={{ backgroundColor: "var(--success)", color: "#fff" }}
                     >
                       <CheckCircle2 size={16} className="inline mr-2" /> View Certificate
                     </Link>
@@ -252,36 +252,36 @@ function CourseDetailContent({ id }: { id: string }) {
                     <Link
                       href={continueHref}
                       className="block w-full text-center py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2"
-                      style={{ backgroundColor: "#3B82F6", color: "#fff" }}
+                      style={{ backgroundColor: "var(--accent)", color: "#fff" }}
                     >
                       <Play size={16} fill="#fff" /> {completedLessons === 0 ? "Start Learning" : "Continue Learning"}
                     </Link>
                   )}
                   {course.grade !== undefined && (
-                    <p className="text-xs text-center mt-2" style={{ color: "#64748B" }}>
-                      Current grade: <strong className="text-white">{course.grade}%</strong>
+                    <p className="text-xs text-center mt-2" style={{ color: "var(--text-tertiary)" }}>
+                      Current grade: <strong style={{ color: "var(--text-primary)" }}>{course.grade}%</strong>
                     </p>
                   )}
                 </>
               ) : (
                 <>
-                  <div className="text-2xl font-bold text-white mb-1">
+                  <div className="text-2xl font-bold mb-1" style={{ color: "var(--text-primary)" }}>
                     {course.price === "Free" ? "Free" : `$${course.price}`}
                   </div>
                   <button
                     onClick={handleEnroll}
                     className="block w-full text-center py-3 rounded-xl text-sm font-bold mb-2"
-                    style={{ backgroundColor: "#3B82F6", color: "#fff" }}
+                    style={{ backgroundColor: "var(--accent)", color: "#fff" }}
                   >
                     {course.price === "Free" ? "Enroll for Free" : "Enroll Now"}
                   </button>
-                  <p className="text-xs text-center" style={{ color: "#64748B" }}>30-day money-back guarantee</p>
+                  <p className="text-xs text-center" style={{ color: "var(--text-tertiary)" }}>30-day money-back guarantee</p>
                 </>
               )}
 
               {course.certificateOffered && (
-                <div className="flex items-center gap-2 mt-3 text-xs" style={{ color: "#64748B" }}>
-                  <Award size={13} style={{ color: "#F59E0B" }} />
+                <div className="flex items-center gap-2 mt-3 text-xs" style={{ color: "var(--text-tertiary)" }}>
+                  <Award size={13} style={{ color: "var(--warning)" }} />
                   Certificate of completion included
                 </div>
               )}
@@ -290,13 +290,13 @@ function CourseDetailContent({ id }: { id: string }) {
         </div>
 
         {/* Tabs */}
-        <div className="flex items-center gap-1 border-b" style={{ borderColor: "#334155" }}>
+        <div className="flex items-center gap-1 border-b" style={{ borderColor: "var(--border-default)" }}>
           {(["overview", "curriculum", "assignments", "quizzes", "resources", "discussions", "reviews"] as Tab[]).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
               className="px-4 py-2.5 text-sm font-medium capitalize transition-colors relative"
-              style={{ color: tab === t ? "#60A5FA" : "#64748B" }}
+              style={{ color: tab === t ? "#60A5FA" : "var(--text-tertiary)" }}
             >
               {t === "quizzes" ? "Quizzes & Exams" : t}
               {t === "assignments" && courseAssignments.length > 0 && (
@@ -315,7 +315,7 @@ function CourseDetailContent({ id }: { id: string }) {
                 </span>
               )}
               {tab === t && (
-                <span className="absolute bottom-0 left-0 right-0 h-0.5 rounded-t" style={{ backgroundColor: "#3B82F6" }} />
+                <span className="absolute bottom-0 left-0 right-0 h-0.5 rounded-t" style={{ backgroundColor: "var(--accent)" }} />
               )}
             </button>
           ))}
@@ -329,18 +329,18 @@ function CourseDetailContent({ id }: { id: string }) {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2 space-y-6">
                 <div
-                  className="rounded-2xl p-5"
-                  style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
+                  className="rounded-2xl p-5 shadow-sm"
+                  style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
                 >
-                  <h3 className="text-sm font-bold text-white mb-3">About This Course</h3>
-                  <p className="text-sm leading-relaxed" style={{ color: "#94A3B8" }}>{course.description}</p>
+                  <h3 className="text-sm font-bold mb-3" style={{ color: "var(--text-primary)" }}>About This Course</h3>
+                  <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>{course.description}</p>
                 </div>
 
                 <div
-                  className="rounded-2xl p-5"
-                  style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
+                  className="rounded-2xl p-5 shadow-sm"
+                  style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
                 >
-                  <h3 className="text-sm font-bold text-white mb-3">What You&apos;ll Learn</h3>
+                  <h3 className="text-sm font-bold mb-3" style={{ color: "var(--text-primary)" }}>What You&apos;ll Learn</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {[
                       "Build production-ready applications",
@@ -352,8 +352,8 @@ function CourseDetailContent({ id }: { id: string }) {
                       "Design scalable component architecture",
                       "Handle authentication & authorization",
                     ].map((item) => (
-                      <div key={item} className="flex items-start gap-2 text-sm" style={{ color: "#94A3B8" }}>
-                        <CheckCircle2 size={14} className="mt-0.5 flex-shrink-0" style={{ color: "#10B981" }} />
+                      <div key={item} className="flex items-start gap-2 text-sm" style={{ color: "var(--text-secondary)" }}>
+                        <CheckCircle2 size={14} className="mt-0.5 flex-shrink-0" style={{ color: "var(--success)" }} />
                         {item}
                       </div>
                     ))}
@@ -361,18 +361,18 @@ function CourseDetailContent({ id }: { id: string }) {
                 </div>
 
                 <div
-                  className="rounded-2xl p-5"
-                  style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
+                  className="rounded-2xl p-5 shadow-sm"
+                  style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
                 >
-                  <h3 className="text-sm font-bold text-white mb-3">Requirements</h3>
+                  <h3 className="text-sm font-bold mb-3" style={{ color: "var(--text-primary)" }}>Requirements</h3>
                   <ul className="space-y-2">
                     {[
                       "Basic JavaScript knowledge (ES6+)",
                       "Familiarity with HTML & CSS",
                       "Node.js installed (v18+)",
                     ].map((req) => (
-                      <li key={req} className="flex items-start gap-2 text-sm" style={{ color: "#94A3B8" }}>
-                        <span style={{ color: "#475569" }}>•</span> {req}
+                      <li key={req} className="flex items-start gap-2 text-sm" style={{ color: "var(--text-secondary)" }}>
+                        <span style={{ color: "var(--text-muted)" }}>•</span> {req}
                       </li>
                     ))}
                   </ul>
@@ -381,16 +381,16 @@ function CourseDetailContent({ id }: { id: string }) {
 
               <div className="space-y-4">
                 <div
-                  className="rounded-2xl p-5"
-                  style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
+                  className="rounded-2xl p-5 shadow-sm"
+                  style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
                 >
-                  <h3 className="text-sm font-bold text-white mb-3">Course Tags</h3>
+                  <h3 className="text-sm font-bold mb-3" style={{ color: "var(--text-primary)" }}>Course Tags</h3>
                   <div className="flex flex-wrap gap-2">
                     {course.tags.map((tag) => (
                       <span
                         key={tag}
                         className="text-xs px-2 py-1 rounded-lg"
-                        style={{ backgroundColor: "#334155", color: "#CBD5E1" }}
+                        style={{ backgroundColor: "var(--border-default)", color: "#CBD5E1" }}
                       >
                         {tag}
                       </span>
@@ -399,11 +399,11 @@ function CourseDetailContent({ id }: { id: string }) {
                 </div>
 
                 <div
-                  className="rounded-2xl p-5"
-                  style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
+                  className="rounded-2xl p-5 shadow-sm"
+                  style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
                 >
-                  <h3 className="text-sm font-bold text-white mb-3">Course Includes</h3>
-                  <div className="space-y-2 text-sm" style={{ color: "#94A3B8" }}>
+                  <h3 className="text-sm font-bold mb-3" style={{ color: "var(--text-primary)" }}>Course Includes</h3>
+                  <div className="space-y-2 text-sm" style={{ color: "var(--text-secondary)" }}>
                     {[
                       [`${totalLessons} lessons`, <BookOpen key="b" size={14} />],
                       [totalDuration + " of content", <Clock key="c" size={14} />],
@@ -412,7 +412,7 @@ function CourseDetailContent({ id }: { id: string }) {
                       ["Community access", <MessageSquare key="m" size={14} />],
                     ].map(([label, icon]) => (
                       <div key={String(label)} className="flex items-center gap-2">
-                        <span style={{ color: "#475569" }}>{icon}</span> {label}
+                        <span style={{ color: "var(--text-muted)" }}>{icon}</span> {label}
                       </div>
                     ))}
                   </div>
@@ -426,10 +426,10 @@ function CourseDetailContent({ id }: { id: string }) {
             <div className="space-y-3">
               {course.sections.length === 0 ? (
                 <div
-                  className="rounded-2xl p-10 text-center"
-                  style={{ backgroundColor: "#1E293B", border: "1px dashed #334155" }}
+                  className="rounded-2xl p-10 text-center shadow-sm"
+                  style={{ backgroundColor: "var(--bg-surface)", border: "1px dashed var(--border-default)" }}
                 >
-                  <p className="text-sm" style={{ color: "#475569" }}>Curriculum details coming soon.</p>
+                  <p className="text-sm" style={{ color: "var(--text-muted)" }}>Curriculum details coming soon.</p>
                 </div>
               ) : course.sections.map((section) => {
                 const open = openSections.has(section.id)
@@ -440,35 +440,35 @@ function CourseDetailContent({ id }: { id: string }) {
                 return (
                   <div
                     key={section.id}
-                    className="rounded-2xl overflow-hidden"
-                    style={{ backgroundColor: "#1E293B", border: `1px solid ${secAllDone ? "#10B98130" : "#334155"}` }}
+                    className="rounded-2xl overflow-hidden shadow-sm"
+                    style={{ backgroundColor: "var(--bg-surface)", border: `1px solid ${secAllDone ? "#10B98130" : "var(--border-default)"}` }}
                   >
                     <button
                       className="w-full flex items-center gap-3 px-5 py-4 text-left transition-colors"
                       onClick={() => toggleSection(section.id)}
-                      style={{ backgroundColor: open ? "#0F172A" : "#1E293B" }}
+                      style={{ backgroundColor: open ? "var(--bg-surface-muted)" : "var(--bg-surface)" }}
                     >
                       <ChevronDown
                         size={16}
-                        style={{ color: "#64748B", transform: open ? "rotate(0deg)" : "rotate(-90deg)", transition: "transform 0.2s" }}
+                        style={{ color: "var(--text-tertiary)", transform: open ? "rotate(0deg)" : "rotate(-90deg)", transition: "transform 0.2s" }}
                       />
-                      <span className="text-sm font-semibold text-white flex-1">{section.title}</span>
+                      <span className="text-sm font-semibold flex-1" style={{ color: "var(--text-primary)" }}>{section.title}</span>
                       <div className="flex items-center gap-2 flex-shrink-0">
                         {/* Mini section progress bar */}
-                        <div className="w-20 h-1.5 rounded-full" style={{ backgroundColor: "#334155" }}>
+                        <div className="w-20 h-1.5 rounded-full" style={{ backgroundColor: "var(--border-default)" }}>
                           <div
                             className="h-full rounded-full transition-all"
-                            style={{ width: `${secPct}%`, backgroundColor: secAllDone ? "#10B981" : "#3B82F6" }}
+                            style={{ width: `${secPct}%`, backgroundColor: secAllDone ? "var(--success)" : "var(--accent)" }}
                           />
                         </div>
-                        <span className="text-xs" style={{ color: secAllDone ? "#10B981" : "#64748B" }}>
+                        <span className="text-xs" style={{ color: secAllDone ? "var(--success)" : "var(--text-tertiary)" }}>
                           {secCompleted}/{secTotal}
                         </span>
                       </div>
                     </button>
 
                     {open && (
-                      <div className="divide-y" style={{ borderColor: "#1E293B" }}>
+                      <div className="divide-y" style={{ borderColor: "var(--bg-surface)" }}>
                         {section.lessons.map((lesson) => {
                           const lessonDone = isDone(lesson.id, lesson.completed)
                           return (
@@ -479,9 +479,9 @@ function CourseDetailContent({ id }: { id: string }) {
                             >
                               <div className="flex-shrink-0 w-5 flex items-center justify-center">
                                 {lessonDone ? (
-                                  <CheckCircle2 size={14} style={{ color: "#10B981" }} />
+                                  <CheckCircle2 size={14} style={{ color: "var(--success)" }} />
                                 ) : lesson.locked || !isEnrolled ? (
-                                  <Lock size={13} style={{ color: "#475569" }} />
+                                  <Lock size={13} style={{ color: "var(--text-muted)" }} />
                                 ) : (
                                   lessonTypeIcon(lesson.type)
                                 )}
@@ -489,13 +489,13 @@ function CourseDetailContent({ id }: { id: string }) {
                               <span
                                 className="flex-1 text-sm"
                                 style={{
-                                  color: lesson.locked || !isEnrolled ? "#475569" : lessonDone ? "#64748B" : "#CBD5E1",
+                                  color: lesson.locked || !isEnrolled ? "var(--text-muted)" : lessonDone ? "var(--text-tertiary)" : "#CBD5E1",
                                   textDecoration: lessonDone ? "line-through" : "none",
                                 }}
                               >
                                 {lesson.title}
                               </span>
-                              <span className="text-xs flex-shrink-0" style={{ color: "#475569" }}>
+                              <span className="text-xs flex-shrink-0" style={{ color: "var(--text-muted)" }}>
                                 {lesson.duration}
                               </span>
                               {!lesson.locked && isEnrolled && (
@@ -504,7 +504,7 @@ function CourseDetailContent({ id }: { id: string }) {
                                   className="text-xs px-2 py-0.5 rounded-lg flex-shrink-0"
                                   style={{
                                     backgroundColor: lessonDone ? "#10B98115" : "#3B82F620",
-                                    color: lessonDone ? "#10B981" : "#60A5FA",
+                                    color: lessonDone ? "var(--success)" : "#60A5FA",
                                   }}
                                 >
                                   {lessonDone ? "Redo" : "Start"}
@@ -529,30 +529,30 @@ function CourseDetailContent({ id }: { id: string }) {
 
           {/* Resources */}
           {tab === "resources" && (
-            <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
-              <div className="px-5 py-4" style={{ borderBottom: "1px solid #334155" }}>
-                <h3 className="text-sm font-semibold text-white">Course Resources</h3>
-                <p className="text-xs mt-0.5" style={{ color: "#64748B" }}>Download anytime, even after completion.</p>
+            <div className="rounded-2xl overflow-hidden shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
+              <div className="px-5 py-4" style={{ borderBottom: "1px solid var(--border-default)" }}>
+                <h3 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Course Resources</h3>
+                <p className="text-xs mt-0.5" style={{ color: "var(--text-tertiary)" }}>Download anytime, even after completion.</p>
               </div>
               {resources.map((r, i) => (
                 <div
                   key={r.name}
                   className="flex items-center gap-4 px-5 py-3.5"
-                  style={{ borderBottom: i < resources.length - 1 ? "1px solid #1E293B40" : "none", backgroundColor: i % 2 === 0 ? "#1A2535" : "#1E293B" }}
+                  style={{ borderBottom: i < resources.length - 1 ? "1px solid #1E293B40" : "none", backgroundColor: i % 2 === 0 ? "var(--bg-surface-muted)" : "var(--bg-surface)" }}
                 >
                   <div
                     className="flex items-center justify-center w-9 h-9 rounded-lg text-xs font-bold flex-shrink-0"
-                    style={{ backgroundColor: "#334155", color: "#94A3B8" }}
+                    style={{ backgroundColor: "var(--border-default)", color: "var(--text-secondary)" }}
                   >
                     {r.type}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-white truncate">{r.name}</p>
-                    {r.size !== "—" && <p className="text-xs mt-0.5" style={{ color: "#64748B" }}>{r.size}</p>}
+                    <p className="text-sm font-medium truncate" style={{ color: "var(--text-primary)" }}>{r.name}</p>
+                    {r.size !== "—" && <p className="text-xs mt-0.5" style={{ color: "var(--text-tertiary)" }}>{r.size}</p>}
                   </div>
                   <button
                     className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg"
-                    style={{ backgroundColor: "#334155", color: "#94A3B8" }}
+                    style={{ backgroundColor: "var(--border-default)", color: "var(--text-secondary)" }}
                   >
                     <Download size={13} />
                     {r.type === "GitHub" ? "Open" : "Download"}
@@ -566,11 +566,11 @@ function CourseDetailContent({ id }: { id: string }) {
           {tab === "discussions" && (
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <p className="text-sm" style={{ color: "#64748B" }}>{courseDiscussions.length} threads</p>
+                <p className="text-sm" style={{ color: "var(--text-tertiary)" }}>{courseDiscussions.length} threads</p>
                 <Link
                   href={`/student/discussions?scope=course:${course.id}&new=1`}
                   className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg"
-                  style={{ backgroundColor: "#3B82F6", color: "#fff" }}
+                  style={{ backgroundColor: "var(--accent)", color: "#fff" }}
                 >
                   <MessageSquare size={13} /> New Thread
                 </Link>
@@ -578,28 +578,28 @@ function CourseDetailContent({ id }: { id: string }) {
               {courseDiscussions.map((d) => (
                 <div
                   key={d.id}
-                  className="rounded-2xl p-4"
-                  style={{ backgroundColor: "#1E293B", border: `1px solid ${d.isPinned ? "#3B82F640" : "#334155"}` }}
+                  className="rounded-2xl p-4 shadow-sm"
+                  style={{ backgroundColor: "var(--bg-surface)", border: `1px solid ${d.isPinned ? "#3B82F640" : "var(--border-default)"}` }}
                 >
                   <div className="flex items-start gap-3">
                     <div
                       className="flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold flex-shrink-0"
-                      style={{ backgroundColor: "#3B82F6", color: "#fff" }}
+                      style={{ backgroundColor: "var(--accent)", color: "#fff" }}
                     >
                       {d.authorAvatar}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-sm font-semibold text-white">{d.title}</span>
+                        <span className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>{d.title}</span>
                         {d.isPinned && <span className="text-xs px-1.5 py-0.5 rounded" style={{ backgroundColor: "#3B82F620", color: "#60A5FA" }}>Pinned</span>}
-                        {d.isSolved && <span className="text-xs px-1.5 py-0.5 rounded" style={{ backgroundColor: "#10B98120", color: "#10B981" }}>Solved</span>}
+                        {d.isSolved && <span className="text-xs px-1.5 py-0.5 rounded" style={{ backgroundColor: "#10B98120", color: "var(--success)" }}>Solved</span>}
                       </div>
-                      <p className="text-xs mt-0.5" style={{ color: "#64748B" }}>
+                      <p className="text-xs mt-0.5" style={{ color: "var(--text-tertiary)" }}>
                         {d.author} · {d.createdAt} · {d.replies} replies · {d.views} views
                       </p>
                       <div className="flex gap-1.5 mt-2 flex-wrap">
                         {d.tags.map((tag) => (
-                          <span key={tag} className="text-xs px-1.5 py-0.5 rounded" style={{ backgroundColor: "#334155", color: "#94A3B8" }}>
+                          <span key={tag} className="text-xs px-1.5 py-0.5 rounded" style={{ backgroundColor: "var(--border-default)", color: "var(--text-secondary)" }}>
                             #{tag}
                           </span>
                         ))}
@@ -616,27 +616,27 @@ function CourseDetailContent({ id }: { id: string }) {
             <div className="space-y-4">
               {/* Rating summary */}
               <div
-                className="rounded-2xl p-5 flex items-center gap-8"
-                style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
+                className="rounded-2xl p-5 flex items-center gap-8 shadow-sm"
+                style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
               >
                 <div className="text-center">
-                  <div className="text-5xl font-black text-white">{course.rating}</div>
+                  <div className="text-5xl font-black" style={{ color: "var(--text-primary)" }}>{course.rating}</div>
                   <div className="flex items-center gap-0.5 justify-center mt-1">
                     {[1, 2, 3, 4, 5].map((s) => (
-                      <Star key={s} size={14} fill={s <= Math.round(course.rating) ? "#F59E0B" : "none"} style={{ color: "#F59E0B" }} />
+                      <Star key={s} size={14} fill={s <= Math.round(course.rating) ? "var(--warning)" : "none"} style={{ color: "var(--warning)" }} />
                     ))}
                   </div>
-                  <p className="text-xs mt-1" style={{ color: "#64748B" }}>Course rating</p>
+                  <p className="text-xs mt-1" style={{ color: "var(--text-tertiary)" }}>Course rating</p>
                 </div>
                 <div className="flex-1 space-y-1.5">
                   {[5, 4, 3, 2, 1].map((stars) => {
                     const pct = stars === 5 ? 78 : stars === 4 ? 15 : stars === 3 ? 5 : stars === 2 ? 1 : 1
                     return (
-                      <div key={stars} className="flex items-center gap-2 text-xs" style={{ color: "#64748B" }}>
+                      <div key={stars} className="flex items-center gap-2 text-xs" style={{ color: "var(--text-tertiary)" }}>
                         <span className="w-3 text-right">{stars}</span>
-                        <Star size={11} fill="#F59E0B" style={{ color: "#F59E0B" }} />
-                        <div className="flex-1 h-1.5 rounded-full" style={{ backgroundColor: "#334155" }}>
-                          <div className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: "#F59E0B" }} />
+                        <Star size={11} fill="var(--warning)" style={{ color: "var(--warning)" }} />
+                        <div className="flex-1 h-1.5 rounded-full" style={{ backgroundColor: "var(--border-default)" }}>
+                          <div className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: "var(--warning)" }} />
                         </div>
                         <span className="w-8 text-right">{pct}%</span>
                       </div>
@@ -648,27 +648,27 @@ function CourseDetailContent({ id }: { id: string }) {
               {reviews.map((r) => (
                 <div
                   key={r.name}
-                  className="rounded-2xl p-4"
-                  style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
+                  className="rounded-2xl p-4 shadow-sm"
+                  style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
                 >
                   <div className="flex items-center gap-3 mb-2">
                     <div
                       className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
-                      style={{ backgroundColor: "#334155", color: "#94A3B8" }}
+                      style={{ backgroundColor: "var(--border-default)", color: "var(--text-secondary)" }}
                     >
                       {r.name[0]}
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-white">{r.name}</p>
+                      <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>{r.name}</p>
                       <div className="flex items-center gap-1">
                         {[1, 2, 3, 4, 5].map((s) => (
-                          <Star key={s} size={11} fill={s <= r.rating ? "#F59E0B" : "none"} style={{ color: "#F59E0B" }} />
+                          <Star key={s} size={11} fill={s <= r.rating ? "var(--warning)" : "none"} style={{ color: "var(--warning)" }} />
                         ))}
-                        <span className="text-xs ml-1" style={{ color: "#64748B" }}>{r.date}</span>
+                        <span className="text-xs ml-1" style={{ color: "var(--text-tertiary)" }}>{r.date}</span>
                       </div>
                     </div>
                   </div>
-                  <p className="text-sm" style={{ color: "#94A3B8" }}>{r.comment}</p>
+                  <p className="text-sm" style={{ color: "var(--text-secondary)" }}>{r.comment}</p>
                 </div>
               ))}
             </div>

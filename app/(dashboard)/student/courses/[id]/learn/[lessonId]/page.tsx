@@ -17,12 +17,12 @@ import type { QuizQuestion } from "@/lib/data/courses"
 
 const lessonTypeIcon = (type: string, size = 14) => {
   switch (type) {
-    case "video": return <Video size={size} style={{ color: "#3B82F6" }} />
+    case "video": return <Video size={size} style={{ color: "var(--accent)" }} />
     case "quiz": return <HelpCircle size={size} style={{ color: "#8B5CF6" }} />
-    case "reading": return <FileText size={size} style={{ color: "#10B981" }} />
-    case "assignment": return <PenLine size={size} style={{ color: "#F59E0B" }} />
+    case "reading": return <FileText size={size} style={{ color: "var(--success)" }} />
+    case "assignment": return <PenLine size={size} style={{ color: "var(--warning)" }} />
     case "live": return <Wifi size={size} style={{ color: "#EC4899" }} />
-    default: return <Video size={size} style={{ color: "#3B82F6" }} />
+    default: return <Video size={size} style={{ color: "var(--accent)" }} />
   }
 }
 
@@ -68,33 +68,33 @@ function QuizPlayer({
     const passed = pct >= passingScore
 
     return (
-      <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
+      <div className="rounded-2xl overflow-hidden shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
         {/* Results header */}
         <div
           className="flex flex-col items-center py-8 px-6"
-          style={{ borderBottom: "1px solid #334155", backgroundColor: passed ? "#10B98110" : "#EF444410" }}
+          style={{ borderBottom: "1px solid var(--border-default)", backgroundColor: passed ? "#10B98110" : "#EF444410" }}
         >
           <div
             className="flex items-center justify-center w-16 h-16 rounded-full mb-4"
             style={{ backgroundColor: passed ? "#10B98120" : "#EF444420" }}
           >
             {passed
-              ? <CheckCircle2 size={32} style={{ color: "#10B981" }} />
-              : <HelpCircle size={32} style={{ color: "#EF4444" }} />
+              ? <CheckCircle2 size={32} style={{ color: "var(--success)" }} />
+              : <HelpCircle size={32} style={{ color: "var(--danger)" }} />
             }
           </div>
-          <h2 className="text-xl font-bold text-white mb-1">{passed ? "Quiz Passed!" : "Quiz Complete"}</h2>
-          <p className="text-sm" style={{ color: "#64748B" }}>
-            You scored <span className="font-bold" style={{ color: passed ? "#10B981" : "#EF4444" }}>{score}/{questions.length}</span>
+          <h2 className="text-xl font-bold mb-1" style={{ color: "var(--text-primary)" }}>{passed ? "Quiz Passed!" : "Quiz Complete"}</h2>
+          <p className="text-sm" style={{ color: "var(--text-tertiary)" }}>
+            You scored <span className="font-bold" style={{ color: passed ? "var(--success)" : "var(--danger)" }}>{score}/{questions.length}</span>
           </p>
           {/* Score bar */}
-          <div className="w-48 h-2 rounded-full mt-4 overflow-hidden" style={{ backgroundColor: "#334155" }}>
+          <div className="w-48 h-2 rounded-full mt-4 overflow-hidden" style={{ backgroundColor: "var(--border-default)" }}>
             <div
               className="h-full rounded-full transition-all"
-              style={{ width: `${pct}%`, backgroundColor: passed ? "#10B981" : "#EF4444" }}
+              style={{ width: `${pct}%`, backgroundColor: passed ? "var(--success)" : "var(--danger)" }}
             />
           </div>
-          <p className="text-2xl font-bold mt-2" style={{ color: passed ? "#10B981" : "#EF4444" }}>{pct}%</p>
+          <p className="text-2xl font-bold mt-2" style={{ color: passed ? "var(--success)" : "var(--danger)" }}>{pct}%</p>
         </div>
 
         {/* Per-question breakdown */}
@@ -102,20 +102,20 @@ function QuizPlayer({
           {questions.map((q, i) => {
             const correct = selected[i] === q.correctIndex
             return (
-              <div key={q.id} className="flex items-start gap-3 py-2" style={{ borderBottom: i < questions.length - 1 ? "1px solid #1E293B" : "none" }}>
+              <div key={q.id} className="flex items-start gap-3 py-2" style={{ borderBottom: i < questions.length - 1 ? "1px solid var(--bg-surface)" : "none" }}>
                 <div
                   className="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center mt-0.5"
                   style={{ backgroundColor: correct ? "#10B98118" : "#EF444418" }}
                 >
                   {correct
-                    ? <CheckCircle2 size={12} style={{ color: "#10B981" }} />
-                    : <HelpCircle size={12} style={{ color: "#EF4444" }} />
+                    ? <CheckCircle2 size={12} style={{ color: "var(--success)" }} />
+                    : <HelpCircle size={12} style={{ color: "var(--danger)" }} />
                   }
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-white leading-snug">{q.question}</p>
+                  <p className="text-sm leading-snug" style={{ color: "var(--text-primary)" }}>{q.question}</p>
                   {!correct && (
-                    <p className="text-xs mt-0.5" style={{ color: "#10B981" }}>
+                    <p className="text-xs mt-0.5" style={{ color: "var(--success)" }}>
                       Correct: {q.options[q.correctIndex]}
                     </p>
                   )}
@@ -126,18 +126,18 @@ function QuizPlayer({
         </div>
 
         {/* Actions */}
-        <div className="flex items-center justify-between px-6 py-4" style={{ borderTop: "1px solid #334155" }}>
+        <div className="flex items-center justify-between px-6 py-4" style={{ borderTop: "1px solid var(--border-default)" }}>
           <button
             onClick={retry}
             className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors"
-            style={{ backgroundColor: "#334155", color: "#94A3B8" }}
+            style={{ backgroundColor: "var(--border-default)", color: "var(--text-secondary)" }}
           >
             <RotateCcw size={14} /> Try Again
           </button>
           <button
             onClick={() => onComplete(passed)}
             className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white hover:opacity-90"
-            style={{ backgroundColor: "#3B82F6" }}
+            style={{ backgroundColor: "var(--accent)" }}
           >
             <CheckCircle2 size={14} /> Mark Complete
           </button>
@@ -147,9 +147,9 @@ function QuizPlayer({
   }
 
   return (
-    <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
+    <div className="rounded-2xl overflow-hidden shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
       {/* Progress bar */}
-      <div className="h-1.5" style={{ backgroundColor: "#334155" }}>
+      <div className="h-1.5" style={{ backgroundColor: "var(--border-default)" }}>
         <div
           className="h-full transition-all"
           style={{ width: `${((current + 1) / questions.length) * 100}%`, backgroundColor: "#8B5CF6" }}
@@ -162,13 +162,13 @@ function QuizPlayer({
           <span className="text-xs font-semibold" style={{ color: "#8B5CF6" }}>
             Question {current + 1} of {questions.length}
           </span>
-          <span className="text-xs" style={{ color: "#475569" }}>
+          <span className="text-xs" style={{ color: "var(--text-muted)" }}>
             {questions.filter((_, i) => selected[i] !== null).length} answered
           </span>
         </div>
 
         {/* Question */}
-        <h2 className="text-base font-semibold text-white leading-snug">{q.question}</h2>
+        <h2 className="text-base font-semibold leading-snug" style={{ color: "var(--text-primary)" }}>{q.question}</h2>
 
         {/* Options */}
         <div className="space-y-2.5">
@@ -181,16 +181,16 @@ function QuizPlayer({
                 onClick={() => choose(oi)}
                 className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-left transition-all"
                 style={{
-                  backgroundColor: isSelected ? "#8B5CF620" : "#0F172A",
-                  border: `1px solid ${isSelected ? "#8B5CF6" : "#334155"}`,
+                  backgroundColor: isSelected ? "#8B5CF620" : "var(--bg-surface-muted)",
+                  border: `1px solid ${isSelected ? "#8B5CF6" : "var(--border-default)"}`,
                   color: isSelected ? "#E9D5FF" : "#CBD5E1",
                 }}
               >
                 <span
                   className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold"
                   style={{
-                    backgroundColor: isSelected ? "#8B5CF6" : "#1E293B",
-                    color: isSelected ? "#fff" : "#64748B",
+                    backgroundColor: isSelected ? "#8B5CF6" : "var(--bg-surface)",
+                    color: isSelected ? "#fff" : "var(--text-tertiary)",
                   }}
                 >
                   {OPTION_LABELS[oi]}
@@ -207,7 +207,7 @@ function QuizPlayer({
             onClick={() => setCurrent((c) => Math.max(0, c - 1))}
             disabled={current === 0}
             className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium transition-colors disabled:opacity-30"
-            style={{ backgroundColor: "#334155", color: "#94A3B8" }}
+            style={{ backgroundColor: "var(--border-default)", color: "var(--text-secondary)" }}
           >
             <ChevronLeft size={15} /> Back
           </button>
@@ -254,26 +254,26 @@ export default function LessonPlayerPage({
 
   if (!owned) {
     return (
-      <div className="flex h-screen items-center justify-center p-6" style={{ backgroundColor: "#0F172A" }}>
-        <div className="rounded-2xl p-8 text-center" style={{ maxWidth: 420, backgroundColor: "#1E293B", border: "1px solid #334155" }}>
+      <div className="flex h-screen items-center justify-center p-6" style={{ backgroundColor: "var(--bg-canvas)" }}>
+        <div className="rounded-2xl p-8 text-center shadow-sm" style={{ maxWidth: 420, backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
           <CourseThumbnail course={course} heightClass="h-32 mb-5" roundedClass="rounded-xl" />
           <div className="mx-auto mb-4 flex items-center justify-center w-14 h-14 rounded-full" style={{ backgroundColor: "#3B82F620" }}>
             <Lock size={24} style={{ color: "#60A5FA" }} />
           </div>
-          <h1 className="text-lg font-bold text-white mb-2">Purchase this course to start watching</h1>
-          <p className="text-sm mb-6" style={{ color: "#94A3B8" }}><strong className="text-white">{course.title}</strong> isn&apos;t in your library yet. Buy it once and watch every lesson, anytime.</p>
+          <h1 className="text-lg font-bold mb-2" style={{ color: "var(--text-primary)" }}>Purchase this course to start watching</h1>
+          <p className="text-sm mb-6" style={{ color: "var(--text-secondary)" }}><strong style={{ color: "var(--text-primary)" }}>{course.title}</strong> isn&apos;t in your library yet. Buy it once and watch every lesson, anytime.</p>
           <div className="flex items-center justify-center gap-3 flex-wrap">
             <Link
               href={course.price === "Free" ? `/student/courses/${course.id}` : `/student/courses/${course.id}/checkout`}
               className="px-5 py-3 rounded-xl text-sm font-bold"
-              style={{ backgroundColor: "#3B82F6", color: "#fff" }}
+              style={{ backgroundColor: "var(--accent)", color: "#fff" }}
             >
               {course.price === "Free" ? "Enroll for Free" : `Buy Now — $${course.price}`}
             </Link>
             <Link
               href={`/student/courses/${course.id}`}
               className="px-5 py-3 rounded-xl text-sm font-semibold"
-              style={{ backgroundColor: "#334155", color: "#CBD5E1" }}
+              style={{ backgroundColor: "var(--border-default)", color: "#CBD5E1" }}
             >
               Back to course
             </Link>
@@ -329,7 +329,7 @@ export default function LessonPlayerPage({
   }
 
   return (
-    <div className="flex h-screen overflow-hidden" style={{ backgroundColor: "#0F172A" }}>
+    <div className="flex h-screen overflow-hidden" style={{ backgroundColor: "var(--bg-canvas)" }}>
 
       {/* ── Session KC Modal (full-screen) ── */}
       {sessionKCFlow && currentSection?.sessionKC && (() => {
@@ -337,21 +337,21 @@ export default function LessonPlayerPage({
         const part = kc.parts[sessionKCFlow.partIndex]
         const partLesson = currentSection.lessons.find(l => l.id === part?.lessonId)
         return (
-          <div className="fixed inset-0 z-50 flex flex-col" style={{ backgroundColor: "#0F172A" }}>
+          <div className="fixed inset-0 z-50 flex flex-col" style={{ backgroundColor: "var(--bg-canvas)" }}>
             {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 flex-shrink-0" style={{ backgroundColor: "#1E293B", borderBottom: "1px solid #334155" }}>
+            <div className="flex items-center justify-between px-6 py-4 flex-shrink-0" style={{ backgroundColor: "var(--bg-surface)", borderBottom: "1px solid var(--border-default)" }}>
               <div className="flex items-center gap-3">
                 <BrainCircuit size={18} style={{ color: "#8B5CF6" }} />
                 <div>
                   <p className="text-xs font-semibold" style={{ color: "#8B5CF6" }}>Session Knowledge Check</p>
-                  <p className="text-sm font-bold text-white">{currentSection.title}</p>
+                  <p className="text-sm font-bold" style={{ color: "var(--text-primary)" }}>{currentSection.title}</p>
                 </div>
                 {kc.isMandatory && (
-                  <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ backgroundColor: "#F59E0B20", color: "#F59E0B" }}>Mandatory</span>
+                  <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ backgroundColor: "#F59E0B20", color: "var(--warning)" }}>Mandatory</span>
                 )}
               </div>
               {!kc.isMandatory && (
-                <button onClick={() => finishSessionKC([])} className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-xl transition-colors" style={{ backgroundColor: "#334155", color: "#94A3B8" }}>
+                <button onClick={() => finishSessionKC([])} className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-xl transition-colors" style={{ backgroundColor: "var(--border-default)", color: "var(--text-secondary)" }}>
                   <X size={12} /> Skip Check
                 </button>
               )}
@@ -366,11 +366,11 @@ export default function LessonPlayerPage({
                         <p className="text-xs font-semibold mb-1" style={{ color: "#8B5CF6" }}>
                           Part {sessionKCFlow.partIndex + 1} of {kc.parts.length}
                         </p>
-                        <p className="text-sm text-white font-medium">{partLesson?.title}</p>
+                        <p className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>{partLesson?.title}</p>
                       </div>
                       <div className="flex gap-1">
                         {kc.parts.map((_, i) => (
-                          <div key={i} className="w-2 h-2 rounded-full" style={{ backgroundColor: i < sessionKCFlow.partIndex ? "#10B981" : i === sessionKCFlow.partIndex ? "#8B5CF6" : "#334155" }} />
+                          <div key={i} className="w-2 h-2 rounded-full" style={{ backgroundColor: i < sessionKCFlow.partIndex ? "var(--success)" : i === sessionKCFlow.partIndex ? "#8B5CF6" : "var(--border-default)" }} />
                         ))}
                       </div>
                     </div>
@@ -391,7 +391,7 @@ export default function LessonPlayerPage({
                         }}
                       />
                     ) : (
-                      <div className="text-center py-10" style={{ color: "#64748B" }}>
+                      <div className="text-center py-10" style={{ color: "var(--text-tertiary)" }}>
                         <p className="text-sm">No questions for this part.</p>
                         <button onClick={() => {
                           const nextIdx = sessionKCFlow.partIndex + 1
@@ -410,21 +410,21 @@ export default function LessonPlayerPage({
                       <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: "#8B5CF620" }}>
                         <BrainCircuit size={28} style={{ color: "#8B5CF6" }} />
                       </div>
-                      <h2 className="text-xl font-bold text-white mb-1">Check Complete</h2>
-                      <p className="text-sm" style={{ color: "#64748B" }}>Here&apos;s what you can skip:</p>
+                      <h2 className="text-xl font-bold mb-1" style={{ color: "var(--text-primary)" }}>Check Complete</h2>
+                      <p className="text-sm" style={{ color: "var(--text-tertiary)" }}>Here&apos;s what you can skip:</p>
                     </div>
                     <div className="space-y-2">
                       {kc.parts.map((p, i) => {
                         const passed = sessionKCFlow.passedLessonIds.includes(p.lessonId)
                         const ln = currentSection.lessons.find(l => l.id === p.lessonId)
                         return (
-                          <div key={p.lessonId} className="flex items-center gap-3 px-4 py-3 rounded-xl" style={{ backgroundColor: "#1E293B", border: `1px solid ${passed ? "#10B98140" : "#334155"}` }}>
+                          <div key={p.lessonId} className="flex items-center gap-3 px-4 py-3 rounded-xl" style={{ backgroundColor: "var(--bg-surface)", border: `1px solid ${passed ? "#10B98140" : "var(--border-default)"}` }}>
                             {passed
-                              ? <CheckCircle2 size={16} style={{ color: "#10B981", flexShrink: 0 }} />
-                              : <AlertCircle size={16} style={{ color: "#EF4444", flexShrink: 0 }} />}
+                              ? <CheckCircle2 size={16} style={{ color: "var(--success)", flexShrink: 0 }} />
+                              : <AlertCircle size={16} style={{ color: "var(--danger)", flexShrink: 0 }} />}
                             <div className="flex-1 min-w-0">
-                              <p className="text-xs font-medium text-white truncate">Part {i + 1} — {ln?.title}</p>
-                              <p className="text-xs mt-0.5" style={{ color: passed ? "#10B981" : "#EF4444" }}>
+                              <p className="text-xs font-medium truncate" style={{ color: "var(--text-primary)" }}>Part {i + 1} — {ln?.title}</p>
+                              <p className="text-xs mt-0.5" style={{ color: passed ? "var(--success)" : "var(--danger)" }}>
                                 {passed ? "Passed — lesson can be skipped" : "Not passed — lesson required"}
                               </p>
                             </div>
@@ -453,31 +453,31 @@ export default function LessonPlayerPage({
         style={{
           width: sidebarCollapsed ? "0px" : "280px",
           overflow: "hidden",
-          backgroundColor: "#1E293B",
-          borderRight: "1px solid #334155",
+          backgroundColor: "var(--bg-surface)",
+          borderRight: "1px solid var(--border-default)",
         }}
       >
         {/* Header */}
-        <div className="px-4 py-4 flex-shrink-0" style={{ borderBottom: "1px solid #334155" }}>
+        <div className="px-4 py-4 flex-shrink-0" style={{ borderBottom: "1px solid var(--border-default)" }}>
           <Link
             href={`/student/courses/${id}`}
             className="flex items-center gap-1.5 text-xs mb-3"
-            style={{ color: "#3B82F6" }}
+            style={{ color: "var(--accent)" }}
           >
             <ChevronLeft size={13} /> Back to course
           </Link>
-          <h2 className="text-sm font-bold text-white leading-snug line-clamp-2">{course.title}</h2>
+          <h2 className="text-sm font-bold leading-snug line-clamp-2" style={{ color: "var(--text-primary)" }}>{course.title}</h2>
           <div className="mt-2">
-            <div className="flex justify-between text-xs mb-1" style={{ color: "#64748B" }}>
+            <div className="flex justify-between text-xs mb-1" style={{ color: "var(--text-tertiary)" }}>
               <span>{completedCount}/{totalLessons} lessons</span>
-              <span style={{ color: progressPct === 100 ? "#10B981" : "#94A3B8" }}>{progressPct}%</span>
+              <span style={{ color: progressPct === 100 ? "var(--success)" : "var(--text-secondary)" }}>{progressPct}%</span>
             </div>
-            <div className="h-1.5 rounded-full" style={{ backgroundColor: "#334155" }}>
+            <div className="h-1.5 rounded-full" style={{ backgroundColor: "var(--border-default)" }}>
               <div
                 className="h-full rounded-full transition-all duration-500"
                 style={{
                   width: `${progressPct}%`,
-                  backgroundColor: progressPct === 100 ? "#10B981" : "#3B82F6",
+                  backgroundColor: progressPct === 100 ? "var(--success)" : "var(--accent)",
                 }}
               />
             </div>
@@ -494,14 +494,14 @@ export default function LessonPlayerPage({
                 {/* Section header */}
                 <div
                   className="px-4 py-2.5 flex items-center justify-between"
-                  style={{ color: "#475569", backgroundColor: "#172033", borderBottom: "1px solid #334155" }}
+                  style={{ color: "var(--text-muted)", backgroundColor: "#172033", borderBottom: "1px solid var(--border-default)" }}
                 >
                   <span className="text-xs font-bold uppercase tracking-wider">{section.title}</span>
                   <span
                     className="text-xs font-semibold px-1.5 py-0.5 rounded-full flex items-center gap-1"
                     style={{
                       backgroundColor: allSecDone ? "#10B98120" : "#33415540",
-                      color: allSecDone ? "#10B981" : "#64748B",
+                      color: allSecDone ? "var(--success)" : "var(--text-tertiary)",
                     }}
                   >
                     {allSecDone && <CheckCircle2 size={10} />}
@@ -519,18 +519,18 @@ export default function LessonPlayerPage({
                       className="flex items-start gap-3 px-4 py-3 text-sm transition-colors"
                       style={{
                         backgroundColor: active ? "#3B82F620" : "transparent",
-                        color: lesson.locked ? "#475569" : active ? "#F8FAFC" : "#94A3B8",
+                        color: lesson.locked ? "var(--text-muted)" : active ? "var(--text-primary)" : "var(--text-secondary)",
                         cursor: lesson.locked ? "not-allowed" : "pointer",
-                        borderLeft: active ? "2px solid #3B82F6" : "2px solid transparent",
+                        borderLeft: active ? "2px solid var(--accent)" : "2px solid transparent",
                       }}
                       onMouseEnter={(e) => { if (!active && !lesson.locked) e.currentTarget.style.backgroundColor = "#33415540" }}
                       onMouseLeave={(e) => { if (!active) e.currentTarget.style.backgroundColor = active ? "#3B82F620" : "transparent" }}
                     >
                       <div className="flex-shrink-0 mt-0.5">
                         {done ? (
-                          <CheckCircle2 size={14} style={{ color: "#10B981" }} />
+                          <CheckCircle2 size={14} style={{ color: "var(--success)" }} />
                         ) : lesson.locked ? (
-                          <Lock size={13} style={{ color: "#475569" }} />
+                          <Lock size={13} style={{ color: "var(--text-muted)" }} />
                         ) : (
                           lessonTypeIcon(lesson.type)
                         )}
@@ -540,7 +540,7 @@ export default function LessonPlayerPage({
                           {lesson.title}
                         </p>
                         <div className="flex items-center gap-1.5 mt-0.5">
-                          <p className="text-xs" style={{ color: "#475569" }}>{lesson.duration}</p>
+                          <p className="text-xs" style={{ color: "var(--text-muted)" }}>{lesson.duration}</p>
                           {skippableLessonIds.includes(lesson.id) && (
                             <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ backgroundColor: "#8B5CF620", color: "#A78BFA" }}>SKIP</span>
                           )}
@@ -564,20 +564,20 @@ export default function LessonPlayerPage({
         {/* Top bar */}
         <div
           className="flex items-center justify-between px-4 py-3 flex-shrink-0"
-          style={{ backgroundColor: "#1E293B", borderBottom: "1px solid #334155", height: 56 }}
+          style={{ backgroundColor: "var(--bg-surface)", borderBottom: "1px solid var(--border-default)", height: 56 }}
         >
           <div className="flex items-center gap-3">
             <button
               onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
               className="p-1.5 rounded-lg transition-colors"
-              style={{ color: "#94A3B8", backgroundColor: "#334155" }}
+              style={{ color: "var(--text-secondary)", backgroundColor: "var(--border-default)" }}
             >
               {sidebarCollapsed ? <ChevronRight size={15} /> : <ChevronLeft size={15} />}
             </button>
-            <div className="text-xs" style={{ color: "#64748B" }}>
+            <div className="text-xs" style={{ color: "var(--text-tertiary)" }}>
               <span>{course.title}</span>
               <span className="mx-1.5">›</span>
-              <span className="text-white">{currentLesson?.title}</span>
+              <span style={{ color: "var(--text-primary)" }}>{currentLesson?.title}</span>
             </div>
           </div>
 
@@ -585,17 +585,17 @@ export default function LessonPlayerPage({
             <button
               onClick={() => setNotesOpen(!notesOpen)}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
-              style={{ backgroundColor: notesOpen ? "#3B82F620" : "#334155", color: notesOpen ? "#60A5FA" : "#94A3B8" }}
+              style={{ backgroundColor: notesOpen ? "#3B82F620" : "var(--border-default)", color: notesOpen ? "#60A5FA" : "var(--text-secondary)" }}
             >
               <PenLine size={13} /> Notes
             </button>
-            <button className="p-1.5 rounded-lg" style={{ color: "#94A3B8", backgroundColor: "#334155" }}>
+            <button className="p-1.5 rounded-lg" style={{ color: "var(--text-secondary)", backgroundColor: "var(--border-default)" }}>
               <BookmarkPlus size={15} />
             </button>
-            <button className="p-1.5 rounded-lg" style={{ color: "#94A3B8", backgroundColor: "#334155" }}>
+            <button className="p-1.5 rounded-lg" style={{ color: "var(--text-secondary)", backgroundColor: "var(--border-default)" }}>
               <Share2 size={15} />
             </button>
-            <Link href="/student/discussions" className="p-1.5 rounded-lg" style={{ color: "#94A3B8", backgroundColor: "#334155" }}>
+            <Link href="/student/discussions" className="p-1.5 rounded-lg" style={{ color: "var(--text-secondary)", backgroundColor: "var(--border-default)" }}>
               <MessageSquare size={15} />
             </Link>
           </div>
@@ -607,20 +607,20 @@ export default function LessonPlayerPage({
 
             {/* Lesson KC Gate */}
             {showLessonKCGate && currentLesson?.lessonKC && (
-              <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: "#1E293B", border: "1px solid #8B5CF640" }}>
-                <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom: "1px solid #334155", backgroundColor: "#8B5CF610" }}>
+              <div className="rounded-2xl overflow-hidden shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid #8B5CF640" }}>
+                <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom: "1px solid var(--border-default)", backgroundColor: "#8B5CF610" }}>
                   <div className="flex items-center gap-3">
                     <BrainCircuit size={18} style={{ color: "#8B5CF6" }} />
                     <div>
                       <p className="text-xs font-semibold" style={{ color: "#8B5CF6" }}>Lesson Knowledge Check</p>
-                      <p className="text-sm text-white">Do you already know this? Pass to skip the lesson.</p>
+                      <p className="text-sm" style={{ color: "var(--text-primary)" }}>Do you already know this? Pass to skip the lesson.</p>
                     </div>
                   </div>
                   {!currentLesson.lessonKC.isMandatory && (
                     <button
                       onClick={() => setLessonKCResults(prev => ({ ...prev, [currentLesson.id]: "skipped" }))}
                       className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-xl transition-colors flex-shrink-0"
-                      style={{ backgroundColor: "#334155", color: "#94A3B8" }}
+                      style={{ backgroundColor: "var(--border-default)", color: "var(--text-secondary)" }}
                     >
                       <X size={12} /> Skip Check
                     </button>
@@ -641,15 +641,15 @@ export default function LessonPlayerPage({
             {/* Passed KC — offer skip or continue */}
             {lessonKCResult === "passed" && nextLesson && (
               <div className="flex items-center gap-4 px-5 py-4 rounded-2xl" style={{ backgroundColor: "#10B98115", border: "1px solid #10B98140" }}>
-                <CheckCircle2 size={20} style={{ color: "#10B981", flexShrink: 0 }} />
+                <CheckCircle2 size={20} style={{ color: "var(--success)", flexShrink: 0 }} />
                 <div className="flex-1">
-                  <p className="text-sm font-semibold text-white">You already know this!</p>
-                  <p className="text-xs mt-0.5" style={{ color: "#64748B" }}>You passed the knowledge check — this lesson is optional for you.</p>
+                  <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>You already know this!</p>
+                  <p className="text-xs mt-0.5" style={{ color: "var(--text-tertiary)" }}>You passed the knowledge check — this lesson is optional for you.</p>
                 </div>
                 <Link
                   href={`/student/courses/${id}/learn/${nextLesson.id}`}
                   className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold text-white flex-shrink-0 hover:opacity-90"
-                  style={{ backgroundColor: "#10B981" }}
+                  style={{ backgroundColor: "var(--success)" }}
                 >
                   Skip Lesson <SkipForward size={14} />
                 </Link>
@@ -666,7 +666,7 @@ export default function LessonPlayerPage({
             ) : (
             <div
               className="rounded-2xl overflow-hidden relative"
-              style={{ backgroundColor: "#0A0F1E", border: "1px solid #334155", aspectRatio: "16/9" }}
+              style={{ backgroundColor: "#0A0F1E", border: "1px solid var(--border-default)", aspectRatio: "16/9" }}
             >
               {currentLesson?.videoId ? (
                 <iframe
@@ -684,12 +684,12 @@ export default function LessonPlayerPage({
                   <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
                     <div
                       className="flex items-center justify-center w-20 h-20 rounded-full transition-transform cursor-pointer"
-                      style={{ backgroundColor: "#3B82F6", boxShadow: "0 0 40px rgba(59,130,246,0.4)" }}
+                      style={{ backgroundColor: "var(--accent)", boxShadow: "0 0 40px rgba(59,130,246,0.4)" }}
                       onClick={() => setPlaying(!playing)}
                     >
                       {playing ? <Pause size={32} fill="#fff" color="#fff" /> : <Play size={32} fill="#fff" color="#fff" className="ml-1" />}
                     </div>
-                    <p className="text-sm font-medium" style={{ color: "#64748B" }}>
+                    <p className="text-sm font-medium" style={{ color: "var(--text-tertiary)" }}>
                       {currentLesson?.type === "video" ? currentLesson?.title : "Interactive content"}
                     </p>
                   </div>
@@ -702,8 +702,8 @@ export default function LessonPlayerPage({
                       {playing ? <Pause size={16} fill="#fff" color="#fff" /> : <Play size={16} fill="#fff" color="#fff" />}
                     </button>
                     <button><SkipForward size={16} color="#9CA3AF" /></button>
-                    <div className="flex-1 h-1 rounded-full cursor-pointer" style={{ backgroundColor: "#334155" }}>
-                      <div className="h-full rounded-full" style={{ width: "34%", backgroundColor: "#3B82F6" }} />
+                    <div className="flex-1 h-1 rounded-full cursor-pointer" style={{ backgroundColor: "var(--border-default)" }}>
+                      <div className="h-full rounded-full" style={{ width: "34%", backgroundColor: "var(--accent)" }} />
                     </div>
                     <span className="text-xs" style={{ color: "#9CA3AF" }}>8:12 / {currentLesson?.duration}</span>
                     <button><Volume2 size={16} color="#9CA3AF" /></button>
@@ -719,29 +719,29 @@ export default function LessonPlayerPage({
             <div className="flex items-start justify-between gap-4 flex-wrap">
               <div>
                 <div className="flex items-center gap-2 mb-2 flex-wrap">
-                  <div className="flex items-center gap-1.5 text-xs" style={{ color: "#64748B" }}>
+                  <div className="flex items-center gap-1.5 text-xs" style={{ color: "var(--text-tertiary)" }}>
                     {lessonTypeIcon(currentLesson?.type ?? "video", 13)}
                     <span className="capitalize">{currentLesson?.type}</span>
                   </div>
-                  <span className="text-xs" style={{ color: "#475569" }}>·</span>
-                  <span className="text-xs" style={{ color: "#64748B" }}>{currentLesson?.duration}</span>
+                  <span className="text-xs" style={{ color: "var(--text-muted)" }}>·</span>
+                  <span className="text-xs" style={{ color: "var(--text-tertiary)" }}>{currentLesson?.duration}</span>
                   {currentDone && (
-                    <span className="flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full" style={{ backgroundColor: "#10B98120", color: "#10B981" }}>
+                    <span className="flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full" style={{ backgroundColor: "#10B98120", color: "var(--success)" }}>
                       <CheckCircle2 size={11} /> Completed
                     </span>
                   )}
                 </div>
-                <h1 className="text-xl font-bold text-white">{currentLesson?.title}</h1>
-                <p className="text-sm mt-1" style={{ color: "#64748B" }}>
+                <h1 className="text-xl font-bold" style={{ color: "var(--text-primary)" }}>{currentLesson?.title}</h1>
+                <p className="text-sm mt-1" style={{ color: "var(--text-tertiary)" }}>
                   {(currentLesson as { sectionTitle?: string })?.sectionTitle ?? ""} · {course.instructor}
                 </p>
               </div>
             </div>
 
             {/* Transcript */}
-            <div className="rounded-2xl p-5" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
-              <h3 className="text-sm font-bold text-white mb-3">Transcript</h3>
-              <div className="space-y-3 text-sm" style={{ color: "#94A3B8", lineHeight: 1.7 }}>
+            <div className="rounded-2xl p-5 shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
+              <h3 className="text-sm font-bold mb-3" style={{ color: "var(--text-primary)" }}>Transcript</h3>
+              <div className="space-y-3 text-sm" style={{ color: "var(--text-secondary)", lineHeight: 1.7 }}>
                 {[
                   ["0:00", "Welcome back to the course. In this lesson, we're going to dive deep into Server Components and how they fundamentally change the way we think about data fetching in Next.js."],
                   ["0:42", "Before we start, let me quickly recap what we covered in the previous lesson about the App Router architecture and why server-side rendering matters for performance."],
@@ -749,7 +749,7 @@ export default function LessonPlayerPage({
                   ["4:30", "This is the key insight: because Server Components never ship their code to the client, you can import heavy dependencies, secret keys, and database queries without any security or bundle-size concerns."],
                 ].map(([time, text]) => (
                   <p key={time}>
-                    <span className="text-xs mr-2 font-mono" style={{ color: "#475569" }}>{time}</span>
+                    <span className="text-xs mr-2 font-mono" style={{ color: "var(--text-muted)" }}>{time}</span>
                     {text}
                   </p>
                 ))}
@@ -758,19 +758,19 @@ export default function LessonPlayerPage({
 
             {/* Notes panel */}
             {notesOpen && (
-              <div className="rounded-2xl p-5" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
-                <h3 className="text-sm font-bold text-white mb-3">My Notes</h3>
+              <div className="rounded-2xl p-5 shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
+                <h3 className="text-sm font-bold mb-3" style={{ color: "var(--text-primary)" }}>My Notes</h3>
                 <textarea
                   className="w-full rounded-xl p-3 text-sm resize-none outline-none"
-                  style={{ backgroundColor: "#0F172A", border: "1px solid #334155", color: "#F8FAFC", minHeight: 120 }}
+                  style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)", color: "var(--text-primary)", minHeight: 120 }}
                   placeholder="Take notes here..."
                   value={noteText}
                   onChange={(e) => setNoteText(e.target.value)}
-                  onFocus={(e) => (e.target.style.borderColor = "#3B82F6")}
-                  onBlur={(e) => (e.target.style.borderColor = "#334155")}
+                  onFocus={(e) => (e.target.style.borderColor = "var(--accent)")}
+                  onBlur={(e) => (e.target.style.borderColor = "var(--border-default)")}
                 />
                 <div className="flex justify-end mt-2">
-                  <button className="text-xs px-3 py-1.5 rounded-lg font-semibold" style={{ backgroundColor: "#3B82F6", color: "#fff" }}>
+                  <button className="text-xs px-3 py-1.5 rounded-lg font-semibold" style={{ backgroundColor: "var(--accent)", color: "#fff" }}>
                     Save Note
                   </button>
                 </div>
@@ -783,7 +783,7 @@ export default function LessonPlayerPage({
         {/* Bottom navigation */}
         <div
           className="flex items-center justify-between px-6 py-4 flex-shrink-0"
-          style={{ backgroundColor: "#1E293B", borderTop: "1px solid #334155" }}
+          style={{ backgroundColor: "var(--bg-surface)", borderTop: "1px solid var(--border-default)" }}
         >
           {/* Prev */}
           <div>
@@ -791,11 +791,11 @@ export default function LessonPlayerPage({
               <Link
                 href={`/student/courses/${id}/learn/${prevLesson.id}`}
                 className="flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-xl"
-                style={{ backgroundColor: "#334155", color: "#94A3B8" }}
+                style={{ backgroundColor: "var(--border-default)", color: "var(--text-secondary)" }}
               >
                 <ChevronLeft size={16} />
                 <span>
-                  <p className="text-xs" style={{ color: "#475569" }}>Previous</p>
+                  <p className="text-xs" style={{ color: "var(--text-muted)" }}>Previous</p>
                   <p className="truncate max-w-36">{prevLesson.title}</p>
                 </span>
               </Link>
@@ -807,8 +807,8 @@ export default function LessonPlayerPage({
             onClick={() => markComplete(currentLesson.id, !currentDone)}
             className="flex items-center gap-2 text-sm font-semibold px-5 py-2.5 rounded-xl transition-all"
             style={{
-              backgroundColor: currentDone ? "#10B98120" : "#3B82F6",
-              color: currentDone ? "#10B981" : "#fff",
+              backgroundColor: currentDone ? "#10B98120" : "var(--accent)",
+              color: currentDone ? "var(--success)" : "#fff",
               border: currentDone ? "1px solid #10B98140" : "none",
             }}
           >
@@ -825,13 +825,13 @@ export default function LessonPlayerPage({
                 style={{ backgroundColor: "#3B82F620", color: "#60A5FA" }}
               >
                 <span className="text-right">
-                  <p className="text-xs" style={{ color: "#475569" }}>Next</p>
+                  <p className="text-xs" style={{ color: "var(--text-muted)" }}>Next</p>
                   <p className="truncate max-w-36">{nextLesson.title}</p>
                 </span>
                 <ChevronRight size={16} />
               </Link>
             ) : nextLesson?.locked ? (
-              <div className="flex items-center gap-2 text-sm px-4 py-2 rounded-xl" style={{ backgroundColor: "#1E293B", color: "#475569" }}>
+              <div className="flex items-center gap-2 text-sm px-4 py-2 rounded-xl" style={{ backgroundColor: "var(--bg-surface)", color: "var(--text-muted)" }}>
                 <span className="text-right">
                   <p className="text-xs">Next</p>
                   <p className="truncate max-w-36">{nextLesson.title}</p>
@@ -844,7 +844,7 @@ export default function LessonPlayerPage({
                 <Link
                   href={`/student/courses/${id}`}
                   className="flex items-center gap-2 text-sm font-bold px-4 py-2 rounded-xl"
-                  style={{ backgroundColor: "#10B981", color: "#fff" }}
+                  style={{ backgroundColor: "var(--success)", color: "#fff" }}
                 >
                   <CheckCircle2 size={15} /> Course Complete!
                 </Link>

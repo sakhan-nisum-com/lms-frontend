@@ -33,19 +33,19 @@ export function NewThreadModal({ courses, trainings, initialScope, onClose, onCr
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ backgroundColor: "rgba(0,0,0,0.78)", backdropFilter: "blur(6px)" }}
+      style={{ backgroundColor: "rgba(0,0,0,0.55)", backdropFilter: "blur(6px)" }}
       onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
     >
       <div
-        className="w-full max-w-md rounded-2xl"
-        style={{ backgroundColor: "#1E293B", border: "1px solid #334155", maxHeight: "92vh", overflowY: "auto" }}
+        className="w-full max-w-md rounded-2xl shadow-lg"
+        style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)", maxHeight: "92vh", overflowY: "auto" }}
       >
-        <div className="flex items-center justify-between p-5 pb-4" style={{ borderBottom: "1px solid #334155" }}>
-          <h2 className="text-base font-bold text-white">New Thread</h2>
+        <div className="flex items-center justify-between p-5 pb-4" style={{ borderBottom: "1px solid var(--border-default)" }}>
+          <h2 className="text-base font-bold" style={{ color: "var(--text-primary)" }}>New Thread</h2>
           <button
             onClick={onClose}
             className="w-8 h-8 flex items-center justify-center rounded-lg"
-            style={{ backgroundColor: "#334155", color: "#94A3B8" }}
+            style={{ backgroundColor: "var(--bg-surface-muted)", color: "var(--text-secondary)" }}
           >
             <X size={15} />
           </button>
@@ -53,12 +53,12 @@ export function NewThreadModal({ courses, trainings, initialScope, onClose, onCr
 
         <div className="p-5 space-y-4">
           <div>
-            <label className="text-xs font-semibold block mb-1.5" style={{ color: "#94A3B8" }}>Course or Training</label>
+            <label className="text-xs font-semibold block mb-1.5" style={{ color: "var(--text-secondary)" }}>Course or Training</label>
             <select
               value={scope}
               onChange={(e) => setScope(e.target.value)}
               className="w-full px-3 py-2.5 rounded-lg text-sm outline-none"
-              style={{ backgroundColor: "#0F172A", border: "1px solid #334155", color: "#F8FAFC" }}
+              style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)", color: "var(--text-primary)" }}
             >
               <option value="" disabled>Select a course or training…</option>
               {courses.length > 0 && (
@@ -79,36 +79,36 @@ export function NewThreadModal({ courses, trainings, initialScope, onClose, onCr
           </div>
 
           <div>
-            <label className="text-xs font-semibold block mb-1.5" style={{ color: "#94A3B8" }}>Title</label>
+            <label className="text-xs font-semibold block mb-1.5" style={{ color: "var(--text-secondary)" }}>Title</label>
             <input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="What's your question or topic?"
               className="w-full px-3 py-2.5 rounded-lg text-sm outline-none"
-              style={{ backgroundColor: "#0F172A", border: "1px solid #334155", color: "#F8FAFC" }}
+              style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)", color: "var(--text-primary)" }}
             />
           </div>
 
           <div>
-            <label className="text-xs font-semibold block mb-1.5" style={{ color: "#94A3B8" }}>Body</label>
+            <label className="text-xs font-semibold block mb-1.5" style={{ color: "var(--text-secondary)" }}>Body</label>
             <textarea
               value={body}
               onChange={(e) => setBody(e.target.value)}
               rows={4}
               placeholder="Add more detail…"
               className="w-full px-3 py-2.5 rounded-lg text-sm outline-none resize-none"
-              style={{ backgroundColor: "#0F172A", border: "1px solid #334155", color: "#F8FAFC" }}
+              style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)", color: "var(--text-primary)" }}
             />
           </div>
 
           <div>
-            <label className="text-xs font-semibold block mb-1.5" style={{ color: "#94A3B8" }}>Tags (optional, comma-separated)</label>
+            <label className="text-xs font-semibold block mb-1.5" style={{ color: "var(--text-secondary)" }}>Tags (optional, comma-separated)</label>
             <input
               value={tagsInput}
               onChange={(e) => setTagsInput(e.target.value)}
               placeholder="e.g. server-components, ssr"
               className="w-full px-3 py-2.5 rounded-lg text-sm outline-none"
-              style={{ backgroundColor: "#0F172A", border: "1px solid #334155", color: "#F8FAFC" }}
+              style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)", color: "var(--text-primary)" }}
             />
           </div>
 
@@ -116,7 +116,7 @@ export function NewThreadModal({ courses, trainings, initialScope, onClose, onCr
             onClick={handleSubmit}
             disabled={!isValid}
             className="w-full py-3 rounded-xl text-sm font-bold disabled:opacity-40"
-            style={{ backgroundColor: "#3B82F6", color: "#fff" }}
+            style={{ backgroundColor: "var(--accent)", color: "#fff" }}
           >
             Post Thread
           </button>

@@ -159,15 +159,15 @@ export default function LiveClassesPage() {
         {/* Header */}
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-white">Live Classes</h1>
-            <p className="text-sm mt-1" style={{ color: "#94A3B8" }}>
+            <h1 className="text-2xl font-bold" style={{ color: "var(--text-primary)" }}>Live Classes</h1>
+            <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>
               Join live sessions, watch replays, and learn in real-time
             </p>
           </div>
           <div className="flex items-center gap-2">
             <div
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold"
-              style={{ backgroundColor: "#EF444420", color: "#EF4444" }}
+              style={{ backgroundColor: "#EF444420", color: "var(--danger)" }}
             >
               <span className="w-1.5 h-1.5 rounded-full bg-red-500 inline-block" style={{ animation: "ping 1.2s ease-in-out infinite" }} />
               {liveSessions.length} LIVE NOW
@@ -179,12 +179,12 @@ export default function LiveClassesPage() {
         {liveSessions.length > 0 && (
           <div
             className="rounded-2xl p-5 relative overflow-hidden"
-            style={{ background: "linear-gradient(135deg, #1a0a0a 0%, #2d1010 40%, #1E293B 100%)", border: "1px solid #EF444430" }}
+            style={{ background: "linear-gradient(135deg, #1a0a0a 0%, #2d1010 40%, var(--bg-surface) 100%)", border: "1px solid #EF444430" }}
           >
             <div className="absolute top-0 right-0 w-64 h-64 pointer-events-none" style={{ background: "radial-gradient(circle, rgba(239,68,68,0.12) 0%, transparent 70%)", transform: "translate(20%,-30%)" }} />
             <div className="flex items-center gap-2 mb-4">
               <span className="w-2 h-2 rounded-full bg-red-500" style={{ animation: "ping 1s ease-in-out infinite" }} />
-              <span className="text-xs font-black tracking-widest uppercase" style={{ color: "#EF4444" }}>Live Now</span>
+              <span className="text-xs font-black tracking-widest uppercase" style={{ color: "var(--danger)" }}>Live Now</span>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               {liveSessions.map((s) => (
@@ -199,13 +199,13 @@ export default function LiveClassesPage() {
                   <div className="text-3xl flex-shrink-0">{s.thumbnail}</div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-bold text-white truncate">{s.title}</p>
-                    <p className="text-xs mt-0.5" style={{ color: "#94A3B8" }}>{s.instructor}</p>
-                    <div className="flex items-center gap-3 mt-2 text-xs" style={{ color: "#64748B" }}>
+                    <p className="text-xs mt-0.5" style={{ color: "var(--text-secondary)" }}>{s.instructor}</p>
+                    <div className="flex items-center gap-3 mt-2 text-xs" style={{ color: "var(--text-tertiary)" }}>
                       <span className="flex items-center gap-1"><Users size={11} /> {s.attendees} watching</span>
                       <span className="flex items-center gap-1"><Clock size={11} /> {s.duration} min</span>
                     </div>
                   </div>
-                  <div className="flex items-center justify-center w-9 h-9 rounded-full flex-shrink-0" style={{ backgroundColor: "#EF4444" }}>
+                  <div className="flex items-center justify-center w-9 h-9 rounded-full flex-shrink-0" style={{ backgroundColor: "var(--danger)" }}>
                     <Play size={14} fill="#fff" color="#fff" />
                   </div>
                 </Link>
@@ -216,16 +216,16 @@ export default function LiveClassesPage() {
 
         {/* Tabs + search */}
         <div className="flex items-center gap-3 flex-wrap">
-          <div className="flex rounded-xl overflow-hidden" style={{ border: "1px solid #334155" }}>
+          <div className="flex rounded-xl overflow-hidden" style={{ border: "1px solid var(--border-default)" }}>
             {(["all", "live", "upcoming", "recordings"] as const).map((t) => (
               <button
                 key={t}
                 onClick={() => setTab(t)}
                 className="px-4 py-2 text-xs font-semibold capitalize transition-colors"
                 style={{
-                  backgroundColor: tab === t ? "#3B82F6" : "#1E293B",
-                  color: tab === t ? "#fff" : "#64748B",
-                  borderRight: "1px solid #334155",
+                  backgroundColor: tab === t ? "var(--accent)" : "var(--bg-surface)",
+                  color: tab === t ? "#fff" : "var(--text-tertiary)",
+                  borderRight: "1px solid var(--border-default)",
                 }}
               >
                 {t === "live" ? "🔴 Live" : t.charAt(0).toUpperCase() + t.slice(1)}
@@ -233,13 +233,13 @@ export default function LiveClassesPage() {
             ))}
           </div>
           <div className="relative flex-1 max-w-xs ml-auto">
-            <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "#64748B" }} />
+            <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "var(--text-tertiary)" }} />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search sessions..."
               className="w-full pl-8 pr-3 py-2 text-xs rounded-xl outline-none"
-              style={{ backgroundColor: "#1E293B", border: "1px solid #334155", color: "#F8FAFC" }}
+              style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)", color: "var(--text-primary)" }}
             />
           </div>
         </div>
@@ -247,7 +247,7 @@ export default function LiveClassesPage() {
         {/* Today's schedule */}
         {(tab === "all" || tab === "upcoming") && upcomingToday.length > 0 && (
           <div>
-            <h2 className="text-sm font-bold text-white mb-3">Today's Schedule</h2>
+            <h2 className="text-sm font-bold mb-3" style={{ color: "var(--text-primary)" }}>Today's Schedule</h2>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {upcomingToday.map((s) => (
                 <SessionCard key={s.id} session={s} />
@@ -259,7 +259,7 @@ export default function LiveClassesPage() {
         {/* Upcoming (other days) */}
         {(tab === "all" || tab === "upcoming") && upcomingLater.length > 0 && (
           <div>
-            <h2 className="text-sm font-bold text-white mb-3">Coming Up</h2>
+            <h2 className="text-sm font-bold mb-3" style={{ color: "var(--text-primary)" }}>Coming Up</h2>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {upcomingLater.map((s) => (
                 <SessionCard key={s.id} session={s} />
@@ -272,26 +272,26 @@ export default function LiveClassesPage() {
         {(tab === "all" || tab === "recordings") && (
           <div>
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-sm font-bold text-white">Past Recordings</h2>
-              <Link href="/student/videos" className="text-xs" style={{ color: "#3B82F6" }}>See all in Video Library →</Link>
+              <h2 className="text-sm font-bold" style={{ color: "var(--text-primary)" }}>Past Recordings</h2>
+              <Link href="/student/videos" className="text-xs" style={{ color: "var(--accent)" }}>See all in Video Library →</Link>
             </div>
             <div className="grid sm:grid-cols-2 lg:grid-cols-2 gap-4">
               {RECORDINGS.map((r) => (
                 <Link
                   key={r.id}
                   href={`/student/videos/${r.id}`}
-                  className="flex items-start gap-4 p-4 rounded-xl transition-all"
-                  style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
-                  onMouseEnter={(e) => (e.currentTarget.style.borderColor = "#475569")}
-                  onMouseLeave={(e) => (e.currentTarget.style.borderColor = "#334155")}
+                  className="flex items-start gap-4 p-4 rounded-xl transition-all shadow-sm"
+                  style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
+                  onMouseEnter={(e) => (e.currentTarget.style.borderColor = "var(--text-muted)")}
+                  onMouseLeave={(e) => (e.currentTarget.style.borderColor = "var(--border-default)")}
                 >
-                  <div className="w-20 h-14 rounded-lg flex-shrink-0 flex items-center justify-center text-2xl" style={{ backgroundColor: "#0F172A" }}>
+                  <div className="w-20 h-14 rounded-lg flex-shrink-0 flex items-center justify-center text-2xl" style={{ backgroundColor: "var(--bg-surface-muted)" }}>
                     {r.thumbnail}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-white line-clamp-2 leading-snug">{r.title}</p>
-                    <p className="text-xs mt-1" style={{ color: "#94A3B8" }}>{r.instructor}</p>
-                    <div className="flex items-center gap-3 mt-1.5 text-xs" style={{ color: "#64748B" }}>
+                    <p className="text-sm font-semibold line-clamp-2 leading-snug" style={{ color: "var(--text-primary)" }}>{r.title}</p>
+                    <p className="text-xs mt-1" style={{ color: "var(--text-secondary)" }}>{r.instructor}</p>
+                    <div className="flex items-center gap-3 mt-1.5 text-xs" style={{ color: "var(--text-tertiary)" }}>
                       <span className="flex items-center gap-1"><Clock size={11} /> {r.duration} min</span>
                       <span className="flex items-center gap-1"><Play size={11} /> {r.views.toLocaleString()} views</span>
                       <span>{r.recordedAt}</span>
@@ -314,27 +314,27 @@ function SessionCard({ session: s }: { session: typeof LIVE_SESSIONS[0] }) {
   const fillPct = Math.round((s.attendees / s.maxAttendees) * 100)
 
   return (
-    <div className="rounded-xl p-4 space-y-3" style={{ backgroundColor: "#1E293B", border: `1px solid ${isLive ? "#EF444330" : "#334155"}` }}>
+    <div className="rounded-xl p-4 space-y-3 shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: `1px solid ${isLive ? "#EF444330" : "var(--border-default)"}` }}>
       <div className="flex items-start gap-3">
         <div className="text-3xl flex-shrink-0">{s.thumbnail}</div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             {isLive && (
-              <span className="text-xs font-black px-1.5 py-0.5 rounded" style={{ backgroundColor: "#EF444420", color: "#EF4444", fontSize: 9, letterSpacing: "0.05em" }}>
+              <span className="text-xs font-black px-1.5 py-0.5 rounded" style={{ backgroundColor: "#EF444420", color: "var(--danger)", fontSize: 9, letterSpacing: "0.05em" }}>
                 LIVE
               </span>
             )}
           </div>
-          <p className="text-sm font-semibold text-white mt-0.5 leading-snug">{s.title}</p>
-          <p className="text-xs mt-0.5" style={{ color: "#94A3B8" }}>{s.instructor}</p>
+          <p className="text-sm font-semibold mt-0.5 leading-snug" style={{ color: "var(--text-primary)" }}>{s.title}</p>
+          <p className="text-xs mt-0.5" style={{ color: "var(--text-secondary)" }}>{s.instructor}</p>
         </div>
       </div>
 
-      <p className="text-xs leading-relaxed line-clamp-2" style={{ color: "#64748B" }}>{s.description}</p>
+      <p className="text-xs leading-relaxed line-clamp-2" style={{ color: "var(--text-tertiary)" }}>{s.description}</p>
 
-      <div className="flex items-center gap-3 text-xs" style={{ color: "#64748B" }}>
+      <div className="flex items-center gap-3 text-xs" style={{ color: "var(--text-tertiary)" }}>
         {isLive ? (
-          <span className="flex items-center gap-1 font-semibold" style={{ color: "#EF4444" }}><Users size={11} /> {s.attendees} watching</span>
+          <span className="flex items-center gap-1 font-semibold" style={{ color: "var(--danger)" }}><Users size={11} /> {s.attendees} watching</span>
         ) : (
           <span className="flex items-center gap-1"><Calendar size={11} /> {formatDate(s.scheduledAt)} · {formatTime(s.scheduledAt)}</span>
         )}
@@ -345,7 +345,7 @@ function SessionCard({ session: s }: { session: typeof LIVE_SESSIONS[0] }) {
         <Link
           href={`/student/live/${s.id}`}
           className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-bold text-white"
-          style={{ backgroundColor: "#EF4444" }}
+          style={{ backgroundColor: "var(--danger)" }}
         >
           <Radio size={14} /> Join Live Session
         </Link>

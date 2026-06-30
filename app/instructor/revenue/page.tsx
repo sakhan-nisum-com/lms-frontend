@@ -36,9 +36,9 @@ const MONTHLY = [
 const maxMonthly = Math.max(...MONTHLY.map((m) => m.revenue))
 
 const BY_COURSE = [
-  { name: "React & TypeScript Masterclass", revenue: 3612, pct: 100, color: "#3B82F6" },
-  { name: "Node.js REST API Development",   revenue: 2628, pct: 73,  color: "#10B981" },
-  { name: "Advanced CSS & Animation",       revenue: 1629, pct: 45,  color: "#F59E0B" },
+  { name: "React & TypeScript Masterclass", revenue: 3612, pct: 100, color: "var(--accent)" },
+  { name: "Node.js REST API Development",   revenue: 2628, pct: 73,  color: "var(--success)" },
+  { name: "Advanced CSS & Animation",       revenue: 1629, pct: 45,  color: "var(--warning)" },
   { name: "GraphQL with Apollo",            revenue: 936,  pct: 26,  color: "#EC4899" },
 ]
 
@@ -62,7 +62,7 @@ export default function RevenuePage() {
       action={
         <button
           className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-semibold text-white hover:opacity-90"
-          style={{ backgroundColor: "#3B82F6" }}
+          style={{ backgroundColor: "var(--accent)" }}
         >
           <ArrowDownToLine size={15} />
           <span className="hidden sm:inline">Request Payout</span>
@@ -80,17 +80,17 @@ export default function RevenuePage() {
           ].map(({ label, value, sub, icon: Icon, color, bg }) => (
             <div
               key={label}
-              className="rounded-2xl p-4"
-              style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
+              className="rounded-2xl p-4 shadow-sm"
+              style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
             >
               <div className="flex items-center justify-between mb-3">
-                <p className="text-xs font-medium" style={{ color: "#64748B" }}>{label}</p>
+                <p className="text-xs font-medium" style={{ color: "var(--text-tertiary)" }}>{label}</p>
                 <div className="flex items-center justify-center w-8 h-8 rounded-xl" style={{ backgroundColor: bg }}>
                   <Icon size={15} style={{ color }} />
                 </div>
               </div>
-              <p className="text-2xl font-bold text-white">{value}</p>
-              <p className="text-xs mt-1" style={{ color: "#64748B" }}>{sub}</p>
+              <p className="text-2xl font-bold" style={{ color: "var(--text-primary)" }}>{value}</p>
+              <p className="text-xs mt-1" style={{ color: "var(--text-tertiary)" }}>{sub}</p>
             </div>
           ))}
         </div>
@@ -99,20 +99,20 @@ export default function RevenuePage() {
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
           {/* Monthly revenue bar chart */}
           <div
-            className="lg:col-span-3 rounded-2xl p-5"
-            style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
+            className="lg:col-span-3 rounded-2xl p-5 shadow-sm"
+            style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
           >
             <div className="flex items-center justify-between mb-5">
               <div>
-                <h3 className="text-sm font-semibold text-white">Monthly Revenue</h3>
-                <p className="text-xs mt-0.5" style={{ color: "#64748B" }}>Last 6 months</p>
+                <h3 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Monthly Revenue</h3>
+                <p className="text-xs mt-0.5" style={{ color: "var(--text-tertiary)" }}>Last 6 months</p>
               </div>
-              <span className="text-xl font-bold" style={{ color: "#10B981" }}>+22%</span>
+              <span className="text-xl font-bold" style={{ color: "var(--success)" }}>+22%</span>
             </div>
             <div className="flex items-end gap-3 h-32">
               {MONTHLY.map((m) => (
                 <div key={m.month} className="flex-1 flex flex-col items-center gap-1.5">
-                  <span className="text-xs font-semibold" style={{ color: "#94A3B8" }}>
+                  <span className="text-xs font-semibold" style={{ color: "var(--text-secondary)" }}>
                     ${(m.revenue / 1000).toFixed(1)}k
                   </span>
                   <div
@@ -123,7 +123,7 @@ export default function RevenuePage() {
                       backgroundColor: m.month === "Jun" ? "#3B82F6" : "#3B82F640",
                     }}
                   />
-                  <span className="text-xs" style={{ color: "#64748B" }}>{m.month}</span>
+                  <span className="text-xs" style={{ color: "var(--text-tertiary)" }}>{m.month}</span>
                 </div>
               ))}
             </div>
@@ -131,18 +131,18 @@ export default function RevenuePage() {
 
           {/* Revenue by course */}
           <div
-            className="lg:col-span-2 rounded-2xl p-5"
-            style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
+            className="lg:col-span-2 rounded-2xl p-5 shadow-sm"
+            style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
           >
-            <h3 className="text-sm font-semibold text-white mb-4">Revenue by Course</h3>
+            <h3 className="text-sm font-semibold mb-4" style={{ color: "var(--text-primary)" }}>Revenue by Course</h3>
             <div className="space-y-4">
               {BY_COURSE.map(({ name, revenue, pct, color }) => (
                 <div key={name}>
                   <div className="flex items-center justify-between mb-1.5">
-                    <p className="text-xs truncate flex-1 mr-2" style={{ color: "#94A3B8" }}>{name}</p>
-                    <p className="text-xs font-bold text-white flex-shrink-0">${revenue.toLocaleString()}</p>
+                    <p className="text-xs truncate flex-1 mr-2" style={{ color: "var(--text-secondary)" }}>{name}</p>
+                    <p className="text-xs font-bold flex-shrink-0" style={{ color: "var(--text-primary)" }}>${revenue.toLocaleString()}</p>
                   </div>
-                  <div className="h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: "#334155" }}>
+                  <div className="h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: "var(--border-default)" }}>
                     <div className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: color }} />
                   </div>
                 </div>
@@ -153,14 +153,14 @@ export default function RevenuePage() {
 
         {/* Transactions */}
         <div
-          className="rounded-2xl overflow-hidden"
-          style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
+          className="rounded-2xl overflow-hidden shadow-sm"
+          style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
         >
           <div
             className="flex items-center justify-between px-5 py-4"
-            style={{ borderBottom: "1px solid #334155" }}
+            style={{ borderBottom: "1px solid var(--border-default)" }}
           >
-            <h3 className="text-sm font-semibold text-white">Transaction History</h3>
+            <h3 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Transaction History</h3>
             <div className="flex items-center gap-1">
               {["all", "paid", "pending"].map((f) => (
                 <button
@@ -168,8 +168,8 @@ export default function RevenuePage() {
                   onClick={() => setTxFilter(f)}
                   className="px-2.5 py-1 rounded-lg text-xs font-medium capitalize transition-colors"
                   style={{
-                    backgroundColor: txFilter === f ? "#334155" : "transparent",
-                    color: txFilter === f ? "#F8FAFC" : "#64748B",
+                    backgroundColor: txFilter === f ? "var(--border-default)" : "transparent",
+                    color: txFilter === f ? "var(--text-primary)" : "var(--text-tertiary)",
                   }}
                 >
                   {f === "all" ? "All" : f.charAt(0).toUpperCase() + f.slice(1)}
@@ -183,8 +183,8 @@ export default function RevenuePage() {
             className="grid px-5 py-2.5 text-xs font-semibold uppercase tracking-wide"
             style={{
               gridTemplateColumns: "110px 1fr 80px 90px 90px",
-              borderBottom: "1px solid #334155",
-              color: "#475569",
+              borderBottom: "1px solid var(--border-default)",
+              color: "var(--text-muted)",
             }}
           >
             <span>ID</span>
@@ -194,7 +194,7 @@ export default function RevenuePage() {
             <span className="text-right">Status</span>
           </div>
 
-          <div className="divide-y" style={{ borderColor: "#334155" }}>
+          <div className="divide-y" style={{ borderColor: "var(--border-default)" }}>
             {filteredTx.map((tx) => {
               const st = TX_STATUS[tx.status]
               return (
@@ -204,17 +204,17 @@ export default function RevenuePage() {
                   style={{ gridTemplateColumns: "110px 1fr 80px 90px 90px" }}
                 >
                   <div>
-                    <p className="text-xs font-mono font-semibold" style={{ color: "#60A5FA" }}>{tx.id}</p>
-                    <p className="text-xs mt-0.5" style={{ color: "#475569" }}>{tx.date}</p>
+                    <p className="text-xs font-mono font-semibold" style={{ color: "var(--accent)" }}>{tx.id}</p>
+                    <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>{tx.date}</p>
                   </div>
                   <div className="flex items-center gap-2.5 min-w-0">
                     <div className="flex items-center justify-center w-7 h-7 rounded-lg flex-shrink-0" style={{ backgroundColor: "#3B82F618" }}>
-                      <BookOpen size={12} style={{ color: "#3B82F6" }} />
+                      <BookOpen size={12} style={{ color: "var(--accent)" }} />
                     </div>
-                    <p className="text-sm text-white truncate">{tx.course}</p>
+                    <p className="text-sm truncate" style={{ color: "var(--text-primary)" }}>{tx.course}</p>
                   </div>
-                  <p className="hidden sm:block text-sm text-right" style={{ color: "#94A3B8" }}>{tx.students}</p>
-                  <p className="text-sm font-bold text-white text-right">{tx.amount}</p>
+                  <p className="hidden sm:block text-sm text-right" style={{ color: "var(--text-secondary)" }}>{tx.students}</p>
+                  <p className="text-sm font-bold text-right" style={{ color: "var(--text-primary)" }}>{tx.amount}</p>
                   <div className="flex justify-end">
                     <span
                       className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
@@ -230,7 +230,7 @@ export default function RevenuePage() {
 
           <div
             className="flex items-center justify-between px-5 py-3 text-xs"
-            style={{ borderTop: "1px solid #334155", color: "#475569" }}
+            style={{ borderTop: "1px solid var(--border-default)", color: "var(--text-muted)" }}
           >
             <span>Showing {filteredTx.length} of {TRANSACTIONS.length} transactions</span>
             <button className="flex items-center gap-1 hover:text-white transition-colors">

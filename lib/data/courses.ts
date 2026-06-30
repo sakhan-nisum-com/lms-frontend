@@ -53,6 +53,8 @@ export interface Section {
 export interface Course {
   id: string
   title: string
+  /** Arabic title override — falls back to `title` where not yet translated */
+  titleAr?: string
   instructor: string
   instructorTitle: string
   category: CourseCategory
@@ -99,7 +101,9 @@ export interface Assignment {
   id: string
   courseId: string
   courseName: string
+  courseNameAr?: string
   title: string
+  titleAr?: string
   description: string
   dueDate: string
   submittedDate?: string
@@ -210,8 +214,10 @@ export interface ScheduleEvent {
   id: string
   type: "live-session" | "assignment-due" | "quiz" | "exam" | "office-hours" | "workshop"
   title: string
+  titleAr?: string
   courseId: string
   courseName: string
+  courseNameAr?: string
   date: string // YYYY-MM-DD
   startTime: string // HH:MM
   endTime: string
@@ -227,6 +233,7 @@ export const COURSES: Course[] = [
   {
     id: "c1",
     title: "React & Next.js Masterclass",
+    titleAr: "دورة احتراف React وNext.js",
     instructor: "Sarah Chen",
     instructorTitle: "Senior Engineer @ Meta",
     category: "Engineering",
@@ -327,6 +334,7 @@ export const COURSES: Course[] = [
   {
     id: "c2",
     title: "TypeScript for Professional Developers",
+    titleAr: "TypeScript للمحترفين",
     instructor: "Marcus Webb",
     instructorTitle: "Staff Engineer @ Stripe",
     category: "Engineering",
@@ -384,6 +392,7 @@ export const COURSES: Course[] = [
   {
     id: "c3",
     title: "System Design for Engineers",
+    titleAr: "تصميم الأنظمة للمهندسين",
     instructor: "Priya Nair",
     instructorTitle: "Principal Engineer @ Google",
     category: "Engineering",
@@ -442,6 +451,7 @@ export const COURSES: Course[] = [
   {
     id: "c4",
     title: "Machine Learning Fundamentals",
+    titleAr: "أساسيات تعلّم الآلة",
     instructor: "Dr. Aisha Patel",
     instructorTitle: "AI Research Lead @ DeepMind",
     category: "Data Science",
@@ -487,6 +497,7 @@ export const COURSES: Course[] = [
   {
     id: "c5",
     title: "Cybersecurity Fundamentals",
+    titleAr: "أساسيات الأمن السيبراني",
     instructor: "James Okafor",
     instructorTitle: "CISO @ Fortune 500",
     category: "Security",
@@ -533,6 +544,7 @@ export const COURSES: Course[] = [
   {
     id: "c6",
     title: "Data Privacy & GDPR Compliance",
+    titleAr: "خصوصية البيانات والامتثال لـ GDPR",
     instructor: "Dr. Elena Vasquez",
     instructorTitle: "DPO Specialist",
     category: "Compliance",
@@ -785,6 +797,7 @@ export const COURSES: Course[] = [
   {
     id: "c12",
     title: "Diversity, Equity & Inclusion in the Workplace",
+    titleAr: "التنوع والمساواة والشمول في بيئة العمل",
     instructor: "Keisha Thompson",
     instructorTitle: "Chief People Officer",
     category: "Compliance",
@@ -888,7 +901,9 @@ export const ASSIGNMENTS: Assignment[] = [
     id: "a1",
     courseId: "c1",
     courseName: "React & Next.js Masterclass",
+    courseNameAr: "دورة احتراف React وNext.js",
     title: "Build a Blog App with App Router",
+    titleAr: "بناء تطبيق مدونة باستخدام App Router",
     description:
       "Create a full-featured blog application using Next.js App Router. The app must include dynamic routing, server-side data fetching, and authentication.",
     dueDate: "2025-06-20",
@@ -935,7 +950,9 @@ export const ASSIGNMENTS: Assignment[] = [
     id: "a4",
     courseId: "c6",
     courseName: "Data Privacy & GDPR Compliance",
+    courseNameAr: "خصوصية البيانات والامتثال لـ GDPR",
     title: "Data Privacy Impact Assessment",
+    titleAr: "تقييم أثر خصوصية البيانات",
     description:
       "Conduct a Data Protection Impact Assessment (DPIA) for a hypothetical SaaS product. Identify data flows, risks, and mitigation strategies.",
     dueDate: "2025-07-01",
@@ -980,7 +997,9 @@ export const ASSIGNMENTS: Assignment[] = [
     id: "a7",
     courseId: "c2",
     courseName: "TypeScript for Professional Developers",
+    courseNameAr: "TypeScript للمحترفين",
     title: "Implement a State Machine with TypeScript",
+    titleAr: "بناء آلة حالات (State Machine) باستخدام TypeScript",
     description:
       "Build a type-safe finite state machine library using TypeScript's advanced type features.",
     dueDate: "2025-06-18",
@@ -1508,8 +1527,10 @@ export const SCHEDULE_EVENTS: ScheduleEvent[] = [
     id: "se1",
     type: "live-session",
     title: "Live Q&A: Server Components Deep Dive",
+    titleAr: "أسئلة وأجوبة مباشرة: تعمق في Server Components",
     courseId: "c1",
     courseName: "React & Next.js Masterclass",
+    courseNameAr: "دورة احتراف React وNext.js",
     date: "2025-06-12",
     startTime: "14:00",
     endTime: "15:30",
@@ -1522,8 +1543,10 @@ export const SCHEDULE_EVENTS: ScheduleEvent[] = [
     id: "se2",
     type: "assignment-due",
     title: "Design a Real-Time Chat System — Due",
+    titleAr: "تصميم نظام محادثة فوري — موعد التسليم",
     courseId: "c3",
     courseName: "System Design for Engineers",
+    courseNameAr: "تصميم الأنظمة للمهندسين",
     date: "2025-06-15",
     startTime: "23:59",
     endTime: "23:59",
@@ -1534,8 +1557,10 @@ export const SCHEDULE_EVENTS: ScheduleEvent[] = [
     id: "se3",
     type: "quiz",
     title: "Module 2: App Router Quiz",
+    titleAr: "الوحدة 2: اختبار App Router",
     courseId: "c1",
     courseName: "React & Next.js Masterclass",
+    courseNameAr: "دورة احتراف React وNext.js",
     date: "2025-06-17",
     startTime: "10:00",
     endTime: "10:25",
@@ -1547,8 +1572,10 @@ export const SCHEDULE_EVENTS: ScheduleEvent[] = [
     id: "se4",
     type: "live-session",
     title: "TypeScript Office Hours",
+    titleAr: "ساعات مكتبية لـ TypeScript",
     courseId: "c2",
     courseName: "TypeScript for Professional Developers",
+    courseNameAr: "TypeScript للمحترفين",
     date: "2025-06-13",
     startTime: "16:00",
     endTime: "17:00",
@@ -1668,6 +1695,7 @@ export const SCHEDULE_EVENTS: ScheduleEvent[] = [
 export const STUDENT_PROFILE = {
   id: "stu-001",
   name: "Alex Johnson",
+  nameAr: "خالد العتيبي",
   email: "alex.johnson@techcorp.com",
   avatar: "AJ",
   role: "student" as const,

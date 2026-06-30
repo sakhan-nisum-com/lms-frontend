@@ -69,15 +69,15 @@ export default function CheckoutPage({ params }: { params: Promise<{ id: string 
   }
 
   return (
-    <div style={{ minHeight: "100vh", backgroundColor: "#0F172A" }} className="flex items-center justify-center p-6">
+    <div style={{ minHeight: "100vh", backgroundColor: "var(--bg-canvas)" }} className="flex items-center justify-center p-6">
       <div className="grid md:grid-cols-[1fr_320px] gap-6" style={{ maxWidth: 920, width: "100%" }}>
 
         {/* Left: form / success / already-owned */}
-        <div className="rounded-2xl p-6 sm:p-8" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
+        <div className="rounded-2xl p-6 sm:p-8 shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
           <Link
             href={`/student/courses/${course.id}`}
             className="inline-flex items-center gap-1.5 text-xs mb-6"
-            style={{ color: "#3B82F6" }}
+            style={{ color: "var(--accent)" }}
           >
             <ChevronLeft size={13} /> Back to course
           </Link>
@@ -85,14 +85,14 @@ export default function CheckoutPage({ params }: { params: Promise<{ id: string 
           {owned && step === "pay" ? (
             <div className="text-center py-10">
               <div className="mx-auto mb-4 flex items-center justify-center w-16 h-16 rounded-full" style={{ backgroundColor: "#10B98120" }}>
-                <CheckCircle2 size={32} style={{ color: "#10B981" }} />
+                <CheckCircle2 size={32} style={{ color: "var(--success)" }} />
               </div>
-              <h1 className="text-xl font-bold text-white mb-2">You already own this course</h1>
-              <p className="text-sm mb-6" style={{ color: "#94A3B8" }}>No need to pay again — jump back in any time.</p>
+              <h1 className="text-xl font-bold mb-2" style={{ color: "var(--text-primary)" }}>You already own this course</h1>
+              <p className="text-sm mb-6" style={{ color: "var(--text-secondary)" }}>No need to pay again — jump back in any time.</p>
               <Link
                 href={firstLessonId ? `/student/courses/${course.id}/learn/${course.nextLessonId || firstLessonId}` : `/student/courses/${course.id}`}
                 className="inline-flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-bold"
-                style={{ backgroundColor: "#3B82F6", color: "#fff" }}
+                style={{ backgroundColor: "var(--accent)", color: "#fff" }}
               >
                 Continue Learning
               </Link>
@@ -100,24 +100,24 @@ export default function CheckoutPage({ params }: { params: Promise<{ id: string 
           ) : step === "success" ? (
             <div className="text-center py-10">
               <div className="mx-auto mb-4 flex items-center justify-center w-16 h-16 rounded-full" style={{ backgroundColor: "#10B98120" }}>
-                <CheckCircle2 size={32} style={{ color: "#10B981" }} />
+                <CheckCircle2 size={32} style={{ color: "var(--success)" }} />
               </div>
-              <h1 className="text-xl font-bold text-white mb-2">Payment successful!</h1>
-              <p className="text-sm mb-6" style={{ color: "#94A3B8" }}>
-                You now own <strong className="text-white">{course.title}</strong>. Start learning right away.
+              <h1 className="text-xl font-bold mb-2" style={{ color: "var(--text-primary)" }}>Payment successful!</h1>
+              <p className="text-sm mb-6" style={{ color: "var(--text-secondary)" }}>
+                You now own <strong style={{ color: "var(--text-primary)" }}>{course.title}</strong>. Start learning right away.
               </p>
               <div className="flex items-center justify-center gap-3 flex-wrap">
                 <Link
                   href={`/student/courses/${course.id}/learn/${firstLessonId}`}
                   className="inline-flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-bold"
-                  style={{ backgroundColor: "#3B82F6", color: "#fff" }}
+                  style={{ backgroundColor: "var(--accent)", color: "#fff" }}
                 >
                   Start Watching
                 </Link>
                 <Link
                   href={`/student/courses/${course.id}`}
                   className="inline-flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold"
-                  style={{ backgroundColor: "#334155", color: "#CBD5E1" }}
+                  style={{ backgroundColor: "var(--border-default)", color: "#CBD5E1" }}
                 >
                   Go to course page
                 </Link>
@@ -125,29 +125,29 @@ export default function CheckoutPage({ params }: { params: Promise<{ id: string 
             </div>
           ) : (
             <>
-              <h1 className="text-xl font-bold text-white mb-1">Checkout</h1>
-              <p className="text-sm mb-6" style={{ color: "#94A3B8" }}>
+              <h1 className="text-xl font-bold mb-1" style={{ color: "var(--text-primary)" }}>Checkout</h1>
+              <p className="text-sm mb-6" style={{ color: "var(--text-secondary)" }}>
                 This is a demo checkout — no real payment is processed.
               </p>
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-semibold mb-1.5" style={{ color: "#94A3B8" }}>Name on card</label>
+                  <label className="block text-xs font-semibold mb-1.5" style={{ color: "var(--text-secondary)" }}>Name on card</label>
                   <input
                     value={form.name}
                     onChange={(e) => setForm({ ...form, name: e.target.value })}
                     disabled={step === "processing"}
                     placeholder="Jane Doe"
                     className="w-full px-3.5 py-2.5 rounded-xl text-sm outline-none"
-                    style={{ backgroundColor: "#0F172A", border: `1px solid ${errors.name ? "#EF4444" : "#334155"}`, color: "#F8FAFC" }}
+                    style={{ backgroundColor: "var(--bg-surface-muted)", border: `1px solid ${errors.name ? "var(--danger)" : "var(--border-default)"}`, color: "var(--text-primary)" }}
                   />
-                  {errors.name && <p className="text-xs mt-1" style={{ color: "#EF4444" }}>{errors.name}</p>}
+                  {errors.name && <p className="text-xs mt-1" style={{ color: "var(--danger)" }}>{errors.name}</p>}
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold mb-1.5" style={{ color: "#94A3B8" }}>Card number</label>
+                  <label className="block text-xs font-semibold mb-1.5" style={{ color: "var(--text-secondary)" }}>Card number</label>
                   <div className="relative">
-                    <CreditCard size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: "#64748B" }} />
+                    <CreditCard size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2" style={{ color: "var(--text-tertiary)" }} />
                     <input
                       value={form.cardNumber}
                       onChange={(e) => setForm({ ...form, cardNumber: formatCardNumber(e.target.value) })}
@@ -155,15 +155,15 @@ export default function CheckoutPage({ params }: { params: Promise<{ id: string 
                       placeholder="1234 5678 9012 3456"
                       inputMode="numeric"
                       className="w-full pl-10 pr-3.5 py-2.5 rounded-xl text-sm outline-none"
-                      style={{ backgroundColor: "#0F172A", border: `1px solid ${errors.cardNumber ? "#EF4444" : "#334155"}`, color: "#F8FAFC" }}
+                      style={{ backgroundColor: "var(--bg-surface-muted)", border: `1px solid ${errors.cardNumber ? "var(--danger)" : "var(--border-default)"}`, color: "var(--text-primary)" }}
                     />
                   </div>
-                  {errors.cardNumber && <p className="text-xs mt-1" style={{ color: "#EF4444" }}>{errors.cardNumber}</p>}
+                  {errors.cardNumber && <p className="text-xs mt-1" style={{ color: "var(--danger)" }}>{errors.cardNumber}</p>}
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-semibold mb-1.5" style={{ color: "#94A3B8" }}>Expiry</label>
+                    <label className="block text-xs font-semibold mb-1.5" style={{ color: "var(--text-secondary)" }}>Expiry</label>
                     <input
                       value={form.expiry}
                       onChange={(e) => setForm({ ...form, expiry: formatExpiry(e.target.value) })}
@@ -171,12 +171,12 @@ export default function CheckoutPage({ params }: { params: Promise<{ id: string 
                       placeholder="MM/YY"
                       inputMode="numeric"
                       className="w-full px-3.5 py-2.5 rounded-xl text-sm outline-none"
-                      style={{ backgroundColor: "#0F172A", border: `1px solid ${errors.expiry ? "#EF4444" : "#334155"}`, color: "#F8FAFC" }}
+                      style={{ backgroundColor: "var(--bg-surface-muted)", border: `1px solid ${errors.expiry ? "var(--danger)" : "var(--border-default)"}`, color: "var(--text-primary)" }}
                     />
-                    {errors.expiry && <p className="text-xs mt-1" style={{ color: "#EF4444" }}>{errors.expiry}</p>}
+                    {errors.expiry && <p className="text-xs mt-1" style={{ color: "var(--danger)" }}>{errors.expiry}</p>}
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold mb-1.5" style={{ color: "#94A3B8" }}>CVC</label>
+                    <label className="block text-xs font-semibold mb-1.5" style={{ color: "var(--text-secondary)" }}>CVC</label>
                     <input
                       value={form.cvc}
                       onChange={(e) => setForm({ ...form, cvc: e.target.value.replace(/\D/g, "").slice(0, 4) })}
@@ -184,9 +184,9 @@ export default function CheckoutPage({ params }: { params: Promise<{ id: string 
                       placeholder="123"
                       inputMode="numeric"
                       className="w-full px-3.5 py-2.5 rounded-xl text-sm outline-none"
-                      style={{ backgroundColor: "#0F172A", border: `1px solid ${errors.cvc ? "#EF4444" : "#334155"}`, color: "#F8FAFC" }}
+                      style={{ backgroundColor: "var(--bg-surface-muted)", border: `1px solid ${errors.cvc ? "var(--danger)" : "var(--border-default)"}`, color: "var(--text-primary)" }}
                     />
-                    {errors.cvc && <p className="text-xs mt-1" style={{ color: "#EF4444" }}>{errors.cvc}</p>}
+                    {errors.cvc && <p className="text-xs mt-1" style={{ color: "var(--danger)" }}>{errors.cvc}</p>}
                   </div>
                 </div>
 
@@ -194,12 +194,12 @@ export default function CheckoutPage({ params }: { params: Promise<{ id: string 
                   type="submit"
                   disabled={step === "processing"}
                   className="w-full py-3 rounded-xl text-sm font-bold transition-opacity"
-                  style={{ backgroundColor: "#3B82F6", color: "#fff", opacity: step === "processing" ? 0.7 : 1 }}
+                  style={{ backgroundColor: "var(--accent)", color: "#fff", opacity: step === "processing" ? 0.7 : 1 }}
                 >
                   {step === "processing" ? "Processing payment…" : `Pay $${course.price} and enroll`}
                 </button>
 
-                <p className="flex items-center justify-center gap-1.5 text-xs" style={{ color: "#64748B" }}>
+                <p className="flex items-center justify-center gap-1.5 text-xs" style={{ color: "var(--text-tertiary)" }}>
                   <ShieldCheck size={13} /> 30-day money-back guarantee
                 </p>
               </form>
@@ -208,16 +208,16 @@ export default function CheckoutPage({ params }: { params: Promise<{ id: string 
         </div>
 
         {/* Right: order summary */}
-        <div className="rounded-2xl p-5 h-fit" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
+        <div className="rounded-2xl p-5 h-fit shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
           <CourseThumbnail course={course} heightClass="h-32 mb-4" roundedClass="rounded-lg" />
-          <h3 className="text-sm font-bold text-white mb-1 leading-snug">{course.title}</h3>
-          <p className="text-xs mb-4" style={{ color: "#64748B" }}>{course.instructor}</p>
-          <div className="flex items-center gap-2 text-xs mb-4" style={{ color: "#64748B" }}>
+          <h3 className="text-sm font-bold mb-1 leading-snug" style={{ color: "var(--text-primary)" }}>{course.title}</h3>
+          <p className="text-xs mb-4" style={{ color: "var(--text-tertiary)" }}>{course.instructor}</p>
+          <div className="flex items-center gap-2 text-xs mb-4" style={{ color: "var(--text-tertiary)" }}>
             <Lock size={12} /> Full lifetime access
           </div>
-          <div className="flex items-center justify-between text-sm pt-3" style={{ borderTop: "1px solid #334155" }}>
-            <span style={{ color: "#94A3B8" }}>Total</span>
-            <span className="text-lg font-bold text-white">${course.price}</span>
+          <div className="flex items-center justify-between text-sm pt-3" style={{ borderTop: "1px solid var(--border-default)" }}>
+            <span style={{ color: "var(--text-secondary)" }}>Total</span>
+            <span className="text-lg font-bold" style={{ color: "var(--text-primary)" }}>${course.price}</span>
           </div>
         </div>
       </div>

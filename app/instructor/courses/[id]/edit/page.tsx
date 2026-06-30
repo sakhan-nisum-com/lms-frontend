@@ -94,14 +94,14 @@ export default function EditCoursePage({ params }: { params: Promise<{ id: strin
       action={
         <div className="flex items-center gap-2">
           {saved && (
-            <span className="text-xs font-medium px-2.5 py-1.5 rounded-lg" style={{ backgroundColor: "#10B98118", color: "#6EE7B7" }}>
+            <span className="text-xs font-medium px-2.5 py-1.5 rounded-lg" style={{ backgroundColor: "var(--success-bg)", color: "var(--success)" }}>
               Saved!
             </span>
           )}
           <button
             onClick={handleSave}
             className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-semibold transition-colors hover:border-slate-500"
-            style={{ backgroundColor: "#1E293B", border: "1px solid #334155", color: "#CBD5E1" }}
+            style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)", color: "var(--text-secondary)" }}
           >
             <Save size={14} />
             <span className="hidden sm:inline">Save Draft</span>
@@ -109,7 +109,7 @@ export default function EditCoursePage({ params }: { params: Promise<{ id: strin
           <button
             onClick={handleSave}
             className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-semibold text-white hover:opacity-90"
-            style={{ backgroundColor: "#3B82F6" }}
+            style={{ backgroundColor: "var(--accent)" }}
           >
             <Send size={14} />
             <span className="hidden sm:inline">{isPublished ? "Update" : "Publish"}</span>

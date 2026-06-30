@@ -122,36 +122,36 @@ export function SiteHeader() {
       <header
         style={{
           position: "sticky", top: promoOpen ? PROMO_HEIGHT : 0, zIndex: 51,
-          backgroundColor: "#0f172a",
-          borderBottom: "1px solid #1e293b",
+          backgroundColor: "var(--sidebar-bg)",
+          borderBottom: "1px solid var(--sidebar-border)",
         }}
       >
         <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 24px", height: MAIN_HEADER_HEIGHT, display: "flex", alignItems: "center", gap: 24 }}>
 
           {/* Logo */}
           <Link href="/" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none", flexShrink: 0 }}>
-            <div style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: "#3b82f6", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <div style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: "var(--sidebar-accent)", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <GraduationCap size={18} color="#fff" />
             </div>
-            <span style={{ fontWeight: 800, fontSize: 18, color: "#f8fafc" }}>LearnFlow</span>
+            <span style={{ fontWeight: 800, fontSize: 18, color: "var(--sidebar-text-active)" }}>LearnFlow</span>
           </Link>
 
           {/* Primary links */}
           <nav className="hidden md:flex" style={{ alignItems: "center", gap: 16, flexShrink: 0 }}>
-            <Link href="/student/explore" style={{ color: "#cbd5e1", fontSize: 13.5, fontWeight: 600, textDecoration: "none" }}>
+            <Link href="/student/explore" style={{ color: "var(--sidebar-text-hover)", fontSize: 13.5, fontWeight: 600, textDecoration: "none" }}>
               Find Courses
             </Link>
-            <Link href="/instructors" style={{ color: "#cbd5e1", fontSize: 13.5, fontWeight: 600, textDecoration: "none" }}>
+            <Link href="/instructors" style={{ color: "var(--sidebar-text-hover)", fontSize: 13.5, fontWeight: 600, textDecoration: "none" }}>
               Instructors
             </Link>
-            <Link href="/student/certificates" style={{ color: "#cbd5e1", fontSize: 13.5, fontWeight: 600, textDecoration: "none" }}>
+            <Link href="/student/certificates" style={{ color: "var(--sidebar-text-hover)", fontSize: 13.5, fontWeight: 600, textDecoration: "none" }}>
               Get Certified
             </Link>
           </nav>
 
           {/* Search bar */}
           <form ref={searchRef} onSubmit={submitSearch} className="hidden sm:flex" style={{ flex: 1, maxWidth: 560, position: "relative" }}>
-            <Search size={15} style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "#64748b" }} />
+            <Search size={15} style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "var(--sidebar-text)" }} />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -160,7 +160,7 @@ export function SiteHeader() {
               placeholder="Search for anything"
               style={{
                 width: "100%", padding: "10px 14px 10px 38px", borderRadius: 100,
-                backgroundColor: "#1e293b", border: "1px solid #334155", color: "#f8fafc", fontSize: 14, outline: "none",
+                backgroundColor: "var(--sidebar-bg-active)", border: "1px solid var(--sidebar-border)", color: "var(--sidebar-text-active)", fontSize: 14, outline: "none",
               }}
             />
             {searchOpen && query && (
@@ -174,7 +174,7 @@ export function SiteHeader() {
               <button
                 onClick={() => setLearningOpen(!learningOpen)}
                 className="flex items-center gap-1"
-                style={{ fontSize: 13.5, fontWeight: 600, color: "#cbd5e1", background: "none", border: "none", cursor: "pointer", padding: "8px 0" }}
+                style={{ fontSize: 13.5, fontWeight: 600, color: "var(--sidebar-text-hover)", background: "none", border: "none", cursor: "pointer", padding: "8px 0" }}
               >
                 My Learning
                 <ChevronDown size={13} style={{ transform: learningOpen ? "rotate(180deg)" : "none", transition: "transform 0.15s" }} />
@@ -183,17 +183,17 @@ export function SiteHeader() {
                 <div
                   style={{
                     position: "absolute", top: "calc(100% + 8px)", right: 0, width: 320, borderRadius: 14,
-                    backgroundColor: "#1e293b", border: "1px solid #334155", boxShadow: "0 16px 40px rgba(0,0,0,0.45)",
+                    backgroundColor: "var(--sidebar-bg-active)", border: "1px solid var(--sidebar-border)", boxShadow: "0 16px 40px rgba(0,0,0,0.45)",
                     overflow: "hidden", zIndex: 70,
                   }}
                 >
                   {learningPreview.length === 0 ? (
                     <div style={{ padding: "24px 18px", textAlign: "center" }}>
-                      <p style={{ fontSize: 13, color: "#94a3b8", marginBottom: 10 }}>You haven&apos;t enrolled in anything yet.</p>
+                      <p style={{ fontSize: 13, color: "var(--sidebar-text)", marginBottom: 10 }}>You haven&apos;t enrolled in anything yet.</p>
                       <Link
                         href="/student/explore"
                         onClick={() => setLearningOpen(false)}
-                        style={{ fontSize: 13, fontWeight: 700, color: "#3b82f6", textDecoration: "none" }}
+                        style={{ fontSize: 13, fontWeight: 700, color: "var(--sidebar-accent)", textDecoration: "none" }}
                       >
                         Explore courses →
                       </Link>
@@ -206,8 +206,8 @@ export function SiteHeader() {
                           href={item.href}
                           onClick={() => setLearningOpen(false)}
                           className="flex items-center gap-3"
-                          style={{ padding: "10px 14px", borderBottom: "1px solid #33415560", textDecoration: "none" }}
-                          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#334155")}
+                          style={{ padding: "10px 14px", borderBottom: "1px solid var(--sidebar-border)", textDecoration: "none" }}
+                          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "var(--sidebar-bg-hover)")}
                           onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
                         >
                           <div
@@ -221,10 +221,10 @@ export function SiteHeader() {
                             )}
                           </div>
                           <span style={{ flex: 1, minWidth: 0 }}>
-                            <span style={{ display: "block", fontSize: 13, fontWeight: 600, color: "#f8fafc", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                            <span style={{ display: "block", fontSize: 13, fontWeight: 600, color: "var(--sidebar-text-active)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                               {item.title}
                             </span>
-                            <span style={{ display: "block", fontSize: 11.5, color: "#64748b" }}>{item.meta} · {item.progress}% complete</span>
+                            <span style={{ display: "block", fontSize: 11.5, color: "var(--sidebar-text)" }}>{item.meta} · {item.progress}% complete</span>
                           </span>
                         </Link>
                       ))}
@@ -232,7 +232,7 @@ export function SiteHeader() {
                         href="/student/my-learning"
                         onClick={() => setLearningOpen(false)}
                         className="flex items-center justify-center gap-1.5"
-                        style={{ padding: "12px", fontSize: 12.5, fontWeight: 700, color: "#3b82f6", textDecoration: "none" }}
+                        style={{ padding: "12px", fontSize: 12.5, fontWeight: 700, color: "var(--sidebar-accent)", textDecoration: "none" }}
                       >
                         <Clock size={13} /> View My Learning
                       </Link>
@@ -241,22 +241,22 @@ export function SiteHeader() {
                 </div>
               )}
             </div>
-            <Link href="/#business" className="hidden lg:inline" style={{ color: "#cbd5e1", fontSize: 13.5, fontWeight: 600, textDecoration: "none" }}>
+            <Link href="/#business" className="hidden lg:inline" style={{ color: "var(--sidebar-text-hover)", fontSize: 13.5, fontWeight: 600, textDecoration: "none" }}>
               LearnFlow Business
             </Link>
-            <Link href="/instructor/register" className="hidden lg:inline" style={{ color: "#cbd5e1", fontSize: 13.5, fontWeight: 600, textDecoration: "none" }}>
+            <Link href="/instructor/register" className="hidden lg:inline" style={{ color: "var(--sidebar-text-hover)", fontSize: 13.5, fontWeight: 600, textDecoration: "none" }}>
               Teach on LearnFlow
             </Link>
-            <Link href="/login" className="hidden sm:inline" style={{ color: "#cbd5e1", fontSize: 13.5, fontWeight: 600, textDecoration: "none" }}>
+            <Link href="/login" className="hidden sm:inline" style={{ color: "var(--sidebar-text-hover)", fontSize: 13.5, fontWeight: 600, textDecoration: "none" }}>
               Log in
             </Link>
             <Link href="/register" style={{
-              backgroundColor: "transparent", color: "#f8fafc", fontSize: 13.5, fontWeight: 700,
-              padding: "8px 16px", borderRadius: 8, textDecoration: "none", border: "1px solid #475569",
+              backgroundColor: "transparent", color: "var(--sidebar-text-active)", fontSize: 13.5, fontWeight: 700,
+              padding: "8px 16px", borderRadius: 8, textDecoration: "none", border: "1px solid var(--sidebar-border)",
             }}>
               Sign up
             </Link>
-            <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden" style={{ background: "none", border: "none", color: "#e2e8f0", cursor: "pointer" }}>
+            <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden" style={{ background: "none", border: "none", color: "var(--sidebar-text-hover)", cursor: "pointer" }}>
               {mobileOpen ? <X size={22} /> : <Menu size={22} />}
             </button>
           </nav>
@@ -264,14 +264,14 @@ export function SiteHeader() {
 
         {/* Mobile menu */}
         {mobileOpen && (
-          <div className="md:hidden" style={{ borderTop: "1px solid #1e293b", padding: "12px 24px", display: "flex", flexDirection: "column", gap: 14 }}>
-            <Link href="/student/explore" onClick={() => setMobileOpen(false)} style={{ color: "#cbd5e1", fontSize: 14, fontWeight: 600, textDecoration: "none" }}>Find Courses</Link>
-            <Link href="/student/my-learning" onClick={() => setMobileOpen(false)} style={{ color: "#cbd5e1", fontSize: 14, fontWeight: 600, textDecoration: "none" }}>My Learning</Link>
-            <Link href="/instructors" onClick={() => setMobileOpen(false)} style={{ color: "#cbd5e1", fontSize: 14, fontWeight: 600, textDecoration: "none" }}>Instructors</Link>
-            <Link href="/student/certificates" onClick={() => setMobileOpen(false)} style={{ color: "#cbd5e1", fontSize: 14, fontWeight: 600, textDecoration: "none" }}>Get Certified</Link>
-            <Link href="/#business" onClick={() => setMobileOpen(false)} style={{ color: "#cbd5e1", fontSize: 14, fontWeight: 600, textDecoration: "none" }}>LearnFlow Business</Link>
-            <Link href="/instructor/register" onClick={() => setMobileOpen(false)} style={{ color: "#cbd5e1", fontSize: 14, fontWeight: 600, textDecoration: "none" }}>Teach on LearnFlow</Link>
-            <Link href="/login" onClick={() => setMobileOpen(false)} style={{ color: "#cbd5e1", fontSize: 14, fontWeight: 600, textDecoration: "none" }}>Log in</Link>
+          <div className="md:hidden" style={{ borderTop: "1px solid var(--sidebar-border)", padding: "12px 24px", display: "flex", flexDirection: "column", gap: 14 }}>
+            <Link href="/student/explore" onClick={() => setMobileOpen(false)} style={{ color: "var(--sidebar-text-hover)", fontSize: 14, fontWeight: 600, textDecoration: "none" }}>Find Courses</Link>
+            <Link href="/student/my-learning" onClick={() => setMobileOpen(false)} style={{ color: "var(--sidebar-text-hover)", fontSize: 14, fontWeight: 600, textDecoration: "none" }}>My Learning</Link>
+            <Link href="/instructors" onClick={() => setMobileOpen(false)} style={{ color: "var(--sidebar-text-hover)", fontSize: 14, fontWeight: 600, textDecoration: "none" }}>Instructors</Link>
+            <Link href="/student/certificates" onClick={() => setMobileOpen(false)} style={{ color: "var(--sidebar-text-hover)", fontSize: 14, fontWeight: 600, textDecoration: "none" }}>Get Certified</Link>
+            <Link href="/#business" onClick={() => setMobileOpen(false)} style={{ color: "var(--sidebar-text-hover)", fontSize: 14, fontWeight: 600, textDecoration: "none" }}>LearnFlow Business</Link>
+            <Link href="/instructor/register" onClick={() => setMobileOpen(false)} style={{ color: "var(--sidebar-text-hover)", fontSize: 14, fontWeight: 600, textDecoration: "none" }}>Teach on LearnFlow</Link>
+            <Link href="/login" onClick={() => setMobileOpen(false)} style={{ color: "var(--sidebar-text-hover)", fontSize: 14, fontWeight: 600, textDecoration: "none" }}>Log in</Link>
           </div>
         )}
       </header>
@@ -281,7 +281,7 @@ export function SiteHeader() {
         className="hidden lg:block"
         style={{
           position: "sticky", top: (promoOpen ? PROMO_HEIGHT : 0) + MAIN_HEADER_HEIGHT, zIndex: 50,
-          backgroundColor: "#0f172a", borderBottom: "1px solid #1e293b", height: CATEGORY_BAR_HEIGHT,
+          backgroundColor: "var(--sidebar-bg)", borderBottom: "1px solid var(--sidebar-border)", height: CATEGORY_BAR_HEIGHT,
         }}
       >
         <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 24px", height: "100%" }}>
@@ -296,7 +296,7 @@ export function SiteHeader() {
                 <Link
                   href={`/courses/${c.slug}`}
                   className="flex items-center gap-1"
-                  style={{ fontSize: 13.5, fontWeight: 600, color: "#cbd5e1", textDecoration: "none", whiteSpace: "nowrap" }}
+                  style={{ fontSize: 13.5, fontWeight: 600, color: "var(--sidebar-text-hover)", textDecoration: "none", whiteSpace: "nowrap" }}
                 >
                   {c.label}
                   <ChevronDown size={13} style={{ transform: openCategory === c.value ? "rotate(180deg)" : "none", transition: "transform 0.15s" }} />
@@ -305,7 +305,7 @@ export function SiteHeader() {
                   <div
                     style={{
                       position: "absolute", top: "100%", left: 0, minWidth: 230, borderRadius: 12,
-                      backgroundColor: "#1e293b", border: "1px solid #334155", boxShadow: "0 16px 40px rgba(0,0,0,0.45)",
+                      backgroundColor: "var(--sidebar-bg-active)", border: "1px solid var(--sidebar-border)", boxShadow: "0 16px 40px rgba(0,0,0,0.45)",
                       padding: 8, zIndex: 60,
                     }}
                   >
@@ -314,18 +314,18 @@ export function SiteHeader() {
                         key={sub}
                         href={`/courses/${c.slug}`}
                         onClick={() => setOpenCategory(null)}
-                        style={{ display: "block", padding: "9px 12px", borderRadius: 8, color: "#cbd5e1", fontSize: 13, textDecoration: "none" }}
-                        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#334155")}
+                        style={{ display: "block", padding: "9px 12px", borderRadius: 8, color: "var(--sidebar-text-hover)", fontSize: 13, textDecoration: "none" }}
+                        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "var(--sidebar-bg-hover)")}
                         onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
                       >
                         {sub}
                       </Link>
                     ))}
-                    <div style={{ borderTop: "1px solid #334155", margin: "4px 4px 0" }}>
+                    <div style={{ borderTop: "1px solid var(--sidebar-border)", margin: "4px 4px 0" }}>
                       <Link
                         href={`/courses/${c.slug}`}
                         onClick={() => setOpenCategory(null)}
-                        style={{ display: "block", padding: "9px 12px", borderRadius: 8, color: "#3b82f6", fontSize: 13, fontWeight: 700, textDecoration: "none" }}
+                        style={{ display: "block", padding: "9px 12px", borderRadius: 8, color: "var(--sidebar-accent)", fontSize: 13, fontWeight: 700, textDecoration: "none" }}
                       >
                         View all {c.label} →
                       </Link>
@@ -346,12 +346,12 @@ function SearchDropdown({ results, query, onSelect }: { results: Course[]; query
     <div
       style={{
         position: "absolute", left: 0, right: 0, top: "calc(100% + 8px)", borderRadius: 14,
-        backgroundColor: "#1e293b", border: "1px solid #334155", boxShadow: "0 16px 40px rgba(0,0,0,0.45)",
+        backgroundColor: "var(--sidebar-bg-active)", border: "1px solid var(--sidebar-border)", boxShadow: "0 16px 40px rgba(0,0,0,0.45)",
         overflow: "hidden", zIndex: 70, textAlign: "left",
       }}
     >
       {results.length === 0 ? (
-        <p style={{ padding: "20px 16px", fontSize: 13, color: "#64748b", textAlign: "center" }}>
+        <p style={{ padding: "20px 16px", fontSize: 13, color: "var(--sidebar-text)", textAlign: "center" }}>
           No courses found for &ldquo;{query}&rdquo;
         </p>
       ) : (
@@ -362,18 +362,18 @@ function SearchDropdown({ results, query, onSelect }: { results: Course[]; query
               href={`/student/courses/${c.id}`}
               onClick={onSelect}
               className="flex items-center gap-3"
-              style={{ padding: "10px 14px", borderBottom: "1px solid #33415560", textDecoration: "none" }}
-              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#334155")}
+              style={{ padding: "10px 14px", borderBottom: "1px solid var(--sidebar-border)", textDecoration: "none" }}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "var(--sidebar-bg-hover)")}
               onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
             >
               <span style={{ fontSize: 20, flexShrink: 0 }}>{c.thumbnail}</span>
               <span style={{ flex: 1, minWidth: 0 }}>
-                <span style={{ display: "block", fontSize: 13.5, fontWeight: 600, color: "#f8fafc", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                <span style={{ display: "block", fontSize: 13.5, fontWeight: 600, color: "var(--sidebar-text-active)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                   {c.title}
                 </span>
-                <span style={{ display: "block", fontSize: 12, color: "#64748b" }}>{c.instructor} · {c.category}</span>
+                <span style={{ display: "block", fontSize: 12, color: "var(--sidebar-text)" }}>{c.instructor} · {c.category}</span>
               </span>
-              <span style={{ fontSize: 12.5, fontWeight: 700, color: c.price === "Free" ? "#10B981" : "#f8fafc", flexShrink: 0 }}>
+              <span style={{ fontSize: 12.5, fontWeight: 700, color: c.price === "Free" ? "var(--success)" : "var(--sidebar-text-active)", flexShrink: 0 }}>
                 {c.price === "Free" ? "Free" : `$${c.price}`}
               </span>
             </Link>
@@ -382,7 +382,7 @@ function SearchDropdown({ results, query, onSelect }: { results: Course[]; query
             href="/student/explore"
             onClick={onSelect}
             className="block text-center"
-            style={{ padding: "10px", fontSize: 12.5, fontWeight: 700, color: "#3b82f6", textDecoration: "none" }}
+            style={{ padding: "10px", fontSize: 12.5, fontWeight: 700, color: "var(--sidebar-accent)", textDecoration: "none" }}
           >
             See all results in catalog →
           </Link>

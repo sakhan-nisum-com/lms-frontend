@@ -43,7 +43,7 @@ export default function TrainingsPage() {
         <Link
           href="/instructor/trainings/new"
           className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-semibold text-white hover:opacity-90 transition-opacity"
-          style={{ backgroundColor: "#3B82F6" }}
+          style={{ backgroundColor: "var(--accent)" }}
         >
           <Plus size={15} />
           <span className="hidden sm:inline">Create Training</span>
@@ -54,8 +54,8 @@ export default function TrainingsPage() {
 
         {/* Hero empty state */}
         <div
-          className="flex flex-col items-center text-center py-16 px-8 rounded-2xl"
-          style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
+          className="flex flex-col items-center text-center py-16 px-8 rounded-2xl shadow-sm"
+          style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
         >
           {/* Icon */}
           <div
@@ -65,14 +65,14 @@ export default function TrainingsPage() {
               border: "1px solid #3B82F630",
             }}
           >
-            <Target size={38} style={{ color: "#3B82F6" }} />
+            <Target size={38} style={{ color: "var(--accent)" }} />
           </div>
 
-          <h2 className="text-xl font-bold text-white mb-3">
+          <h2 className="text-xl font-bold mb-3" style={{ color: "var(--text-primary)" }}>
             No Training Programs Yet
           </h2>
 
-          <p className="text-sm leading-relaxed max-w-md mb-8" style={{ color: "#64748B" }}>
+          <p className="text-sm leading-relaxed max-w-md mb-8" style={{ color: "var(--text-tertiary)" }}>
             Manage your premium training programs here. Create high-ticket, time-bound cohorts,
             integrate live workshops, and distribute public subscription links with custom
             expiration dates.
@@ -81,14 +81,14 @@ export default function TrainingsPage() {
           <Link
             href="/instructor/trainings/new"
             className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white hover:opacity-90 transition-opacity"
-            style={{ backgroundColor: "#3B82F6" }}
+            style={{ backgroundColor: "var(--accent)" }}
           >
             <Plus size={15} />
             Create Training
           </Link>
 
           {/* Quick stats row */}
-          <div className="flex items-center gap-6 mt-10 pt-8 w-full justify-center" style={{ borderTop: "1px solid #334155" }}>
+          <div className="flex items-center gap-6 mt-10 pt-8 w-full justify-center" style={{ borderTop: "1px solid var(--border-default)" }}>
             {[
               { icon: Calendar, label: "Cohorts", value: "0" },
               { icon: Users,    label: "Enrolled",  value: "0" },
@@ -96,10 +96,10 @@ export default function TrainingsPage() {
             ].map(({ icon: Icon, label, value }) => (
               <div key={label} className="flex flex-col items-center gap-1">
                 <div className="flex items-center gap-1.5">
-                  <Icon size={13} style={{ color: "#475569" }} />
-                  <span className="text-xl font-bold text-white">{value}</span>
+                  <Icon size={13} style={{ color: "var(--text-muted)" }} />
+                  <span className="text-xl font-bold" style={{ color: "var(--text-primary)" }}>{value}</span>
                 </div>
-                <span className="text-xs" style={{ color: "#475569" }}>{label}</span>
+                <span className="text-xs" style={{ color: "var(--text-muted)" }}>{label}</span>
               </div>
             ))}
           </div>
@@ -107,20 +107,20 @@ export default function TrainingsPage() {
 
         {/* Feature highlight cards */}
         <div>
-          <p className="text-xs font-semibold mb-4 uppercase tracking-wider" style={{ color: "#475569" }}>
+          <p className="text-xs font-semibold mb-4 uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
             What you can build
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {FEATURE_CARDS.map(({ icon: Icon, color, title, desc }) => (
               <div
                 key={title}
-                className="group rounded-2xl p-5 flex flex-col gap-3 cursor-pointer transition-all"
+                className="group rounded-2xl p-5 flex flex-col gap-3 cursor-pointer transition-all shadow-sm"
                 style={{
-                  backgroundColor: "#1E293B",
-                  border: "1px solid #334155",
+                  backgroundColor: "var(--bg-surface)",
+                  border: "1px solid var(--border-default)",
                 }}
                 onMouseEnter={(e) => (e.currentTarget.style.borderColor = color + "60")}
-                onMouseLeave={(e) => (e.currentTarget.style.borderColor = "#334155")}
+                onMouseLeave={(e) => (e.currentTarget.style.borderColor = "var(--border-default)")}
               >
                 <div
                   className="flex items-center justify-center w-10 h-10 rounded-xl"
@@ -129,8 +129,8 @@ export default function TrainingsPage() {
                   <Icon size={18} style={{ color }} />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-white mb-1">{title}</p>
-                  <p className="text-xs leading-relaxed" style={{ color: "#64748B" }}>{desc}</p>
+                  <p className="text-sm font-semibold mb-1" style={{ color: "var(--text-primary)" }}>{title}</p>
+                  <p className="text-xs leading-relaxed" style={{ color: "var(--text-tertiary)" }}>{desc}</p>
                 </div>
                 <div className="flex items-center gap-1 mt-auto" style={{ color }}>
                   <span className="text-xs font-medium">Coming soon</span>

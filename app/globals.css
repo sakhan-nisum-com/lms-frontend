@@ -2,24 +2,76 @@
 @import "quill/dist/quill.snow.css";
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-sidebar: var(--sidebar);
+  --color-canvas: var(--bg-canvas);
+  --color-surface: var(--bg-surface);
+  --color-surface-muted: var(--bg-surface-muted);
+  --color-foreground: var(--text-primary);
   --color-accent: var(--accent);
-  --color-muted: var(--muted);
-  --font-sans: var(--font-geist-sans);
+  --color-muted: var(--text-muted);
+  --font-sans: var(--font-geist-sans), var(--font-arabic);
   --font-mono: var(--font-geist-mono);
 }
 
 :root {
-  --background: #0f172a;
-  --foreground: #f8fafc;
-  --sidebar: #1e293b;
-  --border: #334155;
-  --accent: #3b82f6;
-  --accent-hover: #2563eb;
-  --muted: #94a3b8;
+  /* Canvas / surfaces — light enterprise theme (default) */
+  --bg-canvas: #f4f6fa;
+  --bg-surface: #ffffff;
+  --bg-surface-muted: #f8fafc;
+  --border-default: #e2e8f0;
+  --border-subtle: #edf1f7;
+
+  /* Text — three tiers of decreasing emphasis */
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-tertiary: #64748b;
+  --text-muted: #94a3b8;
+
+  /* Accent — deep blue/indigo */
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --accent-subtle: #eff6ff;
+
+  /* Status */
+  --success: #16a34a;
+  --success-bg: #f0fdf4;
+  --warning: #d97706;
+  --warning-bg: #fffbeb;
+  --danger: #dc2626;
+  --danger-bg: #fef2f2;
+  --focus-ring: rgba(37, 99, 235, 0.35);
+
+  /* Sidebar — constant dark brand anchor in both light & dark mode */
+  --sidebar-bg: #0b1220;
+  --sidebar-bg-active: #15213a;
+  --sidebar-bg-hover: #1a2540;
+  --sidebar-border: #1e2a45;
+  --sidebar-text: #94a3b8;
+  --sidebar-text-active: #ffffff;
+  --sidebar-text-hover: #f1f5f9;
+  --sidebar-accent: #3b82f6;
+
   --app-header-height: 150px;
+}
+
+:root[data-color-mode="dark"] {
+  --bg-canvas: #0b1220;
+  --bg-surface: #141c2e;
+  --bg-surface-muted: #1a2438;
+  --border-default: #26324a;
+  --border-subtle: #1e293b;
+
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-tertiary: #94a3b8;
+  --text-muted: #64748b;
+
+  --accent: #3b82f6;
+  --accent-hover: #60a5fa;
+  --accent-subtle: #1e2a45;
+
+  --success-bg: #052e16;
+  --warning-bg: #451a03;
+  --danger-bg: #450a0a;
 }
 
 *,
@@ -29,19 +81,20 @@
 }
 
 html {
-  background-color: #0f172a;
+  background-color: var(--bg-canvas);
 }
 
 body {
-  background-color: #0f172a;
-  color: #f8fafc;
+  background-color: var(--bg-canvas);
+  color: var(--text-primary);
   min-height: 100vh;
-  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-family: var(--font-geist-sans), var(--font-arabic), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
 
-/* Chakra UI reset override — keep our dark bg */
+/* Chakra UI reset override — Chakra sets its own data-theme on nested elements */
 [data-theme] {
   background-color: transparent !important;
 }
@@ -52,16 +105,16 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #1e293b;
+  background: var(--bg-surface-muted);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #475569;
+  background: var(--border-default);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #64748b;
+  background: var(--text-muted);
 }
 
 /* ── Quill dark theme ──────────────────────────────────────────────────────── */
