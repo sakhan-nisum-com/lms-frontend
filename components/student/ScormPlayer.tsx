@@ -1,30 +1,62 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
+import { ChevronRight } from "lucide-react"
 import { ensureScormServiceWorker } from "@/lib/scorm-sw-client"
 import { useScormAttempts } from "@/lib/hooks/useScormAttempts"
+
+interface NextSco {
+  id: string
+  title: string
+}
 
 interface ScormPlayerProps {
   packageId: string
   scoId: string
   launchHref: string
   attemptId?: string
+  nextSco?: NextSco | null
+  onNextLesson?: () => void
 }
 
 interface CmiData {
   [key: string]: any
 }
 
-export function ScormPlayer({ packageId, scoId, launchHref, attemptId }: ScormPlayerProps) {
+export function ScormPlayer({
+  packageId,
+  scoId,
+  launchHref,
+  attemptId,
+  nextSco,
+  onNextLesson
+}: ScormPlayerProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const [isReady, setIsReady] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [isCompleted, setIsCompleted] = useState(false)
+  const [showOverlay, setShowOverlay] = useState(false)
+  const [quizScore, setQuizScore] = useState<number | null>(null)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
+  const overlayTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const secondsRef = useRef(0)
   const cmiDataRef = useRef<CmiData>({})
   const { startAttempt, updateAttempt, finishAttempt, getAttempt } = useScormAttempts()
 
   const currentAttemptIdRef = useRef(attemptId)
+  const completionHandledRef = useRef(false)
+
+  // Reset completion state when lesson changes
+  useEffect(() => {
+    setIsCompleted(false)
+    setShowOverlay(false)
+    setIsReady(false)
+    setQuizScore(null)
+    completionHandledRef.current = false
+    if (overlayTimeoutRef.current) {
+      clearTimeout(overlayTimeoutRef.current)
+    }
+  }, [scoId])
 
   // Initialize or resume attempt on mount
   useEffect(() => {
@@ -90,6 +122,27 @@ export function ScormPlayer({ packageId, scoId, launchHref, attemptId }: ScormPl
           LMSSetValue: (key: string, value: string) => {
             console.log(`[SCORM Player] LMSSetValue("${key}", "${value}")`)
             cmiDataRef.current[key] = value
+
+            // Check if lesson is now completed
+            if (key === "cmi.core.lesson_status" &&
+                (value === "completed" || value === "passed") &&
+                !completionHandledRef.current) {
+              completionHandledRef.current = true
+              console.log("[SCORM Player] Lesson completed detected!")
+              if (mounted) {
+                setIsCompleted(true)
+              }
+            }
+
+            // Extract score whenever it's set
+            if (key === "cmi.core.score.raw" && value) {
+              if (!isNaN(Number(value))) {
+                const score = Math.round(Number(value))
+                console.log("[SCORM Player] Score extracted:", score)
+                setQuizScore(score)
+              }
+            }
+
             return "true"
           },
 
@@ -107,6 +160,17 @@ export function ScormPlayer({ packageId, scoId, launchHref, attemptId }: ScormPl
             // Final flush and mark complete
             if (currentAttemptIdRef.current) {
               flushAttemptData(true)
+            }
+            if (!completionHandledRef.current) {
+              completionHandledRef.current = true
+              if (mounted) {
+                // Extract and store the score
+                const scoreStr = cmiDataRef.current["cmi.core.score.raw"] ?? ""
+                if (scoreStr && !isNaN(Number(scoreStr))) {
+                  setQuizScore(Math.round(Number(scoreStr)))
+                }
+                setIsCompleted(true)
+              }
             }
             return "true"
           },
@@ -140,9 +204,9 @@ export function ScormPlayer({ packageId, scoId, launchHref, attemptId }: ScormPl
       mounted = false
       if (setupTimeout) clearTimeout(setupTimeout)
     }
-  }, [])
+  }, [packageId, scoId])
 
-  // Flush CMI data to the attempt record
+  // Flush CMI data to the attempt record (both state and localStorage)
   const flushAttemptData = (finishing = false) => {
     const attemptId = currentAttemptIdRef.current
     if (!attemptId) return
@@ -191,6 +255,24 @@ export function ScormPlayer({ packageId, scoId, launchHref, attemptId }: ScormPl
     } else {
       updateAttempt(attemptId, patch)
     }
+
+    // Also directly update localStorage to ensure persistence even if React state update doesn't complete
+    try {
+      const stored = JSON.parse(localStorage.getItem("lms_scorm_attempts") ?? "[]")
+      const idx = stored.findIndex((a: any) => a.id === attemptId)
+      if (idx !== -1) {
+        const completedAt = finishing ? new Date().toISOString() : stored[idx].completedAt
+        stored[idx] = {
+          ...stored[idx],
+          ...patch,
+          ...(finishing && { completedAt }),
+        }
+        localStorage.setItem("lms_scorm_attempts", JSON.stringify(stored))
+        console.log("[SCORM Player] Flushed to localStorage:", stored[idx])
+      }
+    } catch (err) {
+      console.error("[SCORM Player] Failed to update localStorage:", err)
+    }
   }
 
   // Clean up on unmount
@@ -198,6 +280,10 @@ export function ScormPlayer({ packageId, scoId, launchHref, attemptId }: ScormPl
     return () => {
       if (timerRef.current) {
         clearInterval(timerRef.current)
+      }
+
+      if (overlayTimeoutRef.current) {
+        clearTimeout(overlayTimeoutRef.current)
       }
 
       // Final flush on unload
@@ -221,6 +307,20 @@ export function ScormPlayer({ packageId, scoId, launchHref, attemptId }: ScormPl
     window.addEventListener("beforeunload", handleBeforeUnload)
     return () => window.removeEventListener("beforeunload", handleBeforeUnload)
   }, [])
+
+  // Schedule overlay display after completion is detected
+  useEffect(() => {
+    if (!isCompleted) return
+    const t = setTimeout(() => setShowOverlay(true), 2000)
+    return () => clearTimeout(t)
+  }, [isCompleted])
+
+  // Debug: Log overlay state
+  useEffect(() => {
+    if (showOverlay) {
+      console.log("[SCORM Player] Overlay state:", { showOverlay, nextSco: !!nextSco, onNextLesson: !!onNextLesson, quizScore })
+    }
+  }, [showOverlay, nextSco, onNextLesson, quizScore])
 
   if (error) {
     return (
@@ -248,13 +348,77 @@ export function ScormPlayer({ packageId, scoId, launchHref, attemptId }: ScormPl
   console.log("[SCORM Player] Iframe src:", iframeSrc)
 
   return (
-    <iframe
-      ref={iframeRef}
-      src={iframeSrc}
-      className="w-full h-full"
-      style={{ border: "none" }}
-      title="SCORM Content"
-      sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
-    />
+    <div className="relative w-full h-full">
+      <iframe
+        ref={iframeRef}
+        src={iframeSrc}
+        className="w-full h-full"
+        style={{ border: "none" }}
+        title="SCORM Content"
+        sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
+      />
+
+      {/* Completion Overlay */}
+      {showOverlay && nextSco && onNextLesson && (
+        <div
+          className="absolute inset-0 flex items-center justify-center p-4"
+          style={{
+            backgroundColor: "rgba(0, 0, 0, 0.8)",
+            backdropFilter: "blur(4px)"
+          }}
+        >
+          <div
+            className="rounded-2xl p-8 text-center max-w-md"
+            style={{ backgroundColor: "#1E293B", border: "2px solid #10B981" }}
+          >
+            <div className="mb-4 text-4xl">🎉</div>
+            <h2 className="text-2xl font-bold text-white mb-2">Lesson Complete!</h2>
+            <p className="text-gray-300 mb-6">Great job! You've completed this lesson.</p>
+
+            {quizScore !== null && (
+              <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: "#0F172A" }}>
+                <p className="text-sm text-gray-400 mb-1">Your Score</p>
+                <p className="text-3xl font-bold text-green-400">{quizScore}%</p>
+              </div>
+            )}
+
+            <button
+              onClick={onNextLesson}
+              className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors"
+            >
+              Next: {nextSco.title}
+              <ChevronRight size={20} />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Completion without next lesson */}
+      {showOverlay && !nextSco && (
+        <div
+          className="absolute inset-0 flex items-center justify-center p-4"
+          style={{
+            backgroundColor: "rgba(0, 0, 0, 0.8)",
+            backdropFilter: "blur(4px)"
+          }}
+        >
+          <div
+            className="rounded-2xl p-8 text-center max-w-md"
+            style={{ backgroundColor: "#1E293B", border: "2px solid #10B981" }}
+          >
+            <div className="mb-4 text-4xl">✨</div>
+            <h2 className="text-2xl font-bold text-white mb-2">Course Complete!</h2>
+            <p className="text-gray-300 mb-6">You've finished all the lessons in this course. Congratulations!</p>
+
+            {quizScore !== null && (
+              <div className="p-4 rounded-lg" style={{ backgroundColor: "#0F172A" }}>
+                <p className="text-sm text-gray-400 mb-1">Final Score</p>
+                <p className="text-3xl font-bold text-green-400">{quizScore}%</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
   )
 }
