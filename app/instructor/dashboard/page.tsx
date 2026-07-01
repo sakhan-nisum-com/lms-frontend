@@ -141,7 +141,10 @@ export default function InstructorDashboardPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   return (
-    <div className="min-h-screen flex" style={{ backgroundColor: "#0F172A", color: "#F8FAFC" }}>
+    <div
+      className="flex overflow-hidden"
+      style={{ backgroundColor: "#0F172A", color: "#F8FAFC", height: "calc(100vh - var(--app-header-height, 150px))" }}
+    >
       <InstructorSidebar
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
@@ -152,7 +155,7 @@ export default function InstructorDashboardPage() {
       <div className="flex-1 flex flex-col min-w-0">
         {/* Topbar */}
         <header
-          className="flex items-center gap-4 px-5 py-4 sticky top-0 z-30"
+          className="flex items-center gap-4 px-5 py-4 z-30"
           style={{ backgroundColor: "#0F172A", borderBottom: "1px solid #1E293B" }}
         >
           <button

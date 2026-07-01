@@ -2,13 +2,25 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { Calendar, Clock, Users, MapPin, Star, Wrench, CheckCircle } from "lucide-react"
-import type { Workshop } from "@/lib/data/workshops"
+import {
+  Calendar, Clock, Users, MapPin, Star, Wrench, CheckCircle,
+  Video, Terminal, Mic2, Trophy, Building2,
+} from "lucide-react"
+import type { Workshop, WorkshopKind } from "@/lib/data/workshops"
 
 const LEVEL_COLORS: Record<string, string> = { Beginner: "#10B981", Intermediate: "#F59E0B", Advanced: "#EF4444" }
 
 const TIME_24H: Record<string, string> = {
-  "10:00 AM": "10:00", "9:00 AM": "09:00", "1:00 PM": "13:00", "2:00 PM": "14:00",
+  "10:00 AM": "10:00", "9:00 AM": "09:00", "11:00 AM": "11:00",
+  "1:00 PM": "13:00", "2:00 PM": "14:00", "6:00 PM": "18:00",
+}
+
+export const KIND_META: Record<WorkshopKind, { label: string; icon: React.ElementType; color: string }> = {
+  live: { label: "Live Workshop", icon: Video, color: "#3B82F6" },
+  lab: { label: "Hands-on Lab", icon: Terminal, color: "#10B981" },
+  "in-person": { label: "In-Person", icon: Building2, color: "#F59E0B" },
+  panel: { label: "Panel Discussion", icon: Mic2, color: "#8B5CF6" },
+  hackathon: { label: "Hackathon", icon: Trophy, color: "#EC4899" },
 }
 
 function Countdown({ target }: { target: string }) {
@@ -33,11 +45,15 @@ interface WorkshopCardProps {
   workshop: Workshop
   isRegistered: boolean
   onToggleRegister: () => void
+  onBuyOrRegister?: () => void
 }
 
-export function WorkshopCard({ workshop: ws, isRegistered, onToggleRegister }: WorkshopCardProps) {
+export function WorkshopCard({ workshop: ws, isRegistered, onToggleRegister, onBuyOrRegister }: WorkshopCardProps) {
   const spotsLeft = ws.maxAttendees - ws.attendees
   const fillPct = Math.round((ws.attendees / ws.maxAttendees) * 100)
+  const kindMeta = KIND_META[ws.kind]
+  const KindIcon = kindMeta.icon
+  const locationLabel = ws.kind === "in-person" && ws.venue ? ws.venue.city : ws.format
 
   return (
     <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: "#1E293B", border: `1px solid ${isRegistered ? "#3B82F630" : "#334155"}` }}>
@@ -49,6 +65,9 @@ export function WorkshopCard({ workshop: ws, isRegistered, onToggleRegister }: W
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap mb-1">
+              <span className="text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-1" style={{ backgroundColor: `${kindMeta.color}18`, color: kindMeta.color }}>
+                <KindIcon size={10} /> {kindMeta.label}
+              </span>
               {isRegistered && (
                 <span className="text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-1" style={{ backgroundColor: "#10B98120", color: "#10B981" }}>
                   <CheckCircle size={10} /> Registered
@@ -84,8 +103,19 @@ export function WorkshopCard({ workshop: ws, isRegistered, onToggleRegister }: W
           <span className="flex items-center gap-1.5"><Calendar size={12} /> {new Date(ws.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
           <span className="flex items-center gap-1.5"><Clock size={12} /> {ws.time} – {ws.endTime}</span>
           <span className="flex items-center gap-1.5"><Wrench size={12} /> {ws.duration}</span>
-          <span className="flex items-center gap-1.5"><MapPin size={12} /> {ws.format}</span>
+          <span className="flex items-center gap-1.5"><MapPin size={12} /> {locationLabel}</span>
         </div>
+
+        {/* Kind-specific teaser */}
+        {ws.kind === "panel" && ws.speakers && (
+          <p className="text-xs mt-3" style={{ color: "#A78BFA" }}>🎙️ {ws.speakers.length} speakers on the panel</p>
+        )}
+        {ws.kind === "hackathon" && ws.prizes && (
+          <p className="text-xs mt-3" style={{ color: "#EC4899" }}>🏆 Top prize: {ws.prizes[0].reward}</p>
+        )}
+        {ws.kind === "lab" && ws.exercises && (
+          <p className="text-xs mt-3" style={{ color: "#10B981" }}>💻 {ws.exercises.length} hands-on exercises</p>
+        )}
 
         {/* Tags */}
         <div className="flex gap-1.5 flex-wrap mt-3">
@@ -111,7 +141,7 @@ export function WorkshopCard({ workshop: ws, isRegistered, onToggleRegister }: W
       {/* Footer */}
       <div style={{ borderTop: "1px solid #334155", padding: "12px 20px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
         <div>
-          <p className="text-xl font-black text-white">${ws.price}</p>
+          <p className="text-xl font-black text-white">{ws.price === 0 ? "Free" : `$${ws.price}`}</p>
           <p className="text-xs" style={{ color: "#64748B" }}>
             Starts in <span style={{ color: "#F59E0B", fontWeight: 700 }}><Countdown target={`${ws.date}T${TIME_24H[ws.time] ?? "10:00"}:00`} /></span>
           </p>
@@ -125,7 +155,7 @@ export function WorkshopCard({ workshop: ws, isRegistered, onToggleRegister }: W
             Details
           </Link>
           <button
-            onClick={onToggleRegister}
+            onClick={isRegistered ? onToggleRegister : (onBuyOrRegister ?? onToggleRegister)}
             className="px-4 py-2 rounded-xl text-xs font-bold"
             style={{
               backgroundColor: isRegistered ? "#10B98120" : "#3B82F6",
@@ -133,7 +163,7 @@ export function WorkshopCard({ workshop: ws, isRegistered, onToggleRegister }: W
               border: isRegistered ? "1px solid #10B98140" : "none",
             }}
           >
-            {isRegistered ? "✓ Registered" : "Register Now"}
+            {isRegistered ? "✓ Registered" : ws.price > 0 ? `Register — $${ws.price}` : "Register Free"}
           </button>
         </div>
       </div>

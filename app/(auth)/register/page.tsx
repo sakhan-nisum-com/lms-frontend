@@ -23,8 +23,8 @@ export default function RegisterPage() {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center px-4 py-12"
-      style={{ backgroundColor: "#0F172A" }}
+      className="flex items-center justify-center px-4 py-12"
+      style={{ backgroundColor: "#0F172A", minHeight: "calc(100vh - var(--app-header-height, 150px))" }}
     >
       <div
         className="fixed top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full opacity-5 blur-3xl pointer-events-none"

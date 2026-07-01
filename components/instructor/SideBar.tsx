@@ -66,7 +66,7 @@ export function InstructorSidebar({
       {isOpen && (
         <div
           className="fixed inset-0 z-40 lg:hidden"
-          style={{ backgroundColor: "#0F172Acc" }}
+          style={{ backgroundColor: "#0F172Acc", top: "var(--app-header-height, 150px)" }}
           onClick={onClose}
           aria-hidden="true"
         />
@@ -75,7 +75,7 @@ export function InstructorSidebar({
       {/* Sidebar panel */}
       <aside
         className={[
-          "fixed top-0 left-0 h-full z-50 flex flex-col transition-all duration-300 ease-in-out",
+          "fixed left-0 z-50 flex flex-col transition-all duration-300 ease-in-out",
           "lg:static lg:z-auto lg:translate-x-0",
           isOpen ? "translate-x-0" : "-translate-x-full",
         ].join(" ")}
@@ -84,6 +84,8 @@ export function InstructorSidebar({
           backgroundColor: "#1E293B",
           borderRight: "1px solid #334155",
           flexShrink: 0,
+          top: "var(--app-header-height, 150px)",
+          height: "calc(100vh - var(--app-header-height, 150px))",
         }}
       >
         {/* Logo row */}

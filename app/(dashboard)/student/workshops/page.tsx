@@ -2,21 +2,28 @@
 
 import Link from "next/link"
 import { DashboardLayout } from "@/components/layout/DashboardLayout"
-import { WorkshopCard } from "@/components/WorkshopCard"
+import { WorkshopCard, KIND_META } from "@/components/WorkshopCard"
+import { WorkshopPaymentModal } from "@/components/WorkshopPaymentModal"
 import { WORKSHOPS } from "@/lib/data/workshops"
+import type { Workshop, WorkshopKind } from "@/lib/data/workshops"
 import { useWorkshopRegistrations } from "@/lib/hooks/useWorkshopRegistrations"
 import { Search, CalendarCheck } from "lucide-react"
 import { useState } from "react"
+
+const KINDS = Object.keys(KIND_META) as WorkshopKind[]
 
 export default function WorkshopsPage() {
   const { registeredIds, isRegistered, toggleRegistration } = useWorkshopRegistrations()
   const [search, setSearch] = useState("")
   const [filter, setFilter] = useState<"all" | "registered">("all")
+  const [kind, setKind] = useState<WorkshopKind | "all">("all")
+  const [pendingWorkshop, setPendingWorkshop] = useState<Workshop | null>(null)
 
   const filtered = WORKSHOPS.filter((w) => {
     const matchesSearch = w.title.toLowerCase().includes(search.toLowerCase()) || w.tags.some((t) => t.toLowerCase().includes(search.toLowerCase()))
     const matchesFilter = filter === "all" || (filter === "registered" && registeredIds.has(w.id))
-    return matchesSearch && matchesFilter
+    const matchesKind = kind === "all" || w.kind === kind
+    return matchesSearch && matchesFilter && matchesKind
   })
 
   return (
@@ -50,6 +57,38 @@ export default function WorkshopsPage() {
               <p className="text-xs mt-1" style={{ color: "#94A3B8" }}>{label}</p>
             </div>
           ))}
+        </div>
+
+        {/* Kind filter */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
+          <button
+            onClick={() => setKind("all")}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex-shrink-0"
+            style={{
+              backgroundColor: kind === "all" ? "#3B82F6" : "#1E293B",
+              color: kind === "all" ? "#fff" : "#94A3B8",
+              border: `1px solid ${kind === "all" ? "#3B82F6" : "#334155"}`,
+            }}
+          >
+            All Kinds
+          </button>
+          {KINDS.map((k) => {
+            const Icon = KIND_META[k].icon
+            return (
+              <button
+                key={k}
+                onClick={() => setKind(k)}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex-shrink-0"
+                style={{
+                  backgroundColor: kind === k ? KIND_META[k].color : "#1E293B",
+                  color: kind === k ? "#fff" : "#94A3B8",
+                  border: `1px solid ${kind === k ? KIND_META[k].color : "#334155"}`,
+                }}
+              >
+                <Icon size={12} /> {KIND_META[k].label}
+              </button>
+            )
+          })}
         </div>
 
         {/* Filters + search */}
@@ -86,6 +125,7 @@ export default function WorkshopsPage() {
               workshop={ws}
               isRegistered={isRegistered(ws.id)}
               onToggleRegister={() => toggleRegistration(ws.id)}
+              onBuyOrRegister={() => setPendingWorkshop(ws)}
             />
           ))}
         </div>
@@ -97,6 +137,17 @@ export default function WorkshopsPage() {
           </div>
         )}
       </div>
+
+      {pendingWorkshop && (
+        <WorkshopPaymentModal
+          workshop={pendingWorkshop}
+          onClose={() => setPendingWorkshop(null)}
+          onSuccess={() => {
+            toggleRegistration(pendingWorkshop.id)
+            setPendingWorkshop(null)
+          }}
+        />
+      )}
     </DashboardLayout>
   )
 }

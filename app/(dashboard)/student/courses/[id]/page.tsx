@@ -1,11 +1,18 @@
 "use client"
 
-import { useState, use } from "react"
+import { useState, use, Suspense } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { DashboardLayout } from "@/components/layout/DashboardLayout"
 import { CourseThumbnail } from "@/components/CourseThumbnail"
-import { COURSES, DISCUSSIONS, STUDENT_PROFILE } from "@/lib/data/courses"
+import { RecommendedSection } from "@/components/RecommendedSection"
+import type { RecommendedItem } from "@/components/RecommendedSection"
+import { CourseAssignments } from "@/components/course/CourseAssignments"
+import { CourseQuizzes } from "@/components/course/CourseQuizzes"
+import { COURSES, ASSIGNMENTS, QUIZZES, STUDENT_PROFILE } from "@/lib/data/courses"
+import { useDiscussions } from "@/lib/hooks/useDiscussions"
+import type { Course } from "@/lib/data/courses"
+import { getInstructorByName } from "@/lib/data/instructors"
 import { useProgress } from "@/lib/hooks/useProgress"
 import { usePurchases } from "@/lib/hooks/usePurchases"
 import {
@@ -14,7 +21,7 @@ import {
   Video, HelpCircle, PenLine, Wifi, Download,
 } from "lucide-react"
 
-type Tab = "overview" | "curriculum" | "resources" | "discussions" | "reviews"
+type Tab = "overview" | "curriculum" | "assignments" | "quizzes" | "resources" | "discussions" | "reviews"
 
 const levelColors: Record<string, string> = { Beginner: "#10B981", Intermediate: "#F59E0B", Advanced: "#EF4444" }
 
@@ -46,13 +53,26 @@ const resources = [
 
 export default function CourseDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
+  return (
+    <Suspense fallback={null}>
+      <CourseDetailContent id={id} />
+    </Suspense>
+  )
+}
+
+function CourseDetailContent({ id }: { id: string }) {
   const course = COURSES.find((c) => c.id === id) ?? COURSES[0]
+  const instructorProfile = getInstructorByName(course.instructor)
   const p = STUDENT_PROFILE
   const router = useRouter()
   const { isComplete } = useProgress(id)
   const { isPurchased, purchase } = usePurchases()
-  const [tab, setTab] = useState<Tab>("overview")
+  const { threads } = useDiscussions()
+  const requestedTab = useSearchParams().get("tab") as Tab | null
+  const [tab, setTab] = useState<Tab>(requestedTab ?? "overview")
   const [openSections, setOpenSections] = useState<Set<string>>(new Set(["s1", "s2"]))
+  const courseAssignments = ASSIGNMENTS.filter((a) => a.courseId === course.id)
+  const courseQuizzes = QUIZZES.filter((q) => q.courseId === course.id)
 
   const toggleSection = (sId: string) => {
     setOpenSections((prev) => {
@@ -71,7 +91,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
   )
   const progressPct = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : (course.progress ?? 0)
   const totalDuration = course.totalDuration
-  const courseDiscussions = DISCUSSIONS.filter((d) => d.courseId === course.id)
+  const courseDiscussions = threads.filter((d) => d.courseId === course.id)
 
   const isEnrolled = course.progress !== undefined || isPurchased(course.id)
   const isCourseComplete = progressPct === 100
@@ -86,6 +106,36 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
       router.push(`/student/courses/${course.id}/checkout`)
     }
   }
+
+  const toRecommendedItem = (c: Course): RecommendedItem => ({
+    id: c.id,
+    href: `/student/courses/${c.id}`,
+    thumbnail: c.thumbnail,
+    thumbnailColor: c.thumbnailColor,
+    title: c.title,
+    meta: c.instructor,
+    rating: c.rating,
+    reviewCount: c.reviewCount,
+    priceLabel: c.price === "Free" ? "Free" : `$${c.price}`,
+  })
+
+  const alsoBought = [...COURSES]
+    .filter((c) => c.id !== course.id)
+    .sort((a, b) => b.studentsCount - a.studentsCount)
+    .slice(0, 4)
+    .map(toRecommendedItem)
+
+  const alsoBoughtIds = new Set(alsoBought.map((c) => c.id))
+  const recommended = [...COURSES]
+    .filter((c) => c.id !== course.id && !alsoBoughtIds.has(c.id))
+    .sort((a, b) => {
+      const aSame = a.category === course.category ? 1 : 0
+      const bSame = b.category === course.category ? 1 : 0
+      if (aSame !== bSame) return bSame - aSame
+      return b.rating - a.rating
+    })
+    .slice(0, 4)
+    .map(toRecommendedItem)
 
   return (
     <DashboardLayout role="student" userName={p.name}>
@@ -157,7 +207,14 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
               </div>
 
               <p className="text-sm mt-4" style={{ color: "#94A3B8" }}>
-                Instructor: <strong className="text-white">{course.instructor}</strong>
+                Instructor:{" "}
+                {instructorProfile ? (
+                  <Link href={`/instructors/${instructorProfile.id}`} className="font-bold text-white hover:underline">
+                    {course.instructor}
+                  </Link>
+                ) : (
+                  <strong className="text-white">{course.instructor}</strong>
+                )}
                 <span className="ml-2" style={{ color: "#64748B" }}>{course.instructorTitle}</span>
               </p>
             </div>
@@ -234,14 +291,24 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
 
         {/* Tabs */}
         <div className="flex items-center gap-1 border-b" style={{ borderColor: "#334155" }}>
-          {(["overview", "curriculum", "resources", "discussions", "reviews"] as Tab[]).map((t) => (
+          {(["overview", "curriculum", "assignments", "quizzes", "resources", "discussions", "reviews"] as Tab[]).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
               className="px-4 py-2.5 text-sm font-medium capitalize transition-colors relative"
               style={{ color: tab === t ? "#60A5FA" : "#64748B" }}
             >
-              {t}
+              {t === "quizzes" ? "Quizzes & Exams" : t}
+              {t === "assignments" && courseAssignments.length > 0 && (
+                <span className="ml-1.5 text-xs px-1.5 py-0.5 rounded-full" style={{ backgroundColor: "#3B82F620", color: "#60A5FA" }}>
+                  {courseAssignments.length}
+                </span>
+              )}
+              {t === "quizzes" && courseQuizzes.length > 0 && (
+                <span className="ml-1.5 text-xs px-1.5 py-0.5 rounded-full" style={{ backgroundColor: "#3B82F620", color: "#60A5FA" }}>
+                  {courseQuizzes.length}
+                </span>
+              )}
               {t === "discussions" && courseDiscussions.length > 0 && (
                 <span className="ml-1.5 text-xs px-1.5 py-0.5 rounded-full" style={{ backgroundColor: "#3B82F620", color: "#60A5FA" }}>
                   {courseDiscussions.length}
@@ -454,6 +521,12 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
             </div>
           )}
 
+          {/* Assignments */}
+          {tab === "assignments" && <CourseAssignments assignments={courseAssignments} />}
+
+          {/* Quizzes & Exams */}
+          {tab === "quizzes" && <CourseQuizzes quizzes={courseQuizzes} />}
+
           {/* Resources */}
           {tab === "resources" && (
             <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
@@ -495,7 +568,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
               <div className="flex items-center justify-between">
                 <p className="text-sm" style={{ color: "#64748B" }}>{courseDiscussions.length} threads</p>
                 <Link
-                  href="/student/discussions"
+                  href={`/student/discussions?scope=course:${course.id}&new=1`}
                   className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg"
                   style={{ backgroundColor: "#3B82F6", color: "#fff" }}
                 >
@@ -601,6 +674,12 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
             </div>
           )}
 
+        </div>
+
+        {/* Students also bought + Recommended */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <RecommendedSection title="Students Also Bought" items={alsoBought} />
+          <RecommendedSection title="Recommended For You" items={recommended} />
         </div>
       </div>
     </DashboardLayout>

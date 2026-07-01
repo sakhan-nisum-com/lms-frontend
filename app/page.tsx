@@ -5,29 +5,18 @@ import { useRouter } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
 import { CourseThumbnail } from "@/components/CourseThumbnail"
 import { COURSES } from "@/lib/data/courses"
-import type { Course, CourseCategory } from "@/lib/data/courses"
+import type { Course } from "@/lib/data/courses"
+import { INSTRUCTORS, getInstructorStats } from "@/lib/data/instructors"
+import type { Instructor } from "@/lib/data/instructors"
 import { usePurchases } from "@/lib/hooks/usePurchases"
 import {
   GraduationCap,
   Search,
-  ChevronDown,
   Star,
+  Users,
   ArrowRight,
   CheckCircle2,
-  Menu,
-  X,
 } from "lucide-react"
-
-const CATEGORIES: { label: string; value: CourseCategory; icon: string }[] = [
-  { label: "Engineering", value: "Engineering", icon: "💻" },
-  { label: "Data Science", value: "Data Science", icon: "📊" },
-  { label: "Design", value: "Design", icon: "🎨" },
-  { label: "Business", value: "Business", icon: "📈" },
-  { label: "Security", value: "Security", icon: "🔒" },
-  { label: "Compliance", value: "Compliance", icon: "📋" },
-  { label: "Leadership", value: "Leadership", icon: "🎯" },
-  { label: "Product", value: "Product", icon: "📱" },
-]
 
 const SUGGESTED_SEARCHES = ["Python", "AWS Certification", "UX Design", "SQL", "Leadership", "Cybersecurity"]
 
@@ -35,24 +24,19 @@ const topCourses = [...COURSES].sort((a, b) => b.studentsCount - a.studentsCount
 const topRated = [...COURSES].sort((a, b) => b.rating - a.rating).slice(0, 8)
 const engineeringCourses = COURSES.filter((c) => c.category === "Engineering")
 const dataScienceCourses = COURSES.filter((c) => c.category === "Data Science")
+const popularInstructors = [...INSTRUCTORS]
+  .sort((a, b) => getInstructorStats(b).studentsCount - getInstructorStats(a).studentsCount)
+  .slice(0, 8)
 
 export default function HomePage() {
   const router = useRouter()
   const [search, setSearch] = useState("")
-  const [catOpen, setCatOpen] = useState(false)
-  const [mobileOpen, setMobileOpen] = useState(false)
-  const [searchOpen, setSearchOpen] = useState<"header" | "hero" | null>(null)
-  const catRef = useRef<HTMLDivElement>(null)
-  const headerSearchRef = useRef<HTMLFormElement>(null)
+  const [searchOpen, setSearchOpen] = useState(false)
   const heroSearchRef = useRef<HTMLFormElement>(null)
 
   useEffect(() => {
     function handler(e: MouseEvent) {
-      if (catRef.current && !catRef.current.contains(e.target as Node)) setCatOpen(false)
-      const target = e.target as Node
-      const insideHeader = headerSearchRef.current?.contains(target)
-      const insideHero = heroSearchRef.current?.contains(target)
-      if (!insideHeader && !insideHero) setSearchOpen(null)
+      if (heroSearchRef.current && !heroSearchRef.current.contains(e.target as Node)) setSearchOpen(false)
     }
     document.addEventListener("mousedown", handler)
     return () => document.removeEventListener("mousedown", handler)
@@ -76,121 +60,7 @@ export default function HomePage() {
   return (
     <div style={{ backgroundColor: "#0f172a", color: "#f8fafc", minHeight: "100vh" }}>
 
-      {/* ── HEADER ── */}
-      <header
-        style={{
-          position: "fixed", top: 0, left: 0, right: 0, zIndex: 50,
-          backgroundColor: "#0f172a",
-          borderBottom: "1px solid #1e293b",
-        }}
-      >
-        <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 24px", height: 64, display: "flex", alignItems: "center", gap: 20 }}>
-
-          {/* Logo */}
-          <Link href="/" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none", flexShrink: 0 }}>
-            <div style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: "#3b82f6", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <GraduationCap size={18} color="#fff" />
-            </div>
-            <span style={{ fontWeight: 800, fontSize: 18, color: "#f8fafc" }}>LearnFlow</span>
-          </Link>
-
-          {/* Categories dropdown */}
-          <div ref={catRef} className="hidden md:block" style={{ position: "relative", flexShrink: 0 }}>
-            <button
-              onClick={() => setCatOpen(!catOpen)}
-              style={{
-                display: "flex", alignItems: "center", gap: 4, fontSize: 14, fontWeight: 600,
-                color: "#e2e8f0", background: "none", border: "none", cursor: "pointer", padding: "8px 4px",
-              }}
-            >
-              Categories <ChevronDown size={14} style={{ transform: catOpen ? "rotate(180deg)" : "none", transition: "transform 0.15s" }} />
-            </button>
-            {catOpen && (
-              <div
-                style={{
-                  position: "absolute", top: 44, left: 0, width: 380, borderRadius: 12,
-                  backgroundColor: "#1e293b", border: "1px solid #334155", boxShadow: "0 12px 32px rgba(0,0,0,0.4)",
-                  padding: 8, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2, zIndex: 60,
-                }}
-              >
-                {CATEGORIES.map((c) => (
-                  <Link
-                    key={c.value}
-                    href="/student/explore"
-                    onClick={() => setCatOpen(false)}
-                    style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 12px", borderRadius: 8, color: "#cbd5e1", fontSize: 13, textDecoration: "none" }}
-                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#334155")}
-                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-                  >
-                    <span style={{ fontSize: 16 }}>{c.icon}</span> {c.label}
-                  </Link>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Search bar */}
-          <form ref={headerSearchRef} onSubmit={submitSearch} className="hidden sm:flex" style={{ flex: 1, maxWidth: 560, position: "relative" }}>
-            <Search size={15} style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "#64748b" }} />
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              onFocus={() => setSearchOpen("header")}
-              type="text"
-              placeholder="Search for anything"
-              style={{
-                width: "100%", padding: "10px 14px 10px 38px", borderRadius: 100,
-                backgroundColor: "#1e293b", border: "1px solid #334155", color: "#f8fafc", fontSize: 14, outline: "none",
-              }}
-            />
-            {searchOpen === "header" && query && (
-              <SearchDropdown results={searchResults} query={search} onSelect={() => setSearchOpen(null)} />
-            )}
-          </form>
-
-          {/* Right nav */}
-          <nav style={{ display: "flex", alignItems: "center", gap: 18, marginLeft: "auto", flexShrink: 0 }}>
-            <Link href="#business" className="hidden lg:inline" style={{ color: "#cbd5e1", fontSize: 13.5, fontWeight: 600, textDecoration: "none" }}>
-              LearnFlow Business
-            </Link>
-            <Link href="/instructor/register" className="hidden lg:inline" style={{ color: "#cbd5e1", fontSize: 13.5, fontWeight: 600, textDecoration: "none" }}>
-              Teach on LearnFlow
-            </Link>
-            <Link href="/login" className="hidden sm:inline" style={{ color: "#cbd5e1", fontSize: 13.5, fontWeight: 600, textDecoration: "none" }}>
-              Log in
-            </Link>
-            <Link href="/register" style={{
-              backgroundColor: "transparent", color: "#f8fafc", fontSize: 13.5, fontWeight: 700,
-              padding: "8px 16px", borderRadius: 8, textDecoration: "none", border: "1px solid #475569",
-            }}>
-              Sign up
-            </Link>
-            <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden" style={{ background: "none", border: "none", color: "#e2e8f0", cursor: "pointer" }}>
-              {mobileOpen ? <X size={22} /> : <Menu size={22} />}
-            </button>
-          </nav>
-        </div>
-
-        {/* Mobile menu */}
-        {mobileOpen && (
-          <div className="md:hidden" style={{ borderTop: "1px solid #1e293b", padding: "12px 24px", display: "flex", flexDirection: "column", gap: 14 }}>
-            <Link href="/student/explore" onClick={() => setMobileOpen(false)} style={{ color: "#cbd5e1", fontSize: 14, fontWeight: 600, textDecoration: "none" }}>Categories</Link>
-            <Link href="#business" onClick={() => setMobileOpen(false)} style={{ color: "#cbd5e1", fontSize: 14, fontWeight: 600, textDecoration: "none" }}>LearnFlow Business</Link>
-            <Link href="/instructor/register" onClick={() => setMobileOpen(false)} style={{ color: "#cbd5e1", fontSize: 14, fontWeight: 600, textDecoration: "none" }}>Teach on LearnFlow</Link>
-            <Link href="/login" onClick={() => setMobileOpen(false)} style={{ color: "#cbd5e1", fontSize: 14, fontWeight: 600, textDecoration: "none" }}>Log in</Link>
-          </div>
-        )}
-      </header>
-
-      <main style={{ paddingTop: 64 }}>
-
-        {/* ── PROMO STRIP ── */}
-        <div style={{ backgroundColor: "#3b82f6" }}>
-          <div style={{ maxWidth: 1280, margin: "0 auto", padding: "8px 24px", display: "flex", alignItems: "center", justifyContent: "center", gap: 10, flexWrap: "wrap" }}>
-            <span style={{ fontSize: 13, fontWeight: 700, color: "#fff" }}>🎉 New learner offer — courses from $9.99</span>
-            <Link href="/register" style={{ fontSize: 13, fontWeight: 700, color: "#0f172a", textDecoration: "underline" }}>Claim offer →</Link>
-          </div>
-        </div>
+      <main>
 
         {/* ── HERO ── */}
         <section style={{ padding: "64px 24px 32px", textAlign: "center" }}>
@@ -207,7 +77,7 @@ export default function HomePage() {
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                onFocus={() => setSearchOpen("hero")}
+                onFocus={() => setSearchOpen(true)}
                 type="text"
                 placeholder="What do you want to learn?"
                 style={{
@@ -222,8 +92,8 @@ export default function HomePage() {
               }}>
                 Search
               </button>
-              {searchOpen === "hero" && query && (
-                <SearchDropdown results={searchResults} query={search} onSelect={() => setSearchOpen(null)} />
+              {searchOpen && query && (
+                <SearchDropdown results={searchResults} query={search} onSelect={() => setSearchOpen(false)} />
               )}
             </form>
 
@@ -250,30 +120,26 @@ export default function HomePage() {
           </p>
         </div>
 
-        {/* ── CATEGORY STRIP ── */}
-        <div style={{ maxWidth: 1280, margin: "0 auto", padding: "24px 24px 0" }}>
-          <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
-            {CATEGORIES.map((c) => (
-              <Link
-                key={c.value}
-                href="/student/explore"
-                className="flex items-center gap-1.5 flex-shrink-0"
-                style={{
-                  fontSize: 13.5, fontWeight: 600, color: "#cbd5e1", backgroundColor: "#1e293b",
-                  border: "1px solid #334155", borderRadius: 100, padding: "8px 16px", textDecoration: "none",
-                }}
-              >
-                <span style={{ fontSize: 14 }}>{c.icon}</span> {c.label}
-              </Link>
-            ))}
-          </div>
-        </div>
-
         {/* ── COURSE ROWS ── */}
         <CourseRow title="Top courses right now" courses={topCourses} />
         <CourseRow title="Highest rated by learners" courses={topRated} />
         <CourseRow title="Top courses in Engineering" courses={engineeringCourses} />
         <CourseRow title="Top courses in Data Science" courses={dataScienceCourses} />
+
+        {/* ── POPULAR INSTRUCTORS ── */}
+        <section style={{ maxWidth: 1280, margin: "0 auto", padding: "32px 24px 8px" }}>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold text-white">Popular instructors</h2>
+            <Link href="/instructors" className="flex items-center gap-1 text-sm font-semibold" style={{ color: "#3b82f6", textDecoration: "none" }}>
+              View all <ArrowRight size={14} />
+            </Link>
+          </div>
+          <div className="flex gap-4 overflow-x-auto pb-2" style={{ scrollbarWidth: "none" }}>
+            {popularInstructors.map((instructor) => (
+              <InstructorCard key={instructor.id} instructor={instructor} />
+            ))}
+          </div>
+        </section>
 
         {/* ── BUSINESS PITCH ── */}
         <section id="business" style={{ padding: "80px 24px", backgroundColor: "#0d1424" }}>
@@ -511,5 +377,36 @@ function CourseRow({ title, courses }: { title: string; courses: Course[] }) {
         ))}
       </div>
     </section>
+  )
+}
+
+function InstructorCard({ instructor }: { instructor: Instructor }) {
+  const stats = getInstructorStats(instructor)
+  return (
+    <Link
+      href={`/instructors/${instructor.id}`}
+      className="flex-shrink-0 flex flex-col items-center text-center transition-all duration-150 p-5"
+      style={{ width: 180, borderRadius: 16, backgroundColor: "#1E293B", border: "1px solid #334155", textDecoration: "none" }}
+      onMouseEnter={(e) => (e.currentTarget.style.borderColor = `${instructor.color}60`)}
+      onMouseLeave={(e) => (e.currentTarget.style.borderColor = "#334155")}
+    >
+      <div
+        className="flex items-center justify-center w-16 h-16 rounded-full text-lg font-bold text-white mb-3"
+        style={{ backgroundColor: instructor.color }}
+      >
+        {instructor.avatar}
+      </div>
+      <h3 className="text-sm font-bold text-white mb-0.5 line-clamp-1">{instructor.name}</h3>
+      <p className="text-xs mb-2 line-clamp-1" style={{ color: "#64748B" }}>{instructor.title}</p>
+      <div className="flex items-center gap-3 text-xs" style={{ color: "#64748B" }}>
+        <span className="flex items-center gap-1">
+          <Star size={10} fill="#F59E0B" style={{ color: "#F59E0B" }} />
+          <strong className="text-white">{stats.rating}</strong>
+        </span>
+        <span className="flex items-center gap-1">
+          <Users size={10} /> {stats.studentsCount >= 1000 ? `${(stats.studentsCount / 1000).toFixed(0)}k` : stats.studentsCount}
+        </span>
+      </div>
+    </Link>
   )
 }

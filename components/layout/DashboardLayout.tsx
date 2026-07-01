@@ -1,7 +1,7 @@
 import { Sidebar } from "./Sidebar"
 import { Topbar } from "./Topbar"
 
-type Role = "student" | "tutor"
+type Role = "student" | "tutor" | "admin"
 
 interface DashboardLayoutProps {
   children: React.ReactNode
@@ -16,8 +16,8 @@ export function DashboardLayout({
 }: DashboardLayoutProps) {
   return (
     <div
-      className="flex h-screen overflow-hidden"
-      style={{ backgroundColor: "#0F172A" }}
+      className="flex overflow-hidden"
+      style={{ backgroundColor: "#0F172A", height: "calc(100vh - var(--app-header-height, 150px))" }}
     >
       <Sidebar role={role} />
       <div className="flex flex-col flex-1 overflow-hidden">
