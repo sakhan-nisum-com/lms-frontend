@@ -28,13 +28,22 @@ export default function ScormPlayPage({ params }: { params: Promise<{ id: string
     )
   }
 
-  // Resolve the launch href for the requested SCO
+  // Resolve the launch href for the requested SCO and calculate next lesson
   let launchHref = pkg.launchHref
+  const allScos = flattenScos(pkg.manifest)
+  let nextSco: { id: string; title: string } | null = null
+
   if (scoId) {
-    const flatScos = flattenScos(pkg.manifest)
-    const selectedSco = flatScos.find((sco) => sco.id === scoId)
+    const selectedSco = allScos.find((sco) => sco.id === scoId)
     if (selectedSco) {
       launchHref = selectedSco.href
+    }
+
+    // Calculate next SCO
+    const currentIndex = allScos.findIndex((sco) => sco.id === scoId)
+    if (currentIndex >= 0 && currentIndex < allScos.length - 1) {
+      const nextScoObj = allScos[currentIndex + 1]
+      nextSco = { id: nextScoObj.id, title: nextScoObj.title }
     }
   }
 
@@ -42,6 +51,12 @@ export default function ScormPlayPage({ params }: { params: Promise<{ id: string
     scoId && pkg.manifest.organizations[0]
       ? findScoTitle(pkg.manifest.organizations[0].items, scoId)
       : pkg.title
+
+  const handleNextLesson = () => {
+    if (nextSco) {
+      router.push(`/student/scorm/${id}/play?sco=${nextSco.id}`)
+    }
+  }
 
   return (
     <DashboardLayout role="student" userName="Student">
@@ -63,7 +78,14 @@ export default function ScormPlayPage({ params }: { params: Promise<{ id: string
 
         {/* Player */}
         <div className="flex-1">
-          <ScormPlayer packageId={id} scoId={scoId} launchHref={launchHref} attemptId={attemptId} />
+          <ScormPlayer
+            packageId={id}
+            scoId={scoId}
+            launchHref={launchHref}
+            attemptId={attemptId}
+            nextSco={nextSco}
+            onNextLesson={handleNextLesson}
+          />
         </div>
       </div>
     </DashboardLayout>

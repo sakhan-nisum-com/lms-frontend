@@ -237,11 +237,9 @@ function generateQuizLessonSCO(lesson: any, questions: any[]): string {
         <div>Score: \${score}/\${questions.length} (\${percent}%)</div>
       \`;
 
-      if (passed) {
-        scorm.set("cmi.core.lesson_status", "completed");
-        scorm.set("cmi.core.score.raw", percent.toString());
-        scorm.commit();
-      }
+      scorm.set("cmi.core.lesson_status", passed ? "passed" : "completed");
+      scorm.set("cmi.core.score.raw", percent.toString());
+      scorm.commit();
 
       document.getElementById("quiz-form").style.display = "none";
       document.getElementById("submit-btn").disabled = true;

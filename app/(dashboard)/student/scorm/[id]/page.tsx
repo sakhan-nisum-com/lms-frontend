@@ -99,6 +99,12 @@ export default function ScormDetailPage({ params }: { params: Promise<{ id: stri
     }
   }
 
+  // Check if a lesson is completed
+  const isLessonCompleted = (scoId: string): boolean => {
+    const attempt = pkgAttempts.find((a) => a.scoId === scoId)
+    return attempt ? attempt.status === "completed" || attempt.status === "passed" : false
+  }
+
   return (
     <DashboardLayout role="student" userName="Student">
       <div className="max-w-6xl mx-auto p-6">
@@ -124,32 +130,39 @@ export default function ScormDetailPage({ params }: { params: Promise<{ id: stri
           <div className="lg:col-span-1 p-4 rounded-xl" style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}>
             <h3 className="text-sm font-semibold text-white mb-3">Course Outline</h3>
             <div className="space-y-2">
-              {scos.map((sco) => (
-                <div
-                  key={sco.id}
-                  onClick={() => setSelectedSco(sco.id)}
-                  className="w-full text-left px-3 py-2 rounded-lg text-xs transition-colors cursor-pointer"
-                  style={{
-                    backgroundColor: selectedSco === sco.id ? "#3B82F620" : "transparent",
-                    color: selectedSco === sco.id ? "#60A5FA" : "#94A3B8",
-                    border: selectedSco === sco.id ? "1px solid #3B82F640" : "1px solid transparent",
-                  }}
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs">{sco.title}</span>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        handlePlaySco(sco.id)
-                      }}
-                      className="ml-auto flex-shrink-0 p-1 hover:opacity-80 transition-opacity bg-transparent border-0 cursor-pointer"
-                    >
-                      <Play size={12} className="text-blue-400" />
-                    </button>
+              {scos.map((sco) => {
+                const completed = isLessonCompleted(sco.id)
+                return (
+                  <div
+                    key={sco.id}
+                    onClick={() => setSelectedSco(sco.id)}
+                    className="w-full text-left px-3 py-2 rounded-lg text-xs transition-colors cursor-pointer"
+                    style={{
+                      backgroundColor: selectedSco === sco.id ? "#3B82F620" : "transparent",
+                      color: selectedSco === sco.id ? "#60A5FA" : completed ? "#6B7280" : "#94A3B8",
+                      border: selectedSco === sco.id ? "1px solid #3B82F640" : "1px solid transparent",
+                      opacity: completed ? 0.7 : 1,
+                    }}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs" style={{ textDecoration: completed ? "line-through" : "none" }}>
+                        {sco.title}
+                      </span>
+                      {completed && <span className="text-[10px] text-green-400">✓</span>}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handlePlaySco(sco.id)
+                        }}
+                        className="ml-auto flex-shrink-0 p-1 hover:opacity-80 transition-opacity bg-transparent border-0 cursor-pointer"
+                      >
+                        <Play size={12} className="text-blue-400" />
+                      </button>
+                    </div>
+                    {sco.path.length > 0 && <div className="text-[10px] text-gray-500 mt-0.5">{sco.path.join(" > ")}</div>}
                   </div>
-                  {sco.path.length > 0 && <div className="text-[10px] text-gray-500 mt-0.5">{sco.path.join(" > ")}</div>}
-                </div>
-              ))}
+                )
+              })}
             </div>
           </div>
 
