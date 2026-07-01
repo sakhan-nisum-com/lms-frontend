@@ -12,6 +12,15 @@ const nextConfig: NextConfig = {
           },
         ],
       },
+      {
+        source: "/scorm-sw.js",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "no-cache, must-revalidate",
+          },
+        ],
+      },
     ]
   },
 };

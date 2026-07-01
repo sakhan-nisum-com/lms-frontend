@@ -5,11 +5,21 @@ import { useRouter } from "next/navigation"
 import { GraduationCap, Eye, EyeOff, BookOpen, Users, ArrowRight } from "lucide-react"
 import { useState } from "react"
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1"
+
 export default function RegisterPage() {
   const router = useRouter()
   const [showPassword, setShowPassword] = useState(false)
-  const [role, setRole] = useState<"student" | "tutor">("student")
+  const [role, setRole] = useState<"student" | "instructor">("student")
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    termsAccepted: false,
+  })
 
   return (
     <div
@@ -43,7 +53,7 @@ export default function RegisterPage() {
         <div className="grid grid-cols-2 gap-4 mb-6">
           {[
             { value: "student" as const, label: "I'm a Student", icon: BookOpen, desc: "Take courses & learn" },
-            { value: "tutor" as const, label: "I'm an Instructor", icon: Users, desc: "Create & teach courses" },
+            { value: "instructor" as const, label: "I'm an Instructor", icon: Users, desc: "Create & teach courses" },
           ].map(({ value, label, icon: Icon, desc }) => (
             <button
               key={value}
@@ -76,30 +86,71 @@ export default function RegisterPage() {
           className="rounded-2xl p-8"
           style={{ backgroundColor: "#1E293B", border: "1px solid #334155" }}
         >
+          {/* Error message */}
+          {error && (
+            <div
+              className="rounded-lg p-3 mb-5"
+              style={{ backgroundColor: "#7f1d1d", border: "1px solid #dc2626" }}
+            >
+              <p style={{ fontSize: 14, color: "#fca5a5", margin: 0 }}>{error}</p>
+            </div>
+          )}
+
           <form
             className="space-y-5"
-            onSubmit={(e) => {
+            onSubmit={async (e) => {
               e.preventDefault()
               setLoading(true)
-              setTimeout(() => {
-                router.push(role === "student" ? "/student/dashboard" : "/tutor/dashboard")
-              }, 800)
+              setError("")
+
+              try {
+                const response = await fetch(`${API_BASE_URL}/auth/signup`, {
+                  method: "POST",
+                  credentials: "include",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    orgName: `${formData.firstName}'s Organization`,
+                    fullName: `${formData.firstName} ${formData.lastName}`,
+                    email: formData.email,
+                    password: formData.password,
+                    role: role === "student" ? "LEARNER" : "INSTRUCTOR",
+                  }),
+                })
+
+                if (!response.ok) {
+                  const errorData = await response.json()
+                  throw new Error(errorData.message || "Signup failed")
+                }
+
+                // Signup successful, redirect to dashboard
+                const dashboardPath = role === "student" ? "/student/dashboard" : "/instructor/dashboard"
+                router.push(dashboardPath)
+              } catch (err) {
+                setError(err instanceof Error ? err.message : "Signup failed. Please try again.")
+                setLoading(false)
+              }
             }}
           >
             {/* Name row */}
             <div className="grid grid-cols-2 gap-3">
-              {["First name", "Last name"].map((label) => (
-                <div key={label}>
+              {[
+                { name: "firstName", placeholder: "John" },
+                { name: "lastName", placeholder: "Doe" },
+              ].map(({ name, placeholder }) => (
+                <div key={name}>
                   <label className="block text-sm font-medium mb-1.5" style={{ color: "#CBD5E1" }}>
-                    {label}
+                    {name === "firstName" ? "First name" : "Last name"}
                   </label>
                   <input
                     type="text"
-                    placeholder={label === "First name" ? "John" : "Doe"}
+                    placeholder={placeholder}
+                    value={formData[name as "firstName" | "lastName"]}
+                    onChange={(e) => setFormData({ ...formData, [name]: e.target.value })}
+                    required
                     className="w-full px-4 py-2.5 text-sm rounded-lg outline-none transition-all duration-200"
                     style={{ backgroundColor: "#334155", color: "#F8FAFC", border: "1px solid #475569" }}
-                    onFocus={(e) => (e.target.style.borderColor = "#3B82F6")}
-                    onBlur={(e) => (e.target.style.borderColor = "#475569")}
+                    onFocus={(e) => (e.currentTarget.style.borderColor = "#3B82F6")}
+                    onBlur={(e) => (e.currentTarget.style.borderColor = "#475569")}
                   />
                 </div>
               ))}
@@ -114,10 +165,13 @@ export default function RegisterPage() {
                 type="email"
                 autoComplete="email"
                 placeholder="you@example.com"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                required
                 className="w-full px-4 py-2.5 text-sm rounded-lg outline-none transition-all duration-200"
                 style={{ backgroundColor: "#334155", color: "#F8FAFC", border: "1px solid #475569" }}
-                onFocus={(e) => (e.target.style.borderColor = "#3B82F6")}
-                onBlur={(e) => (e.target.style.borderColor = "#475569")}
+                onFocus={(e) => (e.currentTarget.style.borderColor = "#3B82F6")}
+                onBlur={(e) => (e.currentTarget.style.borderColor = "#475569")}
               />
             </div>
 
@@ -131,10 +185,14 @@ export default function RegisterPage() {
                   type={showPassword ? "text" : "password"}
                   autoComplete="new-password"
                   placeholder="Min. 8 characters"
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  required
+                  minLength={8}
                   className="w-full px-4 py-2.5 pr-10 text-sm rounded-lg outline-none transition-all duration-200"
                   style={{ backgroundColor: "#334155", color: "#F8FAFC", border: "1px solid #475569" }}
-                  onFocus={(e) => (e.target.style.borderColor = "#3B82F6")}
-                  onBlur={(e) => (e.target.style.borderColor = "#475569")}
+                  onFocus={(e) => (e.currentTarget.style.borderColor = "#3B82F6")}
+                  onBlur={(e) => (e.currentTarget.style.borderColor = "#475569")}
                 />
                 <button
                   type="button"
@@ -151,6 +209,9 @@ export default function RegisterPage() {
             <label className="flex items-start gap-2.5 cursor-pointer">
               <input
                 type="checkbox"
+                checked={formData.termsAccepted}
+                onChange={(e) => setFormData({ ...formData, termsAccepted: e.target.checked })}
+                required
                 className="mt-0.5 rounded accent-blue-500"
               />
               <span className="text-xs leading-relaxed" style={{ color: "#94A3B8" }}>
