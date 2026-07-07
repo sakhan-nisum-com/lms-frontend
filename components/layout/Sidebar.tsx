@@ -7,7 +7,7 @@ import {
   BarChart3, Award, MessageSquare, Users, Calendar, UserCircle,
   Settings, LogOut, ChevronLeft, ChevronRight, GraduationCap,
   Radio, GraduationCap as Training, UserCog, Megaphone,
-  ShieldAlert, DollarSign,
+  ShieldAlert, DollarSign, Tag,
 } from "lucide-react"
 import { useState } from "react"
 import { useLocale, useTranslations } from "next-intl"
@@ -127,6 +127,7 @@ const adminGroups: NavGroup[] = [
     groupKey: "content",
     items: [
       { labelKey: "courses", href: "/admin/courses", icon: BookOpen },
+      { labelKey: "categories", href: "/admin/categories", icon: Tag },
       { labelKey: "trainings", href: "/admin/trainings", icon: Training },
     ],
   },

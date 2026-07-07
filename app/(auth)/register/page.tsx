@@ -4,12 +4,20 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { GraduationCap, Eye, EyeOff, BookOpen, Users, ArrowRight } from "lucide-react"
 import { useState } from "react"
+import { authApi } from "@/lib/api/auth"
+import { authStore } from "@/lib/auth-store"
+import { ApiError } from "@/lib/api/client"
 
 export default function RegisterPage() {
   const router = useRouter()
   const [showPassword, setShowPassword] = useState(false)
   const [role, setRole] = useState<"student" | "tutor">("student")
   const [loading, setLoading] = useState(false)
+  const [firstName, setFirstName] = useState("")
+  const [lastName, setLastName] = useState("")
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [error, setError] = useState<string | null>(null)
 
   return (
     <div
@@ -78,24 +86,52 @@ export default function RegisterPage() {
         >
           <form
             className="space-y-5"
-            onSubmit={(e) => {
+            onSubmit={async (e) => {
               e.preventDefault()
+              setError(null)
               setLoading(true)
-              setTimeout(() => {
-                router.push(role === "student" ? "/student/dashboard" : "/tutor/dashboard")
-              }, 800)
+              try {
+                const tokens = await authApi.register({
+                  fullName: `${firstName} ${lastName}`.trim(),
+                  email,
+                  password,
+                  role: role === "tutor" ? "INSTRUCTOR" : "STUDENT",
+                })
+                authStore.save(tokens)
+                router.push(authStore.dashboardPath())
+              } catch (err) {
+                if (err instanceof ApiError) {
+                  setError(err.status === 409 ? "Email already registered." : err.message)
+                } else {
+                  setError("Unable to connect. Please check your connection.")
+                }
+              } finally {
+                setLoading(false)
+              }
             }}
           >
+            {error && (
+              <div style={{ padding: "12px 16px", borderRadius: 10, backgroundColor: "#EF444418", border: "1px solid #EF444440", color: "#EF4444", fontSize: 14, fontWeight: 500 }}>
+                {error}
+              </div>
+            )}
+
             {/* Name row */}
             <div className="grid grid-cols-2 gap-3">
-              {["First name", "Last name"].map((label) => (
+              {[
+                { label: "First name", value: firstName, setter: setFirstName, placeholder: "John" },
+                { label: "Last name", value: lastName, setter: setLastName, placeholder: "Doe" },
+              ].map(({ label, value, setter, placeholder }) => (
                 <div key={label}>
                   <label className="block text-sm font-medium mb-1.5" style={{ color: "var(--text-secondary)" }}>
                     {label}
                   </label>
                   <input
                     type="text"
-                    placeholder={label === "First name" ? "John" : "Doe"}
+                    placeholder={placeholder}
+                    value={value}
+                    onChange={(e) => setter(e.target.value)}
+                    required
                     className="w-full px-4 py-2.5 text-sm rounded-lg outline-none transition-all duration-200"
                     style={{ backgroundColor: "var(--bg-surface-muted)", color: "var(--text-primary)", border: "1px solid var(--border-default)" }}
                     onFocus={(e) => (e.target.style.borderColor = "#3B82F6")}
@@ -114,6 +150,9 @@ export default function RegisterPage() {
                 type="email"
                 autoComplete="email"
                 placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
                 className="w-full px-4 py-2.5 text-sm rounded-lg outline-none transition-all duration-200"
                 style={{ backgroundColor: "var(--bg-surface-muted)", color: "var(--text-primary)", border: "1px solid var(--border-default)" }}
                 onFocus={(e) => (e.target.style.borderColor = "#3B82F6")}
@@ -131,6 +170,10 @@ export default function RegisterPage() {
                   type={showPassword ? "text" : "password"}
                   autoComplete="new-password"
                   placeholder="Min. 8 characters"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  minLength={8}
                   className="w-full px-4 py-2.5 pr-10 text-sm rounded-lg outline-none transition-all duration-200"
                   style={{ backgroundColor: "var(--bg-surface-muted)", color: "var(--text-primary)", border: "1px solid var(--border-default)" }}
                   onFocus={(e) => (e.target.style.borderColor = "#3B82F6")}

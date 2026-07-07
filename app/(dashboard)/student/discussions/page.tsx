@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, Suspense } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import { DashboardLayout } from "@/components/layout/DashboardLayout"
 import { COURSES, STUDENT_PROFILE } from "@/lib/data/courses"
@@ -8,7 +8,9 @@ import { TRAINING_TRACKS } from "@/lib/data/trainings"
 import { usePurchases } from "@/lib/hooks/usePurchases"
 import { useTrainingEnrollments } from "@/lib/hooks/useTrainingEnrollments"
 import { useDiscussions } from "@/lib/hooks/useDiscussions"
+import { discussionsApi, type ApiDiscussionReply } from "@/lib/api/discussions"
 import { NewThreadModal } from "@/components/discussions/NewThreadModal"
+import type { DiscussionThread } from "@/lib/data/courses"
 import {
   MessageSquare, Pin, CheckCircle2, Eye,
   Plus, Search, Send, ThumbsUp,
@@ -16,36 +18,6 @@ import {
 
 // "all" | "course:<id>" | "training:<id>"
 type Scope = "all" | `course:${string}` | `training:${string}`
-
-const mockReplies = [
-  {
-    id: "r1",
-    author: "Sarah Chen",
-    authorInitials: "SC",
-    role: "instructor" as const,
-    time: "2h ago",
-    body: "Great question! Server Components are part of React itself, while getServerSideProps was a Next.js-specific API. With App Router, you simply make a component async and fetch data directly inside it — no need for a special export. The key difference is that Server Components run at request time or can be cached, and they live in the React tree rather than being a separate data layer.",
-    likes: 12,
-  },
-  {
-    id: "r2",
-    author: "Jordan Lee",
-    authorInitials: "JL",
-    role: "student" as const,
-    time: "1d ago",
-    body: "To add to Sarah's answer — one practical difference is that Server Components can be nested anywhere in your component tree, not just at the page level. This makes co-location of data fetching with UI much cleaner.",
-    likes: 5,
-  },
-  {
-    id: "r3",
-    author: "Alex Johnson",
-    authorInitials: "AJ",
-    role: "student" as const,
-    time: "1d ago",
-    body: "That makes sense! So it's more of an architectural shift. Does this mean we should avoid getServerSideProps entirely in new Next.js 15 projects?",
-    likes: 2,
-  },
-]
 
 export default function DiscussionsPage() {
   return (
@@ -64,9 +36,30 @@ function DiscussionsContent() {
   const requestedScope = searchParams.get("scope") as Scope | null
   const [scope, setScope] = useState<Scope>(requestedScope ?? "all")
   const [search, setSearch] = useState("")
-  const [activeThread, setActiveThread] = useState(threads[0])
+  const [activeThread, setActiveThread] = useState<DiscussionThread | null>(null)
   const [replyText, setReplyText] = useState("")
+  const [replying, setReplying] = useState(false)
   const [showNewThread, setShowNewThread] = useState(searchParams.get("new") === "1")
+
+  // Per-thread replies fetched from API
+  const [replies, setReplies] = useState<ApiDiscussionReply[]>([])
+  const [repliesLoading, setRepliesLoading] = useState(false)
+
+  // Set initial active thread once threads are loaded
+  useEffect(() => {
+    if (!activeThread && threads.length > 0) setActiveThread(threads[0])
+  }, [threads, activeThread])
+
+  // Load replies when switching threads
+  useEffect(() => {
+    if (!activeThread) return
+    setReplies([])
+    setRepliesLoading(true)
+    discussionsApi.listReplies(activeThread.id)
+      .then(setReplies)
+      .catch(() => {})
+      .finally(() => setRepliesLoading(false))
+  }, [activeThread?.id])
 
   const enrolledCourses = COURSES.filter((c) => c.progress !== undefined || isPurchased(c.id))
   const enrolledTrainings = TRAINING_TRACKS.filter((t) => t.enrolled || isEnrolled(t.id))
@@ -81,13 +74,13 @@ function DiscussionsContent() {
   const pinnedThreads = filtered.filter((d) => d.isPinned)
   const regularThreads = filtered.filter((d) => !d.isPinned)
 
-  const handleCreateThread = (threadScope: string, title: string, body: string, tags: string[]) => {
+  async function handleCreateThread(threadScope: string, title: string, body: string, tags: string[]) {
     const isCourse = threadScope.startsWith("course:")
-    const id = threadScope.slice(threadScope.indexOf(":") + 1)
-    const course = isCourse ? COURSES.find((c) => c.id === id) : undefined
-    const training = !isCourse ? TRAINING_TRACKS.find((t) => t.id === id) : undefined
+    const scopeId = threadScope.slice(threadScope.indexOf(":") + 1)
+    const course = isCourse ? COURSES.find((c) => c.id === scopeId) : undefined
+    const training = !isCourse ? TRAINING_TRACKS.find((t) => t.id === scopeId) : undefined
 
-    const newId = createThread({
+    const newId = await createThread({
       title,
       body,
       tags,
@@ -98,10 +91,8 @@ function DiscussionsContent() {
       ...(training ? { trainingId: training.id, trainingName: training.title } : {}),
     })
 
-    setScope(threadScope as Scope)
-    setShowNewThread(false)
-    setActiveThread({
-      id: newId,
+    const newThread: DiscussionThread = {
+      id: newId as string,
       title,
       body,
       tags,
@@ -117,7 +108,68 @@ function DiscussionsContent() {
       lastReplyBy: p.name,
       ...(course ? { courseId: course.id, courseName: course.title } : {}),
       ...(training ? { trainingId: training.id, trainingName: training.title } : {}),
-    })
+    }
+
+    setScope(threadScope as Scope)
+    setShowNewThread(false)
+    setActiveThread(newThread)
+    setReplies([])
+  }
+
+  async function handleSendReply() {
+    if (!replyText.trim() || !activeThread) return
+    setReplying(true)
+    try {
+      const reply = await discussionsApi.createReply(activeThread.id, replyText.trim())
+      setReplies((prev) => [...prev, reply])
+      setActiveThread((t) => t ? { ...t, replies: t.replies + 1 } : t)
+      setReplyText("")
+    } catch {
+      // Optimistic local display even if API failed
+      const localReply: ApiDiscussionReply = {
+        id: `local-${Date.now()}`,
+        threadId: activeThread.id,
+        authorId: "local",
+        authorName: p.name,
+        authorRole: "STUDENT",
+        body: replyText.trim(),
+        acceptedAnswer: false,
+        isInstructorAnswer: false,
+        likeCount: 0,
+        likedByMe: false,
+        createdAt: new Date().toISOString(),
+      }
+      setReplies((prev) => [...prev, localReply])
+      setReplyText("")
+    } finally {
+      setReplying(false)
+    }
+  }
+
+  function handleLikeReply(replyId: string) {
+    discussionsApi.likeReply(replyId).catch(() => {})
+    setReplies((prev) =>
+      prev.map((r) =>
+        r.id === replyId
+          ? { ...r, likeCount: r.likedByMe ? (r.likeCount ?? 0) - 1 : (r.likeCount ?? 0) + 1, likedByMe: !r.likedByMe }
+          : r
+      )
+    )
+  }
+
+  function formatTime(dateStr: string): string {
+    const date = new Date(dateStr)
+    const now = Date.now()
+    const diff = now - date.getTime()
+    const mins = Math.floor(diff / 60000)
+    if (mins < 60) return `${mins}m ago`
+    const hours = Math.floor(mins / 60)
+    if (hours < 24) return `${hours}h ago`
+    return `${Math.floor(hours / 24)}d ago`
+  }
+
+  function getInitials(name: string): string {
+    return name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2)
   }
 
   return (
@@ -312,38 +364,59 @@ function DiscussionsContent() {
 
               {/* Replies */}
               <div className="flex-1 overflow-y-auto p-5 space-y-4" style={{ scrollbarWidth: "thin", scrollbarColor: "var(--border-default) transparent" }}>
-                {activeThread.replies === 0 ? (
+                {repliesLoading ? (
+                  <div className="text-center py-8">
+                    <p className="text-xs" style={{ color: "var(--text-muted)" }}>Loading replies…</p>
+                  </div>
+                ) : replies.length === 0 ? (
                   <div className="text-center py-8">
                     <p className="text-xs" style={{ color: "var(--text-muted)" }}>No replies yet — be the first to respond.</p>
                   </div>
-                ) : mockReplies.map((reply) => (
-                  <div key={reply.id} className="flex gap-3">
+                ) : replies.map((reply) => {
+                  const isInstructor = reply.authorRole === "INSTRUCTOR"
+                  const initials = getInitials(reply.authorName)
+                  return (
                     <div
-                      className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
-                      style={{
-                        backgroundColor: reply.role === "instructor" ? "var(--accent)" : "var(--border-default)",
-                        color: reply.role === "instructor" ? "#fff" : "var(--text-secondary)",
-                      }}
+                      key={reply.id}
+                      className="flex gap-3"
+                      style={reply.isInstructorAnswer ? { padding: "12px", borderRadius: 12, border: "1px solid #3B82F640", backgroundColor: "#3B82F608" } : {}}
                     >
-                      {reply.authorInitials}
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>{reply.author}</span>
-                        {reply.role === "instructor" && (
-                          <span className="text-xs px-1.5 py-0.5 rounded font-semibold" style={{ backgroundColor: "#3B82F620", color: "#60A5FA" }}>
-                            Instructor
-                          </span>
-                        )}
-                        <span className="text-xs" style={{ color: "var(--text-muted)" }}>{reply.time}</span>
+                      <div
+                        className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
+                        style={{
+                          backgroundColor: isInstructor ? "var(--accent)" : "var(--border-default)",
+                          color: isInstructor ? "#fff" : "var(--text-secondary)",
+                        }}
+                      >
+                        {initials}
                       </div>
-                      <p className="text-sm leading-relaxed mb-2" style={{ color: "var(--text-secondary)" }}>{reply.body}</p>
-                      <button className="flex items-center gap-1.5 text-xs" style={{ color: "var(--text-tertiary)" }}>
-                        <ThumbsUp size={12} /> {reply.likes} likes
-                      </button>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1 flex-wrap">
+                          <span className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>{reply.authorName}</span>
+                          {isInstructor && (
+                            <span className="text-xs px-1.5 py-0.5 rounded font-semibold" style={{ backgroundColor: "#3B82F620", color: "#60A5FA" }}>
+                              Instructor
+                            </span>
+                          )}
+                          {reply.isInstructorAnswer && (
+                            <span className="flex items-center gap-1 text-xs px-1.5 py-0.5 rounded font-semibold" style={{ backgroundColor: "#10B98120", color: "var(--success)" }}>
+                              <CheckCircle2 size={10} /> Accepted Answer
+                            </span>
+                          )}
+                          <span className="text-xs" style={{ color: "var(--text-muted)" }}>{formatTime(reply.createdAt)}</span>
+                        </div>
+                        <p className="text-sm leading-relaxed mb-2" style={{ color: "var(--text-secondary)" }}>{reply.body}</p>
+                        <button
+                          onClick={() => handleLikeReply(reply.id)}
+                          className="flex items-center gap-1.5 text-xs transition-colors"
+                          style={{ color: reply.likedByMe ? "var(--accent)" : "var(--text-tertiary)" }}
+                        >
+                          <ThumbsUp size={12} fill={reply.likedByMe ? "var(--accent)" : "none"} /> {reply.likeCount} {reply.likeCount === 1 ? "like" : "likes"}
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
 
               {/* Reply box */}
@@ -371,9 +444,13 @@ function DiscussionsContent() {
                       onChange={(e) => setReplyText(e.target.value)}
                       onFocus={(e) => (e.target.style.borderColor = "var(--accent)")}
                       onBlur={(e) => (e.target.style.borderColor = "var(--border-default)")}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) handleSendReply()
+                      }}
                     />
                     <button
-                      disabled={!replyText.trim()}
+                      onClick={handleSendReply}
+                      disabled={!replyText.trim() || replying}
                       className="flex items-center justify-center w-10 h-10 rounded-xl flex-shrink-0 disabled:opacity-40"
                       style={{ backgroundColor: "var(--accent)", color: "#fff" }}
                     >
@@ -381,6 +458,7 @@ function DiscussionsContent() {
                     </button>
                   </div>
                 </div>
+                <p className="text-xs mt-1.5 ml-11" style={{ color: "var(--text-muted)" }}>⌘↵ to send</p>
               </div>
             </div>
           ) : (

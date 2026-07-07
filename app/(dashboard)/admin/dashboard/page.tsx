@@ -3,6 +3,9 @@
 import { DashboardLayout } from "@/components/layout/DashboardLayout"
 import Link from "next/link"
 import { useTranslations } from "next-intl"
+import { useEffect, useState } from "react"
+import { analyticsApi, type AdminDashboardStats } from "@/lib/api/analytics"
+import { authStore } from "@/lib/auth-store"
 import {
   Users, BookOpen, DollarSign, ShieldAlert, ChevronRight,
   UserPlus, GraduationCap, AlertTriangle, CheckCircle2, ArrowUpRight,
@@ -27,10 +30,15 @@ export default function AdminDashboardPage() {
   const t = useTranslations("adminDashboard")
   const { users } = usePlatformUsers()
   const { getEntry } = useCourseModeration()
+  const [liveStats, setLiveStats] = useState<AdminDashboardStats | null>(null)
+  const user = authStore.getUser()
+
+  useEffect(() => {
+    analyticsApi.adminDashboard().then(setLiveStats).catch(() => {})
+  }, [])
 
   const students = users.filter((u) => u.role === "student")
   const tutors = users.filter((u) => u.role === "tutor")
-  const admins = users.filter((u) => u.role === "admin")
   const pendingUsers = users.filter((u) => u.status === "pending")
   const suspendedUsers = users.filter((u) => u.status === "suspended")
 
@@ -46,17 +54,24 @@ export default function AdminDashboardPage() {
   const recentTransactions = TRANSACTIONS.slice(0, 5)
   const recentActivity = AUDIT_LOG_SEED.slice(0, 6)
 
+  const totalUsers = liveStats?.totalUsers ?? users.length
+  const totalStudents = liveStats?.totalStudents ?? students.length
+  const totalTutors = liveStats?.totalInstructors ?? tutors.length
+  const totalCourses = liveStats?.totalCourses ?? COURSES.length
+  const totalRevenue = liveStats?.totalRevenue ?? monthlyRevenue
+  const totalPending = liveStats?.pendingCourses ?? (pendingUsers.length + pendingCourses.length + suspendedUsers.length)
+
   const stats = [
-    { label: "Total Users", value: users.length.toLocaleString(), icon: Users, color: "#3B82F6", sub: `${students.length} students · ${tutors.length} tutors` },
-    { label: "Active Courses", value: COURSES.length.toLocaleString(), icon: BookOpen, color: "#10B981", sub: `${TRAINING_TRACKS.length} training tracks` },
-    { label: "Monthly Revenue", value: `$${monthlyRevenue.toLocaleString()}`, icon: DollarSign, color: "#F59E0B", sub: `${refundedTxns.length} refunds this month` },
-    { label: "Needs Attention", value: (pendingUsers.length + pendingCourses.length + suspendedUsers.length).toString(), icon: ShieldAlert, color: "#EF4444", sub: `${pendingUsers.length} pending · ${suspendedUsers.length} suspended` },
+    { label: "Total Users", value: totalUsers.toLocaleString(), icon: Users, color: "#3B82F6", sub: `${totalStudents} students · ${totalTutors} instructors` },
+    { label: "Active Courses", value: totalCourses.toLocaleString(), icon: BookOpen, color: "#10B981", sub: `${liveStats?.publishedCourses ?? 0} published` },
+    { label: "Total Revenue", value: `$${totalRevenue.toLocaleString()}`, icon: DollarSign, color: "#F59E0B", sub: `${refundedTxns.length} refunds` },
+    { label: "Needs Attention", value: totalPending.toString(), icon: ShieldAlert, color: "#EF4444", sub: `${pendingUsers.length} pending users` },
   ]
 
   const maxSignup = Math.max(...WEEKLY_SIGNUPS)
 
   return (
-    <DashboardLayout role="admin" userName="Morgan Patel">
+    <DashboardLayout role="admin" userName={user?.fullName ?? "Admin"}>
       <div className="space-y-8 max-w-6xl">
         {/* Header */}
         <div className="flex items-center justify-between flex-wrap gap-3">
@@ -104,7 +119,7 @@ export default function AdminDashboardPage() {
               {[
                 { label: "Students", count: students.length, color: "#3B82F6" },
                 { label: "Tutors", count: tutors.length, color: "#8B5CF6" },
-                { label: "Admins", count: admins.length, color: "#F59E0B" },
+                { label: "Admins", count: liveStats?.totalAdmins ?? users.filter((u) => u.role === "admin").length, color: "#F59E0B" },
               ].map(({ label, count, color }) => (
                 <div key={label}>
                   <div className="flex items-center justify-between text-xs mb-1">

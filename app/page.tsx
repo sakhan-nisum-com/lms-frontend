@@ -9,6 +9,8 @@ import type { Course } from "@/lib/data/courses"
 import { INSTRUCTORS, getInstructorStats } from "@/lib/data/instructors"
 import type { Instructor } from "@/lib/data/instructors"
 import { usePurchases } from "@/lib/hooks/usePurchases"
+import { coursesApi } from "@/lib/api/courses"
+import type { ApiCourse } from "@/lib/api/courses"
 import {
   GraduationCap,
   Search,
@@ -16,6 +18,7 @@ import {
   Users,
   ArrowRight,
   CheckCircle2,
+  BookOpen,
 } from "lucide-react"
 
 const SUGGESTED_SEARCHES = ["Python", "AWS Certification", "UX Design", "SQL", "Leadership", "Cybersecurity"]
@@ -28,11 +31,34 @@ const popularInstructors = [...INSTRUCTORS]
   .sort((a, b) => getInstructorStats(b).studentsCount - getInstructorStats(a).studentsCount)
   .slice(0, 8)
 
+const CATEGORY_COLORS: Record<string, string> = {
+  Engineering: "#3B82F6",
+  "Data Science": "#8B5CF6",
+  Design: "#EC4899",
+  Business: "#10B981",
+  Security: "#EF4444",
+  Compliance: "#F59E0B",
+  Leadership: "#06B6D4",
+  Product: "#F97316",
+}
+
+const CATEGORY_EMOJIS: Record<string, string> = {
+  Engineering: "⚙️",
+  "Data Science": "📊",
+  Design: "🎨",
+  Business: "💼",
+  Security: "🔒",
+  Compliance: "📋",
+  Leadership: "🚀",
+  Product: "📦",
+}
+
 export default function HomePage() {
   const router = useRouter()
   const [search, setSearch] = useState("")
   const [searchOpen, setSearchOpen] = useState(false)
   const heroSearchRef = useRef<HTMLFormElement>(null)
+  const [publishedCourses, setPublishedCourses] = useState<ApiCourse[]>([])
 
   useEffect(() => {
     function handler(e: MouseEvent) {
@@ -40,6 +66,12 @@ export default function HomePage() {
     }
     document.addEventListener("mousedown", handler)
     return () => document.removeEventListener("mousedown", handler)
+  }, [])
+
+  useEffect(() => {
+    coursesApi.list(0, 12, undefined, "PUBLISHED")
+      .then((res) => setPublishedCourses(res.data ?? []))
+      .catch(() => {})
   }, [])
 
   const submitSearch = (e: React.FormEvent) => {
@@ -119,6 +151,23 @@ export default function HomePage() {
             <strong style={{ color: "var(--text-secondary)" }}>200+</strong> enterprises
           </p>
         </div>
+
+        {/* ── PUBLISHED COURSES FROM API ── */}
+        {publishedCourses.length > 0 && (
+          <section style={{ maxWidth: 1280, margin: "0 auto", padding: "32px 24px 8px" }}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold" style={{ color: "var(--text-primary)" }}>New on LearnFlow</h2>
+              <Link href="/student/explore" className="flex items-center gap-1 text-sm font-semibold" style={{ color: "var(--accent)", textDecoration: "none" }}>
+                Browse all <ArrowRight size={14} />
+              </Link>
+            </div>
+            <div className="flex gap-4 overflow-x-auto pb-2" style={{ scrollbarWidth: "none" }}>
+              {publishedCourses.map((c) => (
+                <ApiCourseCard key={c.id} course={c} />
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* ── COURSE ROWS ── */}
         <CourseRow title="Top courses right now" courses={topCourses} />
@@ -363,6 +412,61 @@ function SearchDropdown({ results, query, onSelect }: { results: Course[]; query
         </>
       )}
     </div>
+  )
+}
+
+function ApiCourseCard({ course }: { course: ApiCourse }) {
+  const color = CATEGORY_COLORS[course.category ?? ""] ?? "#3B82F6"
+  const emoji = CATEGORY_EMOJIS[course.category ?? ""] ?? "📚"
+  return (
+    <Link
+      href={`/student/courses/${course.id}`}
+      className="flex-shrink-0 flex flex-col transition-all duration-150 shadow-sm"
+      style={{ width: 230, borderRadius: 14, overflow: "hidden", backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)", textDecoration: "none" }}
+      onMouseEnter={(e) => (e.currentTarget.style.borderColor = `${color}60`)}
+      onMouseLeave={(e) => (e.currentTarget.style.borderColor = "var(--border-default)")}
+    >
+      <div className="relative h-[120px] flex-shrink-0" style={{ background: `linear-gradient(135deg, ${color}44 0%, #0F172A 100%)` }}>
+        {course.thumbnailUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={course.thumbnailUrl} alt={course.title} className="absolute inset-0 w-full h-full object-cover" />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span style={{ fontSize: 40 }}>{emoji}</span>
+          </div>
+        )}
+        {course.rating >= 4.8 && (
+          <div className="absolute top-2 left-2">
+            <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 6px", borderRadius: 4, backgroundColor: "#FBBF24", color: "#1F2937" }}>Bestseller</span>
+          </div>
+        )}
+        <div className="absolute bottom-2 right-2 flex items-center justify-center w-8 h-8 rounded-lg text-lg" style={{ backgroundColor: "#0F172AE6", border: `1px solid ${color}60` }}>
+          {emoji}
+        </div>
+      </div>
+      <div className="p-3 flex flex-col flex-1">
+        <h3 className="text-sm font-bold mb-1 line-clamp-2 leading-snug" style={{ color: "var(--text-primary)" }}>{course.title}</h3>
+        <p className="text-xs mb-2 truncate" style={{ color: "var(--text-tertiary)" }}>{course.category ?? "General"}</p>
+        <div className="flex items-center gap-1 mb-2">
+          {course.rating > 0 ? (
+            <>
+              <span className="text-xs font-bold" style={{ color: "var(--warning)" }}>{course.rating.toFixed(1)}</span>
+              <Star size={11} fill="var(--warning)" style={{ color: "var(--warning)" }} />
+              <span className="text-xs" style={{ color: "var(--text-tertiary)" }}>({course.reviewCount})</span>
+            </>
+          ) : (
+            <span className="text-xs flex items-center gap-1" style={{ color: "var(--text-tertiary)" }}>
+              <BookOpen size={11} /> New
+            </span>
+          )}
+        </div>
+        <div className="flex items-center gap-2 mt-auto">
+          <span className="text-sm font-bold" style={{ color: course.price === 0 ? "var(--success)" : "var(--text-primary)" }}>
+            {course.price === 0 ? "Free" : `$${course.price}`}
+          </span>
+        </div>
+      </div>
+    </Link>
   )
 }
 

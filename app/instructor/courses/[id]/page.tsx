@@ -1,352 +1,407 @@
 "use client"
 
-import { use, useState } from "react"
+import { use, useEffect, useState } from "react"
 import Link from "next/link"
 import {
-  Play,
-  Users,
-  Star,
-  Clock,
-  BookOpen,
-  Award,
-  ChevronDown,
-  Edit2,
-  ArrowLeft,
-  Video,
-  FileText,
-  HelpCircle,
-  Eye,
-  Globe,
+  Users, Star, BookOpen, ChevronDown, Edit2, ArrowLeft,
+  Video, FileText, HelpCircle, Eye, Loader2, MessageSquare,
+  ThumbsUp, Clock, Award, BarChart2,
 } from "lucide-react"
 import { InstructorPageShell } from "@/components/instructor/InstructorPageShell"
-import { INSTRUCTOR_COURSES } from "@/lib/data/instructor-courses"
-import type { Section } from "@/lib/data/instructor-courses"
+import { coursesApi, type ApiCourse, type ApiReview } from "@/lib/api/courses"
+import { authStore } from "@/lib/auth-store"
 
-const STATUS_MAP = {
-  published: { label: "Published", color: "var(--success)", bg: "#10B98118" },
-  draft:     { label: "Draft",     color: "var(--text-tertiary)", bg: "#33415518" },
-  review:    { label: "In Review", color: "var(--warning)", bg: "#F59E0B18" },
+const STATUS_MAP: Record<string, { label: string; color: string; bg: string }> = {
+  PUBLISHED:      { label: "Published",   color: "var(--success)",      bg: "#10B98118" },
+  DRAFT:          { label: "Draft",       color: "var(--text-tertiary)", bg: "#33415518" },
+  PENDING_REVIEW: { label: "In Review",   color: "var(--warning)",      bg: "#F59E0B18" },
+  ARCHIVED:       { label: "Archived",    color: "var(--text-muted)",   bg: "#33415510" },
+  REJECTED:       { label: "Rejected",    color: "var(--danger)",       bg: "#EF444418" },
 }
 
-const LESSON_TYPE_ICONS = {
-  video: Video,
-  text:  FileText,
-  quiz:  HelpCircle,
+const LEVEL_COLORS: Record<string, string> = {
+  BEGINNER: "#10B981", INTERMEDIATE: "#F59E0B", ADVANCED: "#EF4444", ALL_LEVELS: "#3B82F6",
 }
 
-const LEARN_BULLETS = [
-  "Build real-world projects from scratch",
-  "Understand core concepts in depth",
-  "Write clean, maintainable code",
-  "Follow industry best practices",
-  "Debug and troubleshoot effectively",
-  "Deploy production-ready applications",
-  "Collaborate with version control",
-  "Pass technical interview questions",
-]
+function LessonTypeIcon({ type }: { type: string }) {
+  if (type === "QUIZ")    return <HelpCircle size={13} style={{ color: "#8B5CF6" }} />
+  if (type === "READING") return <FileText   size={13} style={{ color: "#10B981" }} />
+  if (type === "PDF")     return <FileText   size={13} style={{ color: "#F59E0B" }} />
+  return                         <Video      size={13} style={{ color: "#3B82F6" }} />
+}
 
-function CurriculumSection({ section }: { section: Section }) {
-  const [open, setOpen] = useState(false)
-
+function StarRating({ rating }: { rating: number }) {
   return (
-    <div style={{ borderBottom: "1px solid var(--border-default)" }}>
-      <button
-        type="button"
-        onClick={() => setOpen((o) => !o)}
-        className="flex items-center justify-between w-full px-4 py-3 hover:bg-white/[0.02] transition-colors text-left"
-      >
-        <div className="flex items-center gap-3">
-          <ChevronDown
-            size={14}
-            style={{
-              color: "var(--text-tertiary)",
-              transform: open ? "rotate(0deg)" : "rotate(-90deg)",
-              transition: "transform 0.2s",
-              flexShrink: 0,
-            }}
-          />
-          <span className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>{section.title}</span>
-        </div>
-        <span className="text-xs flex-shrink-0 ml-3" style={{ color: "var(--text-tertiary)" }}>
-          {section.lessons.length} lesson{section.lessons.length !== 1 ? "s" : ""}
-        </span>
-      </button>
-
-      {open && (
-        <div className="pb-2">
-          {section.lessons.map((lesson) => {
-            const Icon = LESSON_TYPE_ICONS[lesson.type]
-            return (
-              <div
-                key={lesson.id}
-                className="flex items-center gap-3 px-10 py-2"
-              >
-                <Icon size={13} style={{ color: "var(--text-muted)", flexShrink: 0 }} />
-                <span className="text-sm flex-1" style={{ color: "var(--text-secondary)" }}>{lesson.title}</span>
-                {lesson.isPreview && (
-                  <span className="flex items-center gap-1 text-xs" style={{ color: "var(--accent)" }}>
-                    <Eye size={11} /> Preview
-                  </span>
-                )}
-                {lesson.duration && (
-                  <span className="text-xs" style={{ color: "var(--text-muted)" }}>{lesson.duration}</span>
-                )}
-              </div>
-            )
-          })}
-        </div>
-      )}
-    </div>
+    <span className="flex items-center gap-0.5">
+      {[1, 2, 3, 4, 5].map((s) => (
+        <Star key={s} size={12}
+          fill={s <= rating ? "#F59E0B" : "transparent"}
+          style={{ color: s <= rating ? "#F59E0B" : "var(--border-default)" }} />
+      ))}
+    </span>
   )
 }
 
-export default function CoursePreviewPage({ params }: { params: Promise<{ id: string }> }) {
+type Tab = "overview" | "curriculum" | "reviews"
+
+export default function InstructorCourseDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
-  const course = INSTRUCTOR_COURSES.find((c) => c.id === parseInt(id, 10))
+  const user = authStore.getUser()
+
+  const [course, setCourse]   = useState<ApiCourse | null>(null)
+  const [reviews, setReviews] = useState<ApiReview[]>([])
+  const [loading, setLoading] = useState(true)
+  const [tab, setTab]         = useState<Tab>("overview")
+  const [expandedSections, setExpandedSections] = useState<Set<number>>(new Set([0]))
+
+  useEffect(() => {
+    Promise.all([
+      coursesApi.getById(id),
+      coursesApi.getReviews(id).catch(() => [] as ApiReview[]),
+    ]).then(([c, r]) => {
+      setCourse(c)
+      setReviews(r)
+    }).finally(() => setLoading(false))
+  }, [id])
+
+  function toggleSection(i: number) {
+    setExpandedSections((prev) => {
+      const next = new Set(prev)
+      next.has(i) ? next.delete(i) : next.add(i)
+      return next
+    })
+  }
+
+  const totalLessons = course?.sections.reduce((a, s) => a + s.lessons.length, 0) ?? 0
+  const avgRating = reviews.length > 0
+    ? reviews.reduce((a, r) => a + r.rating, 0) / reviews.length
+    : course?.rating ?? 0
+
+  const ratingDist = [5, 4, 3, 2, 1].map((star) => ({
+    star,
+    count: reviews.filter((r) => r.rating === star).length,
+  }))
+
+  if (loading) {
+    return (
+      <InstructorPageShell title="Course" user={{ name: user?.fullName ?? "Instructor", email: user?.email ?? "" }}>
+        <div className="flex items-center justify-center py-32">
+          <Loader2 size={28} className="animate-spin" style={{ color: "var(--text-muted)" }} />
+        </div>
+      </InstructorPageShell>
+    )
+  }
 
   if (!course) {
     return (
-      <InstructorPageShell title="Course Not Found" user={{ name: "Jane Smith", email: "jane@example.com" }}>
-        <div className="flex flex-col items-center justify-center py-24">
-          <BookOpen size={40} style={{ color: "var(--border-default)" }} />
-          <p className="mt-3 text-sm" style={{ color: "var(--text-tertiary)" }}>Course not found.</p>
-          <Link
-            href="/instructor/courses"
-            className="mt-4 text-sm font-medium"
-            style={{ color: "var(--accent)" }}
-          >
-            Back to My Courses
+      <InstructorPageShell title="Course" user={{ name: user?.fullName ?? "Instructor", email: user?.email ?? "" }}>
+        <div className="flex flex-col items-center justify-center py-32">
+          <p className="text-sm" style={{ color: "var(--text-muted)" }}>Course not found.</p>
+          <Link href="/instructor/courses" className="mt-3 text-sm font-medium" style={{ color: "var(--accent)" }}>
+            Back to courses
           </Link>
         </div>
       </InstructorPageShell>
     )
   }
 
-  const status = STATUS_MAP[course.status]
-  const totalLessons = course.sections.reduce((sum, s) => sum + s.lessons.length, 0)
+  const s = STATUS_MAP[course.status] ?? STATUS_MAP.DRAFT
 
   return (
     <InstructorPageShell
-      title="Course Preview"
-      user={{ name: "Jane Smith", email: "jane@example.com" }}
+      title={course.title}
+      user={{ name: user?.fullName ?? "Instructor", email: user?.email ?? "" }}
       action={
-        <div className="flex items-center gap-2">
-          <Link
-            href="/instructor/courses"
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-medium transition-colors hover:border-slate-500"
-            style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)", color: "var(--text-secondary)" }}
-          >
-            <ArrowLeft size={14} />
-            <span className="hidden sm:inline">Back</span>
-          </Link>
-          <Link
-            href={`/instructor/courses/${course.id}/edit`}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-semibold text-white hover:opacity-90"
-            style={{ backgroundColor: "var(--accent)" }}
-          >
-            <Edit2 size={14} />
-            <span className="hidden sm:inline">Edit Course</span>
-          </Link>
-        </div>
+        <Link href={`/instructor/courses/${id}/edit`}
+          className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-semibold"
+          style={{ backgroundColor: "var(--accent)", color: "#fff" }}>
+          <Edit2 size={13} /> Edit Course
+        </Link>
       }
     >
-      <div className="max-w-5xl space-y-5">
-        {/* Hero card */}
-        <div
-          className="rounded-2xl overflow-hidden shadow-sm"
-          style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
-        >
-          {/* Banner */}
-          <div
-            className="flex items-center justify-center h-40 relative"
-            style={{ backgroundColor: course.color + "18" }}
-          >
-            <div
-              className="flex items-center justify-center w-16 h-16 rounded-2xl"
-              style={{ backgroundColor: course.color + "30" }}
-            >
-              <Play size={28} style={{ color: course.color }} />
-            </div>
-            <div className="absolute top-4 left-4">
-              <span
-                className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold"
-                style={{ color: status.color, backgroundColor: status.bg }}
-              >
-                {status.label}
-              </span>
-            </div>
-            {course.rating > 0 && (
-              <div
-                className="absolute top-4 right-4 flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold"
-                style={{ backgroundColor: "#F59E0B18", color: "#F59E0B" }}
-              >
-                <Star size={11} fill="#F59E0B" />
-                {course.rating}
-                <span style={{ color: "#92400E" }}>({course.reviews})</span>
+      <div className="max-w-4xl space-y-6">
+
+        {/* Back */}
+        <Link href="/instructor/courses"
+          className="inline-flex items-center gap-1.5 text-sm font-medium hover:opacity-80"
+          style={{ color: "var(--text-secondary)" }}>
+          <ArrowLeft size={14} /> My Courses
+        </Link>
+
+        {/* Header */}
+        <div className="rounded-2xl p-6 space-y-4"
+          style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
+          <div className="flex items-start justify-between gap-4 flex-wrap">
+            <div className="space-y-1.5 flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold"
+                  style={{ color: s.color, backgroundColor: s.bg }}>
+                  {s.label}
+                </span>
+                <span className="text-xs" style={{ color: "var(--text-muted)" }}>
+                  {course.category ?? course.level}
+                </span>
               </div>
-            )}
+              <h1 className="text-xl font-bold" style={{ color: "var(--text-primary)" }}>{course.title}</h1>
+              {course.subtitle && (
+                <p className="text-sm" style={{ color: "var(--text-secondary)" }}>{course.subtitle}</p>
+              )}
+            </div>
           </div>
 
-          {/* Info */}
-          <div className="p-5">
-            <p className="text-xs font-semibold mb-1" style={{ color: course.color }}>
-              {course.category}
-            </p>
-            <h1 className="text-xl font-bold leading-snug mb-2" style={{ color: "var(--text-primary)" }}>{course.title}</h1>
-            <p className="text-sm leading-relaxed mb-4" style={{ color: "var(--text-secondary)" }}>{course.description}</p>
-
-            {/* Quick stats */}
-            <div className="flex flex-wrap items-center gap-3">
-              {[
-                { icon: BookOpen, label: `${course.lessons} lessons` },
-                { icon: Clock,    label: course.duration },
-                { icon: Users,    label: `${course.students.toLocaleString()} students` },
-                { icon: Globe,    label: "English" },
-              ].map(({ icon: Icon, label }) => (
-                <div key={label} className="flex items-center gap-1.5 text-xs" style={{ color: "var(--text-tertiary)" }}>
-                  <Icon size={13} />
-                  {label}
+          {/* Stats */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {[
+              { icon: Users,    label: "Students Enrolled", value: course.studentsCount.toLocaleString(), color: "#3B82F6" },
+              { icon: Star,     label: "Avg Rating",        value: avgRating > 0 ? avgRating.toFixed(1) : "No ratings", color: "#F59E0B" },
+              { icon: MessageSquare, label: "Reviews",      value: String(reviews.length || course.reviewCount), color: "#8B5CF6" },
+              { icon: BookOpen, label: "Total Lessons",     value: String(totalLessons), color: "#10B981" },
+            ].map(({ icon: Icon, label, value, color }) => (
+              <div key={label} className="flex items-center gap-3 px-4 py-3 rounded-xl"
+                style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)" }}>
+                <Icon size={16} style={{ color, flexShrink: 0 }} />
+                <div>
+                  <p className="text-sm font-bold" style={{ color: "var(--text-primary)" }}>{value}</p>
+                  <p className="text-[10px]" style={{ color: "var(--text-muted)" }}>{label}</p>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Two-column grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-          {/* Left column */}
-          <div className="lg:col-span-2 space-y-5">
-            {/* What you'll learn */}
-            <div
-              className="rounded-2xl p-5 shadow-sm"
-              style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
-            >
-              <h2 className="text-sm font-semibold mb-4" style={{ color: "var(--text-primary)" }}>What You&apos;ll Learn</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2.5 gap-x-6">
-                {LEARN_BULLETS.map((b) => (
-                  <div key={b} className="flex items-start gap-2.5">
-                    <div
-                      className="w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0"
-                      style={{ backgroundColor: course.color }}
-                    />
-                    <p className="text-sm" style={{ color: "var(--text-secondary)" }}>{b}</p>
+        {/* Tabs */}
+        <div className="flex gap-1 p-1 rounded-xl w-fit"
+          style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
+          {(["overview", "curriculum", "reviews"] as Tab[]).map((t) => (
+            <button key={t} onClick={() => setTab(t)}
+              className="px-4 py-1.5 rounded-lg text-xs font-semibold capitalize transition-colors"
+              style={{ backgroundColor: tab === t ? "var(--accent)" : "transparent", color: tab === t ? "#fff" : "var(--text-secondary)" }}>
+              {t}
+              {t === "reviews" && reviews.length > 0 && (
+                <span className="ml-1.5 px-1.5 py-0.5 rounded-full text-[10px]"
+                  style={{ backgroundColor: tab === t ? "rgba(255,255,255,0.2)" : "var(--bg-surface-muted)", color: tab === t ? "#fff" : "var(--text-muted)" }}>
+                  {reviews.length}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+
+        {/* Overview tab */}
+        {tab === "overview" && (
+          <div className="space-y-5">
+            {course.description && (
+              <div className="rounded-2xl p-5 space-y-2"
+                style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
+                <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Description</p>
+                <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>{course.description}</p>
+              </div>
+            )}
+
+            {(course.learningObjectives ?? []).filter(Boolean).length > 0 && (
+              <div className="rounded-2xl p-5 space-y-3"
+                style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
+                <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Learning Objectives</p>
+                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {(course.learningObjectives as string[]).filter(Boolean).map((obj, i) => (
+                    <li key={i} className="flex items-start gap-2 text-sm" style={{ color: "var(--text-secondary)" }}>
+                      <ThumbsUp size={12} className="flex-shrink-0 mt-0.5" style={{ color: "var(--accent)" }} />
+                      {obj}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="rounded-2xl p-5 space-y-3"
+                style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
+                <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Course Details</p>
+                {[
+                  { label: "Level",        value: course.level },
+                  { label: "Language",     value: course.language ?? "English" },
+                  { label: "Price",        value: course.isFree ? "Free" : `$${course.price}` },
+                  { label: "Enrollment",   value: course.enrollmentType ?? "Open" },
+                  { label: "Certificate",  value: course.certificateOffered ? "Yes" : "No" },
+                  { label: "Max Students", value: course.maxStudents ? String(course.maxStudents) : "Unlimited" },
+                ].map(({ label, value }) => (
+                  <div key={label} className="flex items-center justify-between gap-2">
+                    <span className="text-xs" style={{ color: "var(--text-muted)" }}>{label}</span>
+                    <span className="text-xs font-medium" style={{ color: "var(--text-secondary)" }}>{value}</span>
                   </div>
                 ))}
               </div>
-            </div>
 
-            {/* Instructor card */}
-            <div
-              className="rounded-2xl p-5 shadow-sm"
-              style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
-            >
-              <h2 className="text-sm font-semibold mb-4" style={{ color: "var(--text-primary)" }}>Instructor</h2>
-              <div className="flex items-start gap-4">
-                <div
-                  className="flex items-center justify-center w-12 h-12 rounded-full text-sm font-bold text-white flex-shrink-0"
-                  style={{ backgroundColor: "var(--accent)" }}
-                >
-                  JS
-                </div>
-                <div>
-                  <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Jane Smith</p>
-                  <p className="text-xs mt-0.5" style={{ color: "var(--accent)" }}>Senior Software Engineer · 6 courses</p>
-                  <p className="text-xs mt-2 leading-relaxed" style={{ color: "var(--text-tertiary)" }}>
-                    Passionate educator with 10+ years of industry experience building scalable systems.
-                    Loves breaking complex topics into digestible, hands-on lessons.
-                  </p>
-                </div>
+              {/* Rating summary */}
+              <div className="rounded-2xl p-5 space-y-3"
+                style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
+                <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Rating Summary</p>
+                {reviews.length === 0 ? (
+                  <p className="text-sm" style={{ color: "var(--text-muted)" }}>No reviews yet.</p>
+                ) : (
+                  <>
+                    <div className="flex items-center gap-3">
+                      <span className="text-3xl font-bold" style={{ color: "var(--text-primary)" }}>{avgRating.toFixed(1)}</span>
+                      <div>
+                        <StarRating rating={Math.round(avgRating)} />
+                        <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>{reviews.length} review{reviews.length !== 1 ? "s" : ""}</p>
+                      </div>
+                    </div>
+                    <div className="space-y-1.5">
+                      {ratingDist.map(({ star, count }) => (
+                        <div key={star} className="flex items-center gap-2">
+                          <span className="text-xs w-4 text-right flex-shrink-0" style={{ color: "var(--text-muted)" }}>{star}</span>
+                          <Star size={10} fill="#F59E0B" style={{ color: "#F59E0B", flexShrink: 0 }} />
+                          <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: "var(--border-default)" }}>
+                            <div className="h-full rounded-full" style={{
+                              width: reviews.length > 0 ? `${(count / reviews.length) * 100}%` : "0%",
+                              backgroundColor: "#F59E0B",
+                            }} />
+                          </div>
+                          <span className="text-xs w-4 flex-shrink-0" style={{ color: "var(--text-muted)" }}>{count}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
               </div>
             </div>
+          </div>
+        )}
 
-            {/* Curriculum preview */}
-            {course.sections.length > 0 && (
-              <div
-                className="rounded-2xl overflow-hidden shadow-sm"
-                style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
-              >
-                <div className="px-5 py-4" style={{ borderBottom: "1px solid var(--border-default)" }}>
-                  <h2 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Course Curriculum</h2>
-                  <p className="text-xs mt-0.5" style={{ color: "var(--text-tertiary)" }}>
-                    {course.sections.length} sections · {totalLessons} lessons
-                  </p>
-                </div>
-                <div>
-                  {course.sections.map((section) => (
-                    <CurriculumSection key={section.id} section={section} />
-                  ))}
-                </div>
+        {/* Curriculum tab */}
+        {tab === "curriculum" && (
+          <div className="rounded-2xl overflow-hidden"
+            style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
+            <div className="px-5 py-4 flex items-center justify-between"
+              style={{ borderBottom: "1px solid var(--border-default)" }}>
+              <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Course Curriculum</p>
+              <p className="text-xs" style={{ color: "var(--text-muted)" }}>
+                {course.sections.length} sections · {totalLessons} lessons
+              </p>
+            </div>
+            {course.sections.length === 0 ? (
+              <div className="px-5 py-12 text-center">
+                <BookOpen size={28} className="mx-auto mb-2" style={{ color: "var(--text-muted)" }} />
+                <p className="text-sm" style={{ color: "var(--text-muted)" }}>No curriculum yet.</p>
+                <Link href={`/instructor/courses/${id}/edit`}
+                  className="inline-flex mt-3 text-sm font-medium" style={{ color: "var(--accent)" }}>
+                  Add content →
+                </Link>
               </div>
+            ) : (
+              course.sections.map((section, si) => {
+                const open = expandedSections.has(si)
+                return (
+                  <div key={section.id}
+                    style={{ borderBottom: si < course.sections.length - 1 ? "1px solid var(--border-default)" : "none" }}>
+                    <button type="button" onClick={() => toggleSection(si)}
+                      className="w-full flex items-center gap-3 px-5 py-3.5 text-left transition-colors hover:bg-white/[0.02]">
+                      <ChevronDown size={14} style={{ color: "var(--text-muted)", transform: open ? "rotate(0deg)" : "rotate(-90deg)", transition: "transform 0.15s", flexShrink: 0 }} />
+                      <span className="flex-1 text-sm font-medium" style={{ color: "var(--text-primary)" }}>{section.title}</span>
+                      <span className="text-xs flex-shrink-0" style={{ color: "var(--text-muted)" }}>{section.lessons.length} lessons</span>
+                    </button>
+                    {open && section.lessons.length > 0 && (
+                      <div style={{ borderTop: "1px solid var(--border-default)" }}>
+                        {section.lessons.map((lesson, li) => (
+                          <div key={lesson.id}
+                            className="flex items-center gap-3 px-5 py-2.5"
+                            style={{ borderTop: li > 0 ? "1px solid var(--bg-surface-muted)" : "none" }}>
+                            <LessonTypeIcon type={lesson.type} />
+                            <span className="flex-1 text-sm truncate" style={{ color: "var(--text-secondary)" }}>{lesson.title}</span>
+                            {lesson.freePreview && (
+                              <span className="flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded-full flex-shrink-0"
+                                style={{ backgroundColor: "#3B82F620", color: "#60A5FA" }}>
+                                <Eye size={9} /> Preview
+                              </span>
+                            )}
+                            {lesson.durationSeconds && lesson.durationSeconds > 0 && (
+                              <span className="text-xs flex-shrink-0" style={{ color: "var(--text-muted)" }}>
+                                {Math.ceil(lesson.durationSeconds / 60)}m
+                              </span>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )
+              })
             )}
           </div>
+        )}
 
-          {/* Right column — Pricing card */}
+        {/* Reviews tab */}
+        {tab === "reviews" && (
           <div className="space-y-4">
-            <div
-              className="rounded-2xl p-5 sticky top-4 shadow-sm"
-              style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
-            >
-              {/* Price */}
-              <div className="mb-5">
-                {course.students === 0 && course.revenue === "$0" ? (
-                  <p className="text-3xl font-bold" style={{ color: "var(--success)" }}>Free</p>
-                ) : (
-                  <p className="text-3xl font-bold" style={{ color: "var(--text-primary)" }}>{course.revenue}</p>
-                )}
-                <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>One-time purchase</p>
+            {reviews.length === 0 ? (
+              <div className="rounded-2xl px-5 py-16 text-center"
+                style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
+                <MessageSquare size={32} className="mx-auto mb-3" style={{ color: "var(--text-muted)" }} />
+                <p className="text-sm font-medium" style={{ color: "var(--text-secondary)" }}>No reviews yet</p>
+                <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>Reviews from students will appear here.</p>
               </div>
-
-              {/* Enroll button */}
-              <button
-                className="w-full py-3 rounded-xl text-sm font-bold text-white hover:opacity-90 transition-opacity mb-4"
-                style={{ backgroundColor: "var(--accent)" }}
-              >
-                Enroll Now
-              </button>
-
-              {/* Revenue summary (instructor-only view) */}
-              {course.students > 0 && (
-                <div
-                  className="rounded-xl p-3 mb-4"
-                  style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)" }}
-                >
-                  <p className="text-xs font-semibold mb-2" style={{ color: "var(--text-tertiary)" }}>Your earnings</p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs" style={{ color: "var(--text-tertiary)" }}>Revenue</span>
-                    <span className="text-sm font-bold" style={{ color: "var(--success)" }}>{course.revenue}</span>
+            ) : (
+              <>
+                {/* Summary row */}
+                <div className="flex items-center gap-4 px-5 py-4 rounded-2xl"
+                  style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
+                  <div className="text-center flex-shrink-0">
+                    <p className="text-4xl font-bold" style={{ color: "var(--text-primary)" }}>{avgRating.toFixed(1)}</p>
+                    <StarRating rating={Math.round(avgRating)} />
+                    <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>{reviews.length} review{reviews.length !== 1 ? "s" : ""}</p>
                   </div>
-                  <div className="flex items-center justify-between mt-1">
-                    <span className="text-xs" style={{ color: "var(--text-tertiary)" }}>Students</span>
-                    <span className="text-sm font-bold" style={{ color: "var(--text-primary)" }}>{course.students.toLocaleString()}</span>
+                  <div className="flex-1 space-y-1.5">
+                    {ratingDist.map(({ star, count }) => (
+                      <div key={star} className="flex items-center gap-2">
+                        <span className="text-xs w-3 text-right flex-shrink-0" style={{ color: "var(--text-muted)" }}>{star}</span>
+                        <Star size={10} fill="#F59E0B" style={{ color: "#F59E0B", flexShrink: 0 }} />
+                        <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ backgroundColor: "var(--border-default)" }}>
+                          <div className="h-full rounded-full transition-all" style={{
+                            width: `${(count / reviews.length) * 100}%`,
+                            backgroundColor: "#F59E0B",
+                          }} />
+                        </div>
+                        <span className="text-xs w-4 flex-shrink-0" style={{ color: "var(--text-muted)" }}>{count}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
-              )}
 
-              {/* Course includes */}
-              <div>
-                <p className="text-xs font-semibold mb-3" style={{ color: "var(--text-secondary)" }}>This course includes</p>
-                <div className="space-y-2">
-                  {[
-                    { icon: BookOpen, label: `${course.lessons} lessons` },
-                    { icon: Clock,    label: `${course.duration} of content` },
-                    { icon: Award,    label: "Certificate of completion" },
-                    { icon: Globe,    label: "Full lifetime access" },
-                  ].map(({ icon: Icon, label }) => (
-                    <div key={label} className="flex items-center gap-2.5 text-xs" style={{ color: "var(--text-secondary)" }}>
-                      <Icon size={13} style={{ color: "var(--text-tertiary)", flexShrink: 0 }} />
-                      {label}
+                {/* Individual reviews */}
+                <div className="space-y-3">
+                  {reviews.map((review) => (
+                    <div key={review.id} className="rounded-2xl p-5 space-y-3"
+                      style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 text-sm font-bold"
+                            style={{ backgroundColor: "var(--accent)20", color: "var(--accent)" }}>
+                            {review.studentId.slice(0, 2).toUpperCase()}
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
+                              Student {review.studentId.slice(0, 8)}
+                            </p>
+                            <StarRating rating={review.rating} />
+                          </div>
+                        </div>
+                        <p className="text-xs flex-shrink-0" style={{ color: "var(--text-muted)" }}>
+                          {new Date(review.createdAt).toLocaleDateString()}
+                        </p>
+                      </div>
+                      {review.comment && (
+                        <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
+                          {review.comment}
+                        </p>
+                      )}
                     </div>
                   ))}
                 </div>
-              </div>
-
-              {/* Last updated */}
-              <p className="text-xs mt-4 pt-4" style={{ borderTop: "1px solid var(--border-default)", color: "var(--text-muted)" }}>
-                Last updated {course.updated}
-              </p>
-            </div>
+              </>
+            )}
           </div>
-        </div>
+        )}
       </div>
     </InstructorPageShell>
   )

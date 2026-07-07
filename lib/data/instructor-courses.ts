@@ -34,12 +34,15 @@ export interface LessonResource {
 export interface Lesson {
   id: string
   title: string
-  type: "video" | "text" | "quiz"
+  type: "video" | "text" | "quiz" | "pdf"
   duration: string
   isPreview: boolean
   questions?: QuizQuestion[]
+  quizId?: string
   videoFileName?: string
   videoUrl?: string
+  resourceUrl?: string
+  resourceFileName?: string
   textContent?: string
   quizMode?: "fixed" | "bank"
   randomQuestionCount?: number

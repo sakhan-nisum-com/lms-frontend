@@ -1,160 +1,153 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { DashboardLayout } from "@/components/layout/DashboardLayout"
-import { useSiteSettings } from "@/lib/hooks/useSiteSettings"
-import type { PermissionKey, PermissionRole } from "@/lib/hooks/useSiteSettings"
-import { Settings as SettingsIcon, ShieldAlert, Check } from "lucide-react"
+import { settingsApi } from "@/lib/api/admin"
+import { authStore } from "@/lib/auth-store"
+import { Settings as SettingsIcon, Save, Loader2, Check } from "lucide-react"
 
-const PERMISSION_LABELS: Record<PermissionKey, string> = {
-  manageUsers: "Manage Users",
-  manageCourses: "Manage Courses",
-  moderateDiscussions: "Moderate Discussions",
-  issueRefunds: "Issue Refunds",
-  viewReports: "View Reports",
-  manageSettings: "Manage Settings",
-}
+interface SettingField { key: string; label: string; desc?: string; type: "text" | "email" | "number" | "toggle" }
 
-const ROLES: PermissionRole[] = ["student", "tutor", "admin"]
+const FIELDS: SettingField[] = [
+  { key: "site_name",                label: "Site Name",                  desc: "The platform name shown in the header.",                 type: "text" },
+  { key: "support_email",            label: "Support Email",               desc: "Where user support requests are sent.",                  type: "email" },
+  { key: "contact_phone",            label: "Contact Phone",               type: "text" },
+  { key: "session_timeout_minutes",  label: "Session Timeout (minutes)",   desc: "Auto-logout inactive users after this many minutes.",   type: "number" },
+  { key: "max_upload_size_mb",       label: "Max Upload Size (MB)",        desc: "Maximum video/file upload size per lesson.",            type: "number" },
+  { key: "maintenance_mode",         label: "Maintenance Mode",            desc: "Blocks learner access during maintenance.",             type: "toggle" },
+  { key: "allow_self_registration",  label: "Allow Self-Registration",     desc: "Let new users sign up without an admin invite.",        type: "toggle" },
+  { key: "require_email_verification", label: "Require Email Verification", desc: "Users must verify email before signing in.",           type: "toggle" },
+  { key: "enable_certificates",      label: "Enable Certificates",         desc: "Issue completion certificates to students.",            type: "toggle" },
+  { key: "enable_payments",          label: "Enable Payments",             desc: "Allow paid courses and transactions.",                  type: "toggle" },
+]
 
-function Toggle({ checked, onChange, disabled }: { checked: boolean; onChange: () => void; disabled?: boolean }) {
+function Toggle({ checked, onChange }: { checked: boolean; onChange: () => void }) {
   return (
-    <button
-      onClick={onChange}
-      disabled={disabled}
-      className="relative rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-      style={{ width: 38, height: 22, backgroundColor: checked ? "var(--accent)" : "var(--border-default)" }}
-    >
-      <span
-        className="absolute top-0.5 rounded-full bg-white transition-all"
-        style={{ width: 18, height: 18, left: checked ? 18 : 2 }}
-      />
+    <button onClick={onChange}
+      className="relative rounded-full transition-colors flex-shrink-0"
+      style={{ width: 40, height: 22, backgroundColor: checked ? "var(--accent)" : "var(--border-default)" }}>
+      <span className="absolute top-0.5 rounded-full bg-white transition-all"
+        style={{ width: 18, height: 18, left: checked ? 20 : 2 }} />
     </button>
   )
 }
 
 export default function AdminSettingsPage() {
-  const { settings, updateSettings, permissions, togglePermission } = useSiteSettings()
+  const [values, setValues] = useState<Record<string, string>>({})
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState<string | null>(null)
+  const [saved, setSaved] = useState<string | null>(null)
+  const user = authStore.getUser()
+
+  useEffect(() => {
+    settingsApi.getAll()
+      .then((data) => setValues(data))
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [])
+
+  function get(key: string, fallback = "") {
+    return values[key] ?? fallback
+  }
+
+  function set(key: string, value: string) {
+    setValues((prev) => ({ ...prev, [key]: value }))
+  }
+
+  async function save(key: string, value: string) {
+    setSaving(key)
+    try {
+      await settingsApi.upsert(key, value)
+      setSaved(key)
+      setTimeout(() => setSaved(null), 2000)
+    } catch {} finally { setSaving(null) }
+  }
+
+  async function saveText(key: string) {
+    await save(key, get(key))
+  }
+
+  async function toggle(key: string) {
+    const current = get(key, "false")
+    const next = current === "true" ? "false" : "true"
+    set(key, next)
+    await save(key, next)
+  }
+
+  if (loading) {
+    return (
+      <DashboardLayout role="admin" userName={user?.fullName ?? "Admin"}>
+        <div className="flex items-center justify-center py-32">
+          <Loader2 size={28} className="animate-spin" style={{ color: "var(--text-muted)" }} />
+        </div>
+      </DashboardLayout>
+    )
+  }
+
+  const textFields = FIELDS.filter((f) => f.type !== "toggle")
+  const toggleFields = FIELDS.filter((f) => f.type === "toggle")
 
   return (
-    <DashboardLayout role="admin" userName="Morgan Patel">
-      <div className="space-y-6 max-w-4xl">
+    <DashboardLayout role="admin" userName={user?.fullName ?? "Admin"}>
+      <div className="space-y-6 max-w-3xl">
         <div>
-          <h1 className="text-2xl font-bold" style={{ color: "var(--text-primary)" }}>Settings</h1>
+          <h1 className="text-2xl font-bold" style={{ color: "var(--text-primary)" }}>Platform Settings</h1>
           <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>
-            Platform configuration and role permissions.
+            Configure site-wide behaviour. Changes take effect immediately.
           </p>
         </div>
 
-        {/* General */}
-        <div className="rounded-2xl p-5 space-y-4 shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
-          <div className="flex items-center gap-2 mb-2">
-            <SettingsIcon size={16} style={{ color: "var(--accent)" }} />
+        {/* Text / number fields */}
+        <div className="rounded-2xl p-5 space-y-5 shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
+          <div className="flex items-center gap-2">
+            <SettingsIcon size={15} style={{ color: "var(--accent)" }} />
             <h2 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>General</h2>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="text-xs font-semibold block mb-1.5" style={{ color: "var(--text-secondary)" }}>Site Name</label>
-              <input
-                value={settings.siteName}
-                onChange={(e) => updateSettings({ siteName: e.target.value })}
-                className="w-full px-3 py-2.5 rounded-lg text-sm outline-none"
-                style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)", color: "var(--text-primary)" }}
-              />
+          {textFields.map((f) => (
+            <div key={f.key}>
+              <label className="text-xs font-semibold block mb-1" style={{ color: "var(--text-secondary)" }}>{f.label}</label>
+              {f.desc && <p className="text-xs mb-1.5" style={{ color: "var(--text-muted)" }}>{f.desc}</p>}
+              <div className="flex gap-2">
+                <input
+                  type={f.type}
+                  value={get(f.key)}
+                  onChange={(e) => set(f.key, e.target.value)}
+                  onBlur={() => saveText(f.key)}
+                  onKeyDown={(e) => e.key === "Enter" && saveText(f.key)}
+                  className="flex-1 px-3 py-2.5 rounded-lg text-sm outline-none"
+                  style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)", color: "var(--text-primary)" }}
+                  onFocus={(e) => (e.target.style.borderColor = "var(--accent)")}
+                />
+                <button onClick={() => saveText(f.key)} disabled={saving === f.key}
+                  className="flex items-center justify-center w-10 h-10 rounded-lg disabled:opacity-50 flex-shrink-0"
+                  style={{ backgroundColor: saved === f.key ? "#10B98120" : "var(--accent) + \"20\"", color: saved === f.key ? "#10B981" : "var(--accent)" }}>
+                  {saving === f.key ? <Loader2 size={14} className="animate-spin" /> : saved === f.key ? <Check size={14} /> : <Save size={14} />}
+                </button>
+              </div>
             </div>
-            <div>
-              <label className="text-xs font-semibold block mb-1.5" style={{ color: "var(--text-secondary)" }}>Support Email</label>
-              <input
-                value={settings.supportEmail}
-                onChange={(e) => updateSettings({ supportEmail: e.target.value })}
-                className="w-full px-3 py-2.5 rounded-lg text-sm outline-none"
-                style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)", color: "var(--text-primary)" }}
-              />
-            </div>
-          </div>
+          ))}
+        </div>
 
-          <div>
-            <label className="text-xs font-semibold block mb-1.5" style={{ color: "var(--text-secondary)" }}>Session Timeout (minutes)</label>
-            <input
-              type="number"
-              value={settings.sessionTimeoutMinutes}
-              onChange={(e) => updateSettings({ sessionTimeoutMinutes: Number(e.target.value) })}
-              className="w-full max-w-[160px] px-3 py-2.5 rounded-lg text-sm outline-none"
-              style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)", color: "var(--text-primary)" }}
-            />
+        {/* Toggle fields */}
+        <div className="rounded-2xl overflow-hidden shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
+          <div className="px-5 py-4 flex items-center gap-2" style={{ borderBottom: "1px solid var(--border-default)" }}>
+            <SettingsIcon size={15} style={{ color: "#8B5CF6" }} />
+            <h2 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Feature Flags</h2>
           </div>
-
-          <div className="space-y-3 pt-2" style={{ borderTop: "1px solid var(--border-default)" }}>
-            {[
-              { key: "maintenanceMode" as const, label: "Maintenance Mode", desc: "Temporarily block learner access while you make changes." },
-              { key: "allowSelfRegistration" as const, label: "Allow Self-Registration", desc: "Let new users sign up without an admin invite." },
-              { key: "requireEmailVerification" as const, label: "Require Email Verification", desc: "New accounts must verify their email before signing in." },
-            ].map(({ key, label, desc }) => (
-              <div key={key} className="flex items-center justify-between gap-3 pt-3">
+          <div className="divide-y" style={{ borderColor: "var(--border-default)" }}>
+            {toggleFields.map((f) => (
+              <div key={f.key} className="flex items-center justify-between gap-4 px-5 py-4">
                 <div>
-                  <p className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>{label}</p>
-                  <p className="text-xs mt-0.5" style={{ color: "var(--text-tertiary)" }}>{desc}</p>
+                  <p className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>{f.label}</p>
+                  {f.desc && <p className="text-xs mt-0.5" style={{ color: "var(--text-tertiary)" }}>{f.desc}</p>}
                 </div>
-                <Toggle checked={settings[key]} onChange={() => updateSettings({ [key]: !settings[key] })} />
+                <div className="flex items-center gap-2">
+                  {saving === f.key && <Loader2 size={13} className="animate-spin" style={{ color: "var(--text-muted)" }} />}
+                  <Toggle checked={get(f.key, "false") === "true"} onChange={() => toggle(f.key)} />
+                </div>
               </div>
             ))}
           </div>
-
-          {settings.maintenanceMode && (
-            <div className="flex items-center gap-2 rounded-lg px-3 py-2.5" style={{ backgroundColor: "#EF444415", border: "1px solid #EF444430" }}>
-              <ShieldAlert size={14} style={{ color: "var(--danger)" }} />
-              <p className="text-xs" style={{ color: "#FCA5A5" }}>
-                Maintenance mode is ON — students and tutors will see a maintenance notice instead of the dashboard.
-              </p>
-            </div>
-          )}
-        </div>
-
-        {/* Roles & permissions */}
-        <div className="rounded-2xl overflow-hidden shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
-          <div className="px-5 py-4" style={{ borderBottom: "1px solid var(--border-default)" }}>
-            <h2 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Roles &amp; Permissions</h2>
-            <p className="text-xs mt-0.5" style={{ color: "var(--text-tertiary)" }}>Control what each role can do across the platform.</p>
-          </div>
-          <table className="w-full text-sm">
-            <thead>
-              <tr style={{ borderBottom: "1px solid var(--border-default)" }}>
-                <th className="text-left px-5 py-3 text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-tertiary)" }}>Permission</th>
-                {ROLES.map((r) => (
-                  <th key={r} className="text-center px-5 py-3 text-xs font-semibold uppercase tracking-wider capitalize" style={{ color: "var(--text-tertiary)" }}>
-                    {r}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {(Object.keys(PERMISSION_LABELS) as PermissionKey[]).map((key, i, arr) => (
-                <tr key={key} style={{ borderBottom: i < arr.length - 1 ? "1px solid var(--border-default)" : "none" }}>
-                  <td className="px-5 py-3.5 font-medium" style={{ color: "var(--text-primary)" }}>{PERMISSION_LABELS[key]}</td>
-                  {ROLES.map((role) => {
-                    const locked = role === "admin" && key === "manageSettings"
-                    return (
-                      <td key={role} className="px-5 py-3.5 text-center">
-                        {locked ? (
-                          <span className="inline-flex items-center justify-center w-6 h-6 rounded-md" style={{ backgroundColor: "#10B98120" }}>
-                            <Check size={13} style={{ color: "#34D399" }} />
-                          </span>
-                        ) : (
-                          <input
-                            type="checkbox"
-                            checked={permissions[role][key]}
-                            onChange={() => togglePermission(role, key)}
-                            className="w-4 h-4 cursor-pointer"
-                            style={{ accentColor: "var(--accent)" }}
-                          />
-                        )}
-                      </td>
-                    )
-                  })}
-                </tr>
-              ))}
-            </tbody>
-          </table>
         </div>
       </div>
     </DashboardLayout>

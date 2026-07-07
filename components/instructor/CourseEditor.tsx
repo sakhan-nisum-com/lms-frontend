@@ -21,8 +21,13 @@ import {
   EyeOff,
   Check,
   X,
+  Download,
+  Maximize2,
+  Copy,
 } from "lucide-react"
 import type { Section, Lesson, LessonResource, QuizQuestion, LessonKnowledgeCheck, SessionKnowledgeCheck, SessionKCPart } from "@/lib/data/instructor-courses"
+import { settingsApi } from "@/lib/api/admin"
+import { uploadApi } from "@/lib/api/upload"
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -67,6 +72,7 @@ export interface CourseForm {
 interface CourseEditorProps {
   initialForm: CourseForm
   mode: "new" | "edit"
+  onFormChange?: (form: CourseForm) => void
 }
 
 type StepId = 1 | 2 | 3 | 4 | 5 | 6
@@ -102,10 +108,12 @@ const LESSON_TYPE_META: Record<Lesson["type"], { icon: typeof Video; color: stri
   video: { icon: Video,      color: "var(--accent)" },
   text:  { icon: FileText,   color: "var(--success)" },
   quiz:  { icon: HelpCircle, color: "#8B5CF6" },
+  pdf:   { icon: FileText,   color: "#F59E0B" },
 }
 
 const LESSON_TYPE_ACTIONS: { type: Lesson["type"]; icon: typeof Video; label: string; color: string }[] = [
   { type: "video", icon: Video,      label: "Upload Video", color: "#3B82F6" },
+  { type: "pdf",   icon: FileText,   label: "Upload PDF",   color: "#F59E0B" },
   { type: "text",  icon: FileText,   label: "Write Text",   color: "#10B981" },
   { type: "quiz",  icon: HelpCircle, label: "Create Quiz",  color: "#8B5CF6" },
 ]
@@ -319,11 +327,23 @@ function IntendedLearnersStep({ form, onChange }: { form: CourseForm; onChange: 
   return (
     <div className="space-y-8 max-w-2xl">
       <div>
-        <h3 className="text-base font-semibold text-[var(--text-primary)] mb-1">Intended Learners</h3>
+        <h3 className="text-base font-semibold text-[var(--text-primary)] mb-1">Get Started</h3>
         <p className="text-sm leading-relaxed" style={{ color: "var(--text-tertiary)" }}>
-          These descriptions are shown publicly on your course landing page and directly affect enrollment.
-          Help students decide whether your course is right for them.
+          Give your course a title, then describe who it's for. This helps students decide if it's right for them.
         </p>
+      </div>
+
+      <div>
+        <FieldLabel>Course Title <span style={{ color: "var(--danger)" }}>*</span></FieldLabel>
+        <input
+          value={form.title}
+          onChange={(e) => onChange({ ...form, title: e.target.value })}
+          placeholder="e.g. React & TypeScript Masterclass"
+          className="w-full px-3 py-2.5 rounded-xl text-sm outline-none"
+          style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)", color: "var(--text-primary)" }}
+          onFocus={(e) => (e.currentTarget.style.borderColor = "var(--accent)")}
+          onBlur={(e) => (e.currentTarget.style.borderColor = "var(--border-default)")}
+        />
       </div>
 
       <BulletListEditor
@@ -436,9 +456,16 @@ function CurriculumTab({ form, onChange }: { form: CourseForm; onChange: (f: Cou
   const [editValue, setEditValue] = useState("")
   const [quizEditorId, setQuizEditorId] = useState<string | null>(null)
   const [textEditorId, setTextEditorId] = useState<string | null>(null)
-  const [uploadTarget, setUploadTarget] = useState<{ sectionId: string; lessonId: string } | null>(null)
+  const [uploadTarget, setUploadTarget] = useState<{ sectionId: string; lessonId: string; kind: "video" | "pdf" } | null>(null)
   const [uploadProgress, setUploadProgress] = useState<{ lessonId: string; percent: number } | null>(null)
+  const [pdfPreview, setPdfPreview] = useState<{ url: string; blobUrl: string | null; name: string; loading: boolean } | null>(null)
+  const [expandedLessons, setExpandedLessons] = useState<Set<string>>(() => {
+    const ids = new Set<string>()
+    form.sections.forEach((s: { lessons: Array<{ id: string }> }) => s.lessons.forEach((l) => ids.add(l.id)))
+    return ids
+  })
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const pdfInputRef = useRef<HTMLInputElement>(null)
 
   // Resources
   const [resourceOpenId, setResourceOpenId] = useState<string | null>(null)
@@ -611,6 +638,36 @@ function CurriculumTab({ form, onChange }: { form: CourseForm; onChange: (f: Cou
 
   function removeSection(id: string) { updateSections(form.sections.filter((s) => s.id !== id)) }
 
+  function duplicateSection(id: string) {
+    const src = form.sections.find((s) => s.id === id)
+    if (!src) return
+    const newSectionId = `s-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`
+    const duplicate: typeof src = {
+      ...src,
+      id: newSectionId,
+      title: `${src.title} (Copy)`,
+      expanded: true,
+      lessons: src.lessons.map((l) => ({
+        ...l,
+        id: `l-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        questions: (l.questions ?? []).map((q) => ({
+          ...q,
+          id: `q-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        })),
+        quizId: undefined,
+      })),
+    }
+    const idx = form.sections.findIndex((s) => s.id === id)
+    const copy = [...form.sections]
+    copy.splice(idx + 1, 0, duplicate)
+    updateSections(copy)
+    setExpandedLessons((prev) => {
+      const next = new Set(prev)
+      duplicate.lessons.forEach((l) => next.add(l.id))
+      return next
+    })
+  }
+
   function addSection() {
     const id = `s-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`
     const title = `Section ${form.sections.length + 1}`
@@ -628,6 +685,7 @@ function CurriculumTab({ form, onChange }: { form: CourseForm; onChange: (f: Cou
           : s
       ),
     })
+    setExpandedLessons((prev) => { const next = new Set(prev); next.add(id); return next })
     setTimeout(() => startEdit(id, "New Lesson"), 50)
   }
 
@@ -683,8 +741,11 @@ function CurriculumTab({ form, onChange }: { form: CourseForm; onChange: (f: Cou
     if (uploadProgress?.lessonId === lessonId) return
     updateLesson(sectionId, lessonId, { type })
     if (type === "video") {
-      setUploadTarget({ sectionId, lessonId })
+      setUploadTarget({ sectionId, lessonId, kind: "video" })
       fileInputRef.current?.click()
+    } else if (type === "pdf") {
+      setUploadTarget({ sectionId, lessonId, kind: "pdf" })
+      pdfInputRef.current?.click()
     } else if (type === "text") {
       setTextEditorId((prev) => (prev === lessonId ? null : lessonId))
     } else {
@@ -692,25 +753,46 @@ function CurriculumTab({ form, onChange }: { form: CourseForm; onChange: (f: Cou
     }
   }
 
-  function handleVideoFileSelected(file: File | undefined) {
+  async function openPdfPreview(url: string, name: string) {
+    setPdfPreview({ url, blobUrl: null, name, loading: true })
+    try {
+      const token = typeof window !== "undefined" ? localStorage.getItem("lms_access_token") : null
+      const res = await fetch(url, token ? { headers: { Authorization: `Bearer ${token}` } } : {})
+      const blob = await res.blob()
+      const blobUrl = URL.createObjectURL(blob)
+      setPdfPreview((prev) => prev ? { ...prev, blobUrl, loading: false } : null)
+    } catch {
+      setPdfPreview((prev) => prev ? { ...prev, loading: false } : null)
+    }
+  }
+
+  function closePdfPreview() {
+    setPdfPreview((prev) => {
+      if (prev?.blobUrl) URL.revokeObjectURL(prev.blobUrl)
+      return null
+    })
+  }
+
+  async function handleFileSelected(file: File | undefined, kind: "video" | "pdf") {
     const target = uploadTarget
     setUploadTarget(null)
     if (!file || !target) return
     const { sectionId, lessonId } = target
     setUploadProgress({ lessonId, percent: 0 })
-    let percent = 0
-    const interval = setInterval(() => {
-      percent = Math.min(100, percent + Math.random() * 18 + 7)
-      if (percent >= 100) {
-        clearInterval(interval)
-        const url = URL.createObjectURL(file)
-        updateLesson(sectionId, lessonId, { videoFileName: file.name, videoUrl: url })
-        setUploadProgress({ lessonId, percent: 100 })
-        setTimeout(() => setUploadProgress(null), 400)
+    try {
+      const upload = kind === "video" ? uploadApi.video : uploadApi.document
+      const result = await upload(file, (pct) => setUploadProgress({ lessonId, percent: pct }))
+      if (kind === "video") {
+        updateLesson(sectionId, lessonId, { videoFileName: result.filename, videoUrl: result.url })
       } else {
-        setUploadProgress({ lessonId, percent: Math.round(percent) })
+        updateLesson(sectionId, lessonId, { resourceFileName: result.filename, resourceUrl: result.url })
       }
-    }, 180)
+      setUploadProgress({ lessonId, percent: 100 })
+      setTimeout(() => setUploadProgress(null), 400)
+    } catch {
+      setUploadProgress(null)
+      alert(`${kind === "video" ? "Video" : "PDF"} upload failed. Please try again.`)
+    }
   }
 
   function getLessonResources(sectionId: string, lessonId: string): LessonResource[] {
@@ -773,7 +855,14 @@ function CurriculumTab({ form, onChange }: { form: CourseForm; onChange: (f: Cou
         type="file"
         accept="video/*"
         className="hidden"
-        onChange={(e) => { handleVideoFileSelected(e.target.files?.[0]); e.target.value = "" }}
+        onChange={(e) => { handleFileSelected(e.target.files?.[0], "video"); e.target.value = "" }}
+      />
+      <input
+        ref={pdfInputRef}
+        type="file"
+        accept=".pdf,application/pdf"
+        className="hidden"
+        onChange={(e) => { handleFileSelected(e.target.files?.[0], "pdf"); e.target.value = "" }}
       />
       <input
         ref={resourceFileRef}
@@ -869,6 +958,13 @@ function CurriculumTab({ form, onChange }: { form: CourseForm; onChange: (f: Cou
               <button type="button" onClick={() => moveSectionDown(section.id)} disabled={si === form.sections.length - 1}
                 className="p-1 rounded hover:bg-white/5 transition-colors disabled:opacity-20" style={{ color: "var(--text-tertiary)" }}>
                 <ChevronDown size={13} />
+              </button>
+              <button type="button" onClick={() => duplicateSection(section.id)}
+                title="Duplicate section"
+                className="p-1 rounded transition-colors" style={{ color: "var(--text-tertiary)" }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = "var(--accent)")}
+                onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-tertiary)")}>
+                <Copy size={13} />
               </button>
               <button type="button" onClick={() => removeSection(section.id)}
                 className="p-1 rounded transition-colors" style={{ color: "var(--text-tertiary)" }}
@@ -1004,9 +1100,20 @@ function CurriculumTab({ form, onChange }: { form: CourseForm; onChange: (f: Cou
                 const textOpen = textEditorId === lesson.id
                 const isUploadingThis = uploadProgress?.lessonId === lesson.id
                 const TypeIcon = LESSON_TYPE_META[lesson.type].icon
+                const lessonExpanded = expandedLessons.has(lesson.id)
+                const toggleLesson = () => setExpandedLessons((prev) => {
+                  const next = new Set(prev)
+                  next.has(lesson.id) ? next.delete(lesson.id) : next.add(lesson.id)
+                  return next
+                })
                 return (
                   <div key={lesson.id} style={{ borderBottom: li < section.lessons.length - 1 ? "1px solid var(--bg-surface-muted)" : "none" }}>
                     <div className="flex items-center gap-3 px-4 py-2.5 hover:bg-white/[0.02] transition-colors">
+                      <button type="button" onClick={toggleLesson}
+                        className="flex-shrink-0 p-0.5 rounded transition-colors hover:bg-white/5"
+                        style={{ color: "var(--text-muted)" }}>
+                        <ChevronDown size={13} style={{ transform: lessonExpanded ? "rotate(0deg)" : "rotate(-90deg)", transition: "transform 0.15s" }} />
+                      </button>
                       <TypeIcon size={14} style={{ color: LESSON_TYPE_META[lesson.type].color, flexShrink: 0 }} />
 
                       <div className="flex-1 min-w-0 group flex items-center gap-2">
@@ -1103,6 +1210,7 @@ function CurriculumTab({ form, onChange }: { form: CourseForm; onChange: (f: Cou
                       </div>
                     </div>
 
+                    {lessonExpanded && (<>
                     {/* Type action buttons */}
                     <div className="flex items-center gap-2 px-4 pb-2.5 flex-wrap">
                       {LESSON_TYPE_ACTIONS.map(({ type, icon: Icon, label, color }) => {
@@ -1121,7 +1229,7 @@ function CurriculumTab({ form, onChange }: { form: CourseForm; onChange: (f: Cou
                             }}
                           >
                             <Icon size={12} />
-                            {type === "video" && isUploadingThis ? "Uploading…" : label}
+                            {(type === "video" || type === "pdf") && isUploadingThis ? "Uploading…" : label}
                           </button>
                         )
                       })}
@@ -1129,6 +1237,12 @@ function CurriculumTab({ form, onChange }: { form: CourseForm; onChange: (f: Cou
                         <span className="flex items-center gap-1 text-xs truncate max-w-[180px]" style={{ color: "var(--text-muted)" }} title={lesson.videoFileName}>
                           <Film size={11} className="flex-shrink-0" />
                           {lesson.videoFileName}
+                        </span>
+                      )}
+                      {lesson.type === "pdf" && !isUploadingThis && lesson.resourceFileName && (
+                        <span className="flex items-center gap-1 text-xs truncate max-w-[180px]" style={{ color: "#F59E0B" }} title={lesson.resourceFileName}>
+                          <FileText size={11} className="flex-shrink-0" />
+                          {lesson.resourceFileName}
                         </span>
                       )}
                       {lesson.type === "quiz" && (
@@ -1141,6 +1255,9 @@ function CurriculumTab({ form, onChange }: { form: CourseForm; onChange: (f: Cou
                           {lesson.textContent && lesson.textContent.replace(/<[^>]*>/g, "").trim().length > 0 ? "Content saved" : "No content yet"}
                         </span>
                       )}
+                      {lesson.type === "pdf" && !isUploadingThis && !lesson.resourceFileName && (
+                        <span className="text-xs" style={{ color: "var(--text-muted)" }}>No PDF uploaded yet</span>
+                      )}
                     </div>
 
                     {/* Video upload progress */}
@@ -1151,6 +1268,60 @@ function CurriculumTab({ form, onChange }: { form: CourseForm; onChange: (f: Cou
                         </div>
                         <div className="h-1.5 rounded-full" style={{ backgroundColor: "var(--border-default)" }}>
                           <div className="h-full rounded-full transition-all" style={{ width: `${uploadProgress!.percent}%`, backgroundColor: "var(--accent)" }} />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Video preview player */}
+                    {lesson.type === "video" && !isUploadingThis && lesson.videoUrl && (
+                      <div className="px-4 pb-4">
+                        <video
+                          key={lesson.videoUrl}
+                          src={lesson.videoUrl}
+                          controls
+                          preload="metadata"
+                          crossOrigin="anonymous"
+                          className="w-full rounded-xl"
+                          style={{ maxHeight: 220, backgroundColor: "#000", border: "1px solid var(--border-default)" }}
+                        />
+                      </div>
+                    )}
+
+                    {/* PDF card */}
+                    {lesson.type === "pdf" && !isUploadingThis && lesson.resourceUrl && (
+                      <div className="px-4 pb-4">
+                        <div className="flex items-center gap-3 px-4 py-3 rounded-xl"
+                          style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid #F59E0B40" }}>
+                          <div className="flex items-center justify-center w-10 h-10 rounded-lg flex-shrink-0"
+                            style={{ backgroundColor: "#F59E0B20" }}>
+                            <FileText size={20} style={{ color: "#F59E0B" }} />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium truncate" style={{ color: "var(--text-primary)" }}>
+                              {lesson.resourceFileName ?? "Document.pdf"}
+                            </p>
+                            <p className="text-xs mt-0.5" style={{ color: "var(--text-muted)" }}>PDF Document</p>
+                          </div>
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            <button
+                              type="button"
+                              onClick={() => openPdfPreview(lesson.resourceUrl!, lesson.resourceFileName ?? "Document.pdf")}
+                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
+                              style={{ backgroundColor: "#F59E0B20", color: "#F59E0B", border: "1px solid #F59E0B40" }}
+                            >
+                              <Maximize2 size={11} />
+                              Preview
+                            </button>
+                            <a
+                              href={lesson.resourceUrl}
+                              download={lesson.resourceFileName ?? "document.pdf"}
+                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
+                              style={{ backgroundColor: "var(--bg-surface)", color: "var(--text-secondary)", border: "1px solid var(--border-default)" }}
+                            >
+                              <Download size={11} />
+                              Download
+                            </a>
+                          </div>
                         </div>
                       </div>
                     )}
@@ -1340,7 +1511,7 @@ function CurriculumTab({ form, onChange }: { form: CourseForm; onChange: (f: Cou
                     )}
 
                     {/* Rich Text Editor */}
-                    {lesson.type === "text" && textOpen && (
+                    {lesson.type === "text" && (
                       <div className="px-4 pb-4" style={{ backgroundColor: "var(--bg-surface-muted)", borderTop: "1px solid var(--border-default)" }}>
                         <p className="text-xs font-semibold mb-2 pt-3" style={{ color: "var(--success)" }}>Lesson Content</p>
                         <RichTextEditor
@@ -1351,11 +1522,39 @@ function CurriculumTab({ form, onChange }: { form: CourseForm; onChange: (f: Cou
                     )}
 
                     {/* Quiz Builder */}
-                    {lesson.type === "quiz" && quizOpen && (
+                    {lesson.type === "quiz" && (
                       <div className="px-4 pt-3 pb-4 space-y-3" style={{ backgroundColor: "var(--bg-surface-muted)", borderTop: "1px solid var(--border-default)" }}>
                         <div className="rounded-xl p-4 space-y-4" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
                           <p className="text-xs font-semibold" style={{ color: "#8B5CF6" }}>Quiz Settings</p>
 
+                          {/* Randomize questions */}
+                          <div className="flex items-center justify-between pt-3" style={{ borderTop: "1px solid var(--border-default)" }}>
+                            <div>
+                              <p className="text-sm font-medium text-[var(--text-primary)]">Randomize Questions</p>
+                              <p className="text-xs mt-0.5" style={{ color: "var(--text-tertiary)" }}>Each student sees questions in a different order.</p>
+                            </div>
+                            <Toggle
+                              checked={lesson.quizMode === "bank" || false}
+                              onChange={() => updateLesson(section.id, lesson.id, {
+                                quizMode: lesson.quizMode === "bank" ? "fixed" : "bank",
+                                randomQuestionCount: lesson.quizMode === "bank" ? undefined : (lesson.randomQuestionCount ?? Math.max(1, questions.length)),
+                              })}
+                            />
+                          </div>
+
+                          {/* Question bank count */}
+                          {lesson.quizMode === "bank" && (
+                            <QuizNumberInput
+                              label="Questions shown per attempt"
+                              value={lesson.randomQuestionCount}
+                              onChange={(v) => updateLesson(section.id, lesson.id, { randomQuestionCount: v })}
+                              placeholder="e.g. 5"
+                              max={questions.length || undefined}
+                              caption={`Randomly picked from ${questions.length} question${questions.length !== 1 ? "s" : ""} in the bank. Students won't see repeats within a session.`}
+                            />
+                          )}
+
+                          {/* Mandatory */}
                           <div className="flex items-center justify-between pt-3" style={{ borderTop: "1px solid var(--border-default)" }}>
                             <div>
                               <p className="text-sm font-medium text-[var(--text-primary)]">Mandatory Quiz</p>
@@ -1373,14 +1572,29 @@ function CurriculumTab({ form, onChange }: { form: CourseForm; onChange: (f: Cou
                               value={lesson.minCorrectToPass}
                               onChange={(v) => updateLesson(section.id, lesson.id, { minCorrectToPass: v })}
                               placeholder="e.g. 3"
-                              max={questions.length || undefined}
-                              caption={`Out of ${questions.length} question${questions.length !== 1 ? "s" : ""} shown.`}
+                              max={(lesson.quizMode === "bank" ? lesson.randomQuestionCount : questions.length) || undefined}
+                              caption={`Out of ${lesson.quizMode === "bank" ? (lesson.randomQuestionCount ?? questions.length) : questions.length} question${questions.length !== 1 ? "s" : ""} shown.`}
                             />
                           )}
                         </div>
 
                         <div className="flex items-center justify-between">
-                          <p className="text-xs font-semibold" style={{ color: "#8B5CF6" }}>Quiz Questions</p>
+                          <div>
+                            <p className="text-xs font-semibold" style={{ color: "#8B5CF6" }}>
+                              Quiz Questions
+                              {questions.length > 0 && (
+                                <span className="ml-1.5 px-1.5 py-0.5 rounded-full text-[10px]"
+                                  style={{ backgroundColor: "#8B5CF620", color: "#A78BFA" }}>
+                                  {questions.length}
+                                </span>
+                              )}
+                            </p>
+                            {lesson.quizMode === "bank" && questions.length > 0 && (
+                              <p className="text-[10px] mt-0.5" style={{ color: "var(--text-muted)" }}>
+                                Bank mode — {lesson.randomQuestionCount ?? questions.length} of {questions.length} shown per attempt
+                              </p>
+                            )}
+                          </div>
                           <button type="button" onClick={() => addQuestion(section.id, lesson.id, questions)}
                             className="flex items-center gap-1 text-xs font-medium hover:opacity-80" style={{ color: "#8B5CF6" }}>
                             <Plus size={12} /> Add Question
@@ -1395,6 +1609,7 @@ function CurriculumTab({ form, onChange }: { form: CourseForm; onChange: (f: Cou
 
                         {questions.map((q, qi) => (
                           <div key={q.id} className="rounded-xl p-4 space-y-3" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
+                            {/* Question header */}
                             <div className="flex items-start gap-2">
                               <span className="flex-shrink-0 flex items-center justify-center w-5 h-5 rounded-full text-xs font-bold mt-0.5" style={{ backgroundColor: "#8B5CF620", color: "#A78BFA" }}>
                                 {qi + 1}
@@ -1409,16 +1624,34 @@ function CurriculumTab({ form, onChange }: { form: CourseForm; onChange: (f: Cou
                                 onFocus={(e) => (e.currentTarget.style.borderColor = "#8B5CF6")}
                                 onBlur={(e) => (e.currentTarget.style.borderColor = "var(--border-default)")}
                               />
-                              <button type="button" onClick={() => removeQuestion(section.id, lesson.id, questions, q.id)}
-                                className="p-1 rounded transition-colors flex-shrink-0" style={{ color: "var(--text-muted)" }}
-                                onMouseEnter={(e) => (e.currentTarget.style.color = "var(--danger)")}
-                                onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-muted)")}>
-                                <Trash2 size={12} />
-                              </button>
+                              {/* Duplicate + remove */}
+                              <div className="flex flex-col gap-1 flex-shrink-0">
+                                <button type="button"
+                                  title="Duplicate question"
+                                  onClick={() => {
+                                    const dup = { ...q, id: `q-${Date.now()}-${Math.random().toString(36).slice(2,5)}`, question: q.question + " (copy)" }
+                                    const copy = [...questions]
+                                    copy.splice(qi + 1, 0, dup)
+                                    updateQuestions(section.id, lesson.id, copy)
+                                  }}
+                                  className="p-1 rounded transition-colors" style={{ color: "var(--text-muted)" }}
+                                  onMouseEnter={(e) => (e.currentTarget.style.color = "#8B5CF6")}
+                                  onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-muted)")}>
+                                  <Plus size={12} />
+                                </button>
+                                <button type="button" onClick={() => removeQuestion(section.id, lesson.id, questions, q.id)}
+                                  className="p-1 rounded transition-colors" style={{ color: "var(--text-muted)" }}
+                                  onMouseEnter={(e) => (e.currentTarget.style.color = "var(--danger)")}
+                                  onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-muted)")}>
+                                  <Trash2 size={12} />
+                                </button>
+                              </div>
                             </div>
+
+                            {/* Answer options */}
                             <div className="space-y-2 pl-7">
                               {q.options.map((opt, oi) => (
-                                <div key={oi} className="flex items-center gap-2">
+                                <div key={oi} className="flex items-center gap-2 group">
                                   <button type="button" onClick={() => patchQuestion(section.id, lesson.id, questions, q.id, { correctIndex: oi })}
                                     className="flex-shrink-0 w-4 h-4 rounded-full border-2 transition-all"
                                     style={{ borderColor: q.correctIndex === oi ? "var(--success)" : "var(--border-default)", backgroundColor: q.correctIndex === oi ? "var(--success)" : "transparent" }}
@@ -1434,13 +1667,38 @@ function CurriculumTab({ form, onChange }: { form: CourseForm; onChange: (f: Cou
                                     onBlur={(e) => (e.currentTarget.style.borderColor = "transparent")}
                                   />
                                   {q.correctIndex === oi && <span className="text-xs flex-shrink-0" style={{ color: "var(--success)" }}>✓</span>}
+                                  {/* Remove option (only if > 2) */}
+                                  {q.options.length > 2 && (
+                                    <button type="button"
+                                      onClick={() => {
+                                        const opts = q.options.filter((_, i) => i !== oi)
+                                        const newCorrect = q.correctIndex === oi ? 0 : q.correctIndex! > oi ? q.correctIndex! - 1 : q.correctIndex!
+                                        patchQuestion(section.id, lesson.id, questions, q.id, { options: opts, correctIndex: newCorrect })
+                                      }}
+                                      className="opacity-0 group-hover:opacity-100 p-0.5 rounded transition-all flex-shrink-0"
+                                      style={{ color: "var(--text-muted)" }}
+                                      onMouseEnter={(e) => (e.currentTarget.style.color = "var(--danger)")}
+                                      onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-muted)")}>
+                                      <X size={10} />
+                                    </button>
+                                  )}
                                 </div>
                               ))}
+                              {/* Add option */}
+                              {q.options.length < 6 && (
+                                <button type="button"
+                                  onClick={() => patchQuestion(section.id, lesson.id, questions, q.id, { options: [...q.options, ""] })}
+                                  className="flex items-center gap-1 text-[10px] mt-1 hover:opacity-80"
+                                  style={{ color: "var(--text-muted)" }}>
+                                  <Plus size={10} /> Add option
+                                </button>
+                              )}
                             </div>
                           </div>
                         ))}
                       </div>
                     )}
+                    </>)}
                   </div>
                 )
               })}
@@ -1463,13 +1721,96 @@ function CurriculumTab({ form, onChange }: { form: CourseForm; onChange: (f: Cou
         onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border-default)"; e.currentTarget.style.color = "var(--text-tertiary)" }}>
         <Plus size={14} /> Add Section
       </button>
+
+      {/* PDF Preview Modal */}
+      {pdfPreview && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ backgroundColor: "rgba(0,0,0,0.75)", backdropFilter: "blur(4px)" }}
+          onClick={closePdfPreview}
+        >
+          <div
+            className="relative w-full max-w-4xl rounded-2xl overflow-hidden flex flex-col"
+            style={{ height: "85vh", backgroundColor: "var(--bg-surface)", boxShadow: "0 25px 60px rgba(0,0,0,0.5)" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal header */}
+            <div className="flex items-center justify-between px-5 py-3 flex-shrink-0"
+              style={{ borderBottom: "1px solid var(--border-default)" }}>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center justify-center w-8 h-8 rounded-lg" style={{ backgroundColor: "#F59E0B20" }}>
+                  <FileText size={16} style={{ color: "#F59E0B" }} />
+                </div>
+                <p className="text-sm font-semibold truncate max-w-xs" style={{ color: "var(--text-primary)" }}>
+                  {pdfPreview.name}
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                {pdfPreview.blobUrl && (
+                  <a
+                    href={pdfPreview.blobUrl}
+                    download={pdfPreview.name}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium"
+                    style={{ backgroundColor: "var(--bg-surface-muted)", color: "var(--text-secondary)", border: "1px solid var(--border-default)" }}
+                  >
+                    <Download size={12} />
+                    Download
+                  </a>
+                )}
+                <a
+                  href={pdfPreview.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium"
+                  style={{ backgroundColor: "var(--bg-surface-muted)", color: "var(--text-secondary)", border: "1px solid var(--border-default)" }}
+                >
+                  <ExternalLink size={12} />
+                  Open tab
+                </a>
+                <button
+                  type="button"
+                  onClick={closePdfPreview}
+                  className="flex items-center justify-center w-8 h-8 rounded-lg"
+                  style={{ backgroundColor: "var(--bg-surface-muted)", color: "var(--text-secondary)" }}
+                >
+                  <X size={14} />
+                </button>
+              </div>
+            </div>
+
+            {/* PDF viewer */}
+            {pdfPreview.loading ? (
+              <div className="flex-1 flex flex-col items-center justify-center gap-3" style={{ color: "var(--text-muted)" }}>
+                <div className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin" style={{ borderColor: "#F59E0B", borderTopColor: "transparent" }} />
+                <p className="text-sm">Loading PDF…</p>
+              </div>
+            ) : pdfPreview.blobUrl ? (
+              <iframe
+                src={`${pdfPreview.blobUrl}#toolbar=1&navpanes=1&scrollbar=1`}
+                className="flex-1 w-full"
+                style={{ border: "none" }}
+                title={pdfPreview.name}
+              />
+            ) : (
+              <div className="flex-1 flex flex-col items-center justify-center gap-3" style={{ color: "var(--text-muted)" }}>
+                <FileText size={32} style={{ color: "#F59E0B" }} />
+                <p className="text-sm">Could not load preview.</p>
+                <a href={pdfPreview.url} target="_blank" rel="noopener noreferrer"
+                  className="text-sm underline" style={{ color: "#F59E0B" }}>
+                  Open in browser instead
+                </a>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
 
 // ── Step 8: Course Landing Page ───────────────────────────────────────────────
 
-function CourseLandingPageStep({ form, onChange }: { form: CourseForm; onChange: (f: CourseForm) => void }) {
+function CourseLandingPageStep({ form, onChange, categories }: { form: CourseForm; onChange: (f: CourseForm) => void; categories: string[] }) {
   const set = (key: keyof CourseForm) => (val: string) => onChange({ ...form, [key]: val })
 
   return (
@@ -1518,7 +1859,7 @@ function CourseLandingPageStep({ form, onChange }: { form: CourseForm; onChange:
             style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)", color: form.category ? "var(--text-primary)" : "var(--text-muted)" }}
           >
             <option value="">Select category</option>
-            {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+            {categories.map((c) => <option key={c} value={c}>{c}</option>)}
           </select>
         </div>
         <div>
@@ -1724,10 +2065,27 @@ function CourseMessagesStep({ form, onChange }: { form: CourseForm; onChange: (f
 
 // ── Main export ───────────────────────────────────────────────────────────────
 
-export function CourseEditor({ initialForm, mode }: CourseEditorProps) {
+export function CourseEditor({ initialForm, mode, onFormChange }: CourseEditorProps) {
   const [form, setForm] = useState<CourseForm>(initialForm)
   const [currentStep, setCurrentStep] = useState<StepId>(1)
+  const [dynamicCategories, setDynamicCategories] = useState<string[]>([])
 
+  useEffect(() => {
+    settingsApi.getAll().then((settings) => {
+      const raw = settings["course_categories"]
+      if (raw) {
+        try {
+          const parsed = JSON.parse(raw) as string[]
+          if (Array.isArray(parsed) && parsed.length > 0) setDynamicCategories(parsed)
+        } catch {}
+      }
+    }).catch(() => {})
+  }, [])
+
+  // Notify parent whenever form changes so it can read latest state on save
+  useEffect(() => { onFormChange?.(form) }, [form]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const categories = dynamicCategories.length > 0 ? dynamicCategories : CATEGORIES
   const stepProps = { form, onChange: setForm }
 
   return (
@@ -1795,7 +2153,7 @@ export function CourseEditor({ initialForm, mode }: CourseEditorProps) {
       <div className="flex-1 min-w-0">
         {currentStep === 1 && <IntendedLearnersStep  {...stepProps} />}
         {currentStep === 2 && <CurriculumTab         {...stepProps} />}
-        {currentStep === 3 && <CourseLandingPageStep {...stepProps} />}
+        {currentStep === 3 && <CourseLandingPageStep {...stepProps} categories={categories} />}
         {currentStep === 4 && <PricingTab            {...stepProps} />}
         {currentStep === 5 && <PromotionsStep        {...stepProps} />}
         {currentStep === 6 && <CourseMessagesStep    {...stepProps} />}

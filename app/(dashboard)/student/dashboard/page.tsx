@@ -2,6 +2,9 @@
 
 import Link from "next/link"
 import { useLocale, useTranslations } from "next-intl"
+import { useEffect, useState } from "react"
+import { analyticsApi, type StudentStats } from "@/lib/api/analytics"
+import { authStore } from "@/lib/auth-store"
 import { DashboardLayout } from "@/components/layout/DashboardLayout"
 import { COURSES, ASSIGNMENTS, SCHEDULE_EVENTS, STUDENT_PROFILE } from "@/lib/data/courses"
 import {
@@ -58,6 +61,12 @@ export default function StudentDashboardPage() {
   const tCommon = useTranslations("common")
   const ForwardChevron = ChevronRight
   const ForwardArrow = ArrowRight
+  const [liveStats, setLiveStats] = useState<StudentStats | null>(null)
+  const user = authStore.getUser()
+
+  useEffect(() => {
+    analyticsApi.studentDashboard().then(setLiveStats).catch(() => {})
+  }, [])
 
   const localized = (en: string, ar?: string) => (isRtl && ar ? ar : en)
 
@@ -68,12 +77,12 @@ export default function StudentDashboardPage() {
     return `${display}:${time.split(":")[1]} ${period}`
   }
 
-  const name = localized(p.name, p.nameAr)
+  const name = user?.fullName ?? localized(p.name, p.nameAr)
 
   const quickStats = [
-    { label: t("stats.enrolled"), value: String(p.stats.enrolled), icon: BookOpen, color: "#3B82F6", sub: t("stats.enrolledSub") },
-    { label: t("stats.hoursLearned"), value: String(p.totalHours), icon: Clock, color: "#10B981", sub: t("stats.hoursLearnedSub") },
-    { label: t("stats.certificates"), value: String(p.stats.certificates), icon: Trophy, color: "#F59E0B", sub: t("stats.certificatesSub") },
+    { label: t("stats.enrolled"), value: liveStats ? String(liveStats.enrolledCourses) : String(p.stats.enrolled), icon: BookOpen, color: "#3B82F6", sub: t("stats.enrolledSub") },
+    { label: t("stats.hoursLearned"), value: liveStats ? String(Math.round(liveStats.totalTimeSpentSeconds / 3600)) : String(p.totalHours), icon: Clock, color: "#10B981", sub: t("stats.hoursLearnedSub") },
+    { label: t("stats.certificates"), value: liveStats ? String(liveStats.certificatesEarned) : String(p.stats.certificates), icon: Trophy, color: "#F59E0B", sub: t("stats.certificatesSub") },
     { label: t("stats.streak"), value: t("stats.streakValue", { days: p.streak }), icon: Flame, color: "#EF4444", sub: t("stats.streakSub") },
   ]
 

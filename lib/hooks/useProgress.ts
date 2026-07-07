@@ -1,59 +1,69 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
+import { progressApi } from "@/lib/api/progress"
 
 const STORAGE_KEY = "lms_progress"
+type ProgressStore = Record<string, string[]> // courseId → completed lessonId[]
 
-type ProgressStore = Record<string, string[]> // courseId → lessonId[]
-
-function load(): ProgressStore {
+function loadLocal(): ProgressStore {
   if (typeof window === "undefined") return {}
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "{}") as ProgressStore
-  } catch {
-    return {}
-  }
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "{}") as ProgressStore } catch { return {} }
 }
 
-function save(store: ProgressStore) {
+function saveLocal(store: ProgressStore) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(store))
 }
 
-// Returns completed lesson IDs for a course + a function to mark/unmark a lesson
 export function useProgress(courseId: string) {
-  const [store, setStore] = useState<ProgressStore>({})
+  const [completedIds, setCompletedIds] = useState<Set<string>>(new Set())
+  const [loading, setLoading] = useState(true)
 
-  // Hydrate from localStorage on mount (avoids SSR mismatch)
   useEffect(() => {
-    setStore(load())
-  }, [])
+    // Seed from localStorage immediately so there's no flash
+    const local = loadLocal()
+    if (local[courseId]) setCompletedIds(new Set(local[courseId]))
 
-  const completedIds = new Set<string>(store[courseId] ?? [])
+    progressApi.getCourseProgress(courseId)
+      .then((list) => {
+        const ids = new Set(list.filter((p) => p.completed).map((p) => p.lessonId))
+        setCompletedIds(ids)
+        saveLocal({ ...loadLocal(), [courseId]: Array.from(ids) })
+      })
+      .catch(() => {
+        // Backend unavailable — keep localStorage state
+      })
+      .finally(() => setLoading(false))
+  }, [courseId])
 
   const markComplete = useCallback((lessonId: string, done = true) => {
-    setStore((prev) => {
-      const current = new Set<string>(prev[courseId] ?? [])
-      done ? current.add(lessonId) : current.delete(lessonId)
-      const next = { ...prev, [courseId]: Array.from(current) }
-      save(next)
+    // Optimistic update
+    setCompletedIds((prev) => {
+      const next = new Set(prev)
+      done ? next.add(lessonId) : next.delete(lessonId)
+      saveLocal({ ...loadLocal(), [courseId]: Array.from(next) })
       return next
+    })
+
+    // Persist to backend; revert on failure
+    progressApi.markLesson(lessonId, done).catch(() => {
+      setCompletedIds((prev) => {
+        const next = new Set(prev)
+        done ? next.delete(lessonId) : next.add(lessonId)
+        return next
+      })
     })
   }, [courseId])
 
   const isComplete = useCallback((lessonId: string) => completedIds.has(lessonId), [completedIds])
 
-  return { completedIds, markComplete, isComplete }
+  return { completedIds, markComplete, isComplete, loading }
 }
 
-// Returns the full progress store (every course's completed lesson IDs) — for
-// views that need completion status across many courses at once (My Courses,
-// Certificates) without calling useProgress() once per course.
+// Returns the full progress store across all courses (for My Courses, Certificates pages).
+// Still reads from localStorage — those pages don't need real-time accuracy.
 export function useAllProgress(): ProgressStore {
   const [store, setStore] = useState<ProgressStore>({})
-
-  useEffect(() => {
-    setStore(load())
-  }, [])
-
+  useEffect(() => { setStore(loadLocal()) }, [])
   return store
 }

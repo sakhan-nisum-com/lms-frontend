@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { COURSES, STUDENT_PROFILE } from "@/lib/data/courses"
 import { usePurchases } from "@/lib/hooks/usePurchases"
+import { coursesApi, type ApiCourse } from "@/lib/api/courses"
+import { enrollmentsApi } from "@/lib/api/enrollments"
 import { CourseThumbnail } from "@/components/CourseThumbnail"
 import { ChevronLeft, CheckCircle2, CreditCard, ShieldCheck, Lock } from "lucide-react"
 
@@ -27,26 +29,62 @@ function formatExpiry(v: string) {
 export default function CheckoutPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
   const router = useRouter()
-  const course = COURSES.find((c) => c.id === id) ?? COURSES[0]
+  const mockCourse = COURSES.find((c) => c.id === id) ?? null
   const { isPurchased, purchase } = usePurchases()
   const p = STUDENT_PROFILE
 
-  const owned = course.progress !== undefined || isPurchased(course.id)
-  const firstLessonId = course.sections[0]?.lessons[0]?.id
-
-  const [step, setStep] = useState<"pay" | "processing" | "success">("pay")
+  const [apiCourse, setApiCourse] = useState<ApiCourse | null>(null)
+  const [alreadyEnrolled, setAlreadyEnrolled] = useState<boolean | null>(null)
+  const [step, setStep] = useState<"loading" | "pay" | "processing" | "success">("loading")
   const [form, setForm] = useState<FormState>({ name: p.name, cardNumber: "", expiry: "", cvc: "" })
   const [errors, setErrors] = useState<Partial<FormState>>({})
 
-  // Free courses (or ones already owned) have nothing to pay for — bounce straight to the course.
   useEffect(() => {
-    if (course.price === "Free" && step === "pay") {
-      purchase(course.id)
-      router.replace(`/student/courses/${course.id}`)
-    }
-  }, [course.id, course.price, purchase, router, step])
+    Promise.all([
+      coursesApi.getById(id).catch(() => null),
+      enrollmentsApi.getForCourse(id).catch(() => null),
+    ]).then(([course, enrollment]) => {
+      if (course) setApiCourse(course)
+      setAlreadyEnrolled(enrollment !== null)
+      setStep("pay")
+    })
+  }, [id])
 
-  if (course.price === "Free") return null
+  // Derived display values — prefer API data, fall back to mock
+  const title = apiCourse?.title ?? mockCourse?.title ?? "Course"
+  const price: number | "Free" = apiCourse
+    ? (apiCourse.price === 0 ? "Free" : apiCourse.price)
+    : (mockCourse?.price ?? 0)
+
+  const sections = apiCourse
+    ? apiCourse.sections.sort((a, b) => a.sortOrder - b.sortOrder)
+    : (mockCourse?.sections ?? [])
+  const firstLessonId = sections[0]?.lessons[0]?.id
+
+  // User already owns this course
+  const owned = alreadyEnrolled === true || (mockCourse?.progress !== undefined) || isPurchased(id)
+
+  // Free course — auto-enroll and bounce back to course page
+  useEffect(() => {
+    if (step !== "pay" || price !== "Free") return
+    if (owned) {
+      router.replace(`/student/courses/${id}/learn/${firstLessonId ?? ""}`)
+    } else {
+      enrollmentsApi.enroll(id).catch(() => {})
+      purchase(id)
+      router.replace(`/student/courses/${id}`)
+    }
+  }, [step, price, owned, id, router, purchase, firstLessonId])
+
+  if (step === "loading") {
+    return (
+      <div style={{ minHeight: "100vh", backgroundColor: "var(--bg-canvas)" }} className="flex items-center justify-center">
+        <div className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin" style={{ borderColor: "var(--accent)", borderTopColor: "transparent" }} />
+      </div>
+    )
+  }
+
+  if (price === "Free") return null
 
   function validate() {
     const next: Partial<FormState> = {}
@@ -63,7 +101,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ id: string 
     if (!validate()) return
     setStep("processing")
     setTimeout(() => {
-      purchase(course.id)
+      purchase(id)
       setStep("success")
     }, 1200)
   }
@@ -75,7 +113,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ id: string 
         {/* Left: form / success / already-owned */}
         <div className="rounded-2xl p-6 sm:p-8 shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
           <Link
-            href={`/student/courses/${course.id}`}
+            href={`/student/courses/${id}`}
             className="inline-flex items-center gap-1.5 text-xs mb-6"
             style={{ color: "var(--accent)" }}
           >
@@ -90,7 +128,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ id: string 
               <h1 className="text-xl font-bold mb-2" style={{ color: "var(--text-primary)" }}>You already own this course</h1>
               <p className="text-sm mb-6" style={{ color: "var(--text-secondary)" }}>No need to pay again — jump back in any time.</p>
               <Link
-                href={firstLessonId ? `/student/courses/${course.id}/learn/${course.nextLessonId || firstLessonId}` : `/student/courses/${course.id}`}
+                href={firstLessonId ? `/student/courses/${id}/learn/${firstLessonId}` : `/student/courses/${id}`}
                 className="inline-flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-bold"
                 style={{ backgroundColor: "var(--accent)", color: "#fff" }}
               >
@@ -104,18 +142,18 @@ export default function CheckoutPage({ params }: { params: Promise<{ id: string 
               </div>
               <h1 className="text-xl font-bold mb-2" style={{ color: "var(--text-primary)" }}>Payment successful!</h1>
               <p className="text-sm mb-6" style={{ color: "var(--text-secondary)" }}>
-                You now own <strong style={{ color: "var(--text-primary)" }}>{course.title}</strong>. Start learning right away.
+                You now own <strong style={{ color: "var(--text-primary)" }}>{title}</strong>. Start learning right away.
               </p>
               <div className="flex items-center justify-center gap-3 flex-wrap">
                 <Link
-                  href={`/student/courses/${course.id}/learn/${firstLessonId}`}
+                  href={firstLessonId ? `/student/courses/${id}/learn/${firstLessonId}` : `/student/courses/${id}`}
                   className="inline-flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-bold"
                   style={{ backgroundColor: "var(--accent)", color: "#fff" }}
                 >
                   Start Watching
                 </Link>
                 <Link
-                  href={`/student/courses/${course.id}`}
+                  href={`/student/courses/${id}`}
                   className="inline-flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-semibold"
                   style={{ backgroundColor: "var(--border-default)", color: "#CBD5E1" }}
                 >
@@ -196,7 +234,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ id: string 
                   className="w-full py-3 rounded-xl text-sm font-bold transition-opacity"
                   style={{ backgroundColor: "var(--accent)", color: "#fff", opacity: step === "processing" ? 0.7 : 1 }}
                 >
-                  {step === "processing" ? "Processing payment…" : `Pay $${course.price} and enroll`}
+                  {step === "processing" ? "Processing payment…" : `Pay $${price} and enroll`}
                 </button>
 
                 <p className="flex items-center justify-center gap-1.5 text-xs" style={{ color: "var(--text-tertiary)" }}>
@@ -209,15 +247,24 @@ export default function CheckoutPage({ params }: { params: Promise<{ id: string 
 
         {/* Right: order summary */}
         <div className="rounded-2xl p-5 h-fit shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
-          <CourseThumbnail course={course} heightClass="h-32 mb-4" roundedClass="rounded-lg" />
-          <h3 className="text-sm font-bold mb-1 leading-snug" style={{ color: "var(--text-primary)" }}>{course.title}</h3>
-          <p className="text-xs mb-4" style={{ color: "var(--text-tertiary)" }}>{course.instructor}</p>
+          {mockCourse ? (
+            <CourseThumbnail course={mockCourse} heightClass="h-32 mb-4" roundedClass="rounded-lg" />
+          ) : (
+            <div
+              className="h-32 mb-4 rounded-lg flex items-center justify-center text-4xl"
+              style={{ backgroundColor: "var(--bg-surface-muted)" }}
+            >
+              🎓
+            </div>
+          )}
+          <h3 className="text-sm font-bold mb-1 leading-snug" style={{ color: "var(--text-primary)" }}>{title}</h3>
+          <p className="text-xs mb-4" style={{ color: "var(--text-tertiary)" }}>{mockCourse?.instructor ?? ""}</p>
           <div className="flex items-center gap-2 text-xs mb-4" style={{ color: "var(--text-tertiary)" }}>
             <Lock size={12} /> Full lifetime access
           </div>
           <div className="flex items-center justify-between text-sm pt-3" style={{ borderTop: "1px solid var(--border-default)" }}>
             <span style={{ color: "var(--text-secondary)" }}>Total</span>
-            <span className="text-lg font-bold" style={{ color: "var(--text-primary)" }}>${course.price}</span>
+            <span className="text-lg font-bold" style={{ color: "var(--text-primary)" }}>${price}</span>
           </div>
         </div>
       </div>

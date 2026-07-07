@@ -4,24 +4,35 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { GraduationCap, Eye, EyeOff, ArrowRight } from "lucide-react"
 import { useState } from "react"
+import { authApi } from "@/lib/api/auth"
+import { authStore } from "@/lib/auth-store"
+import { ApiError } from "@/lib/api/client"
 
 export default function LoginPage() {
   const router = useRouter()
   const [showPw, setShowPw] = useState(false)
-  const [role, setRole] = useState<"student" | "tutor" | "admin">("student")
   const [loading, setLoading] = useState(false)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [error, setError] = useState<string | null>(null)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError(null)
     setLoading(true)
-    // Simulate auth — redirect based on role
-    setTimeout(() => {
-      const destination =
-        role === "student" ? "/student/dashboard" : role === "tutor" ? "/tutor/dashboard" : "/admin/dashboard"
-      router.push(destination)
-    }, 800)
+    try {
+      const tokens = await authApi.login({ email, password })
+      authStore.save(tokens)
+      router.push(authStore.dashboardPath())
+    } catch (err) {
+      if (err instanceof ApiError) {
+        setError(err.status === 401 ? "Invalid email or password." : err.message)
+      } else {
+        setError("Unable to connect. Please check your connection.")
+      }
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -30,7 +41,6 @@ export default function LoginPage() {
       display: "flex", alignItems: "center", justifyContent: "center",
       padding: "24px", position: "relative",
     }}>
-      {/* Background glow */}
       <div style={{
         position: "fixed", top: "20%", left: "50%", transform: "translateX(-50%)",
         width: 700, height: 400, borderRadius: "50%", pointerEvents: "none",
@@ -38,42 +48,30 @@ export default function LoginPage() {
       }} />
 
       <div style={{ width: "100%", maxWidth: 440, position: "relative" }}>
-
-        {/* Logo & heading */}
         <div style={{ textAlign: "center", marginBottom: 32 }}>
           <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: 10, textDecoration: "none", marginBottom: 28 }}>
             <div style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: "var(--accent)", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <GraduationCap size={24} color="#fff" />
             </div>
-            <span style={{ fontWeight: 800, fontSize: 20, color: "var(--text-primary)" }}>LearnFlow</span>
+            <span style={{ fontWeight: 800, fontSize: 20, color: "var(--text-primary)" }}>نحلم LMS</span>
           </Link>
           <h1 style={{ fontSize: 28, fontWeight: 800, color: "var(--text-primary)", marginBottom: 8, letterSpacing: "-0.02em" }}>Welcome back</h1>
           <p style={{ color: "var(--text-secondary)", fontSize: 15 }}>Sign in to continue your learning journey</p>
         </div>
 
-        {/* Card */}
         <div className="shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)", borderRadius: 24, padding: "36px 32px" }}>
 
-          {/* Role toggle */}
-          <div style={{ display: "flex", backgroundColor: "var(--bg-surface-muted)", borderRadius: 12, padding: 4, marginBottom: 28, gap: 4 }}>
-            {(["student", "tutor", "admin"] as const).map((r) => (
-              <button
-                key={r}
-                onClick={() => setRole(r)}
-                style={{
-                  flex: 1, padding: "9px 0", borderRadius: 9, fontSize: 14, fontWeight: 600,
-                  border: "none", cursor: "pointer", transition: "all 0.15s",
-                  backgroundColor: role === r ? "var(--accent)" : "transparent",
-                  color: role === r ? "#fff" : "var(--text-tertiary)",
-                }}
-              >
-                {r === "student" ? "Student" : r === "tutor" ? "Instructor" : "Admin"}
-              </button>
-            ))}
-          </div>
+          {error && (
+            <div style={{
+              marginBottom: 20, padding: "12px 16px", borderRadius: 10,
+              backgroundColor: "#EF444418", border: "1px solid #EF444440",
+              color: "#EF4444", fontSize: 14, fontWeight: 500,
+            }}>
+              {error}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-            {/* Email */}
             <div>
               <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "var(--text-secondary)", marginBottom: 7 }}>
                 Email address
@@ -94,7 +92,6 @@ export default function LoginPage() {
               />
             </div>
 
-            {/* Password */}
             <div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 7 }}>
                 <label style={{ fontSize: 13, fontWeight: 600, color: "var(--text-secondary)" }}>Password</label>
@@ -117,17 +114,13 @@ export default function LoginPage() {
                   onFocus={(e) => (e.target.style.borderColor = "#3b82f6")}
                   onBlur={(e) => (e.target.style.borderColor = "var(--border-default)")}
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPw(!showPw)}
-                  style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "var(--text-tertiary)", padding: 0 }}
-                >
+                <button type="button" onClick={() => setShowPw(!showPw)}
+                  style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "var(--text-tertiary)", padding: 0 }}>
                   {showPw ? <EyeOff size={17} /> : <Eye size={17} />}
                 </button>
               </div>
             </div>
 
-            {/* Submit */}
             <button
               type="submit"
               disabled={loading}
@@ -136,45 +129,39 @@ export default function LoginPage() {
                 backgroundColor: loading ? "var(--accent-hover)" : "var(--accent)", color: "#fff",
                 fontSize: 15, fontWeight: 700, cursor: loading ? "not-allowed" : "pointer",
                 display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-                boxShadow: "0 4px 20px rgba(59,130,246,0.35)",
-                opacity: loading ? 0.85 : 1,
+                boxShadow: "0 4px 20px rgba(59,130,246,0.35)", opacity: loading ? 0.85 : 1,
               }}
             >
               {loading ? (
-                <>
-                  <span style={{ width: 16, height: 16, border: "2px solid rgba(255,255,255,0.4)", borderTopColor: "#fff", borderRadius: "50%", display: "inline-block", animation: "spin 0.7s linear infinite" }} />
-                  Signing in…
-                </>
+                <><span style={{ width: 16, height: 16, border: "2px solid rgba(255,255,255,0.4)", borderTopColor: "#fff", borderRadius: "50%", display: "inline-block", animation: "spin 0.7s linear infinite" }} />Signing in…</>
               ) : (
                 <>Sign in <ArrowRight size={17} /></>
               )}
             </button>
           </form>
 
-          {/* Divider */}
-          <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "24px 0" }}>
-            <div style={{ flex: 1, height: 1, backgroundColor: "var(--border-default)" }} />
-            <span style={{ color: "var(--text-muted)", fontSize: 13 }}>or continue with</span>
-            <div style={{ flex: 1, height: 1, backgroundColor: "var(--border-default)" }} />
-          </div>
-
-          {/* OAuth */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-            {["Google", "Microsoft"].map((p) => (
-              <button
-                key={p}
-                onClick={() => router.push("/student/dashboard")}
-                style={{
-                  padding: "11px", borderRadius: 10, border: "1px solid var(--border-default)",
-                  backgroundColor: "var(--bg-surface-muted)", color: "var(--text-secondary)", fontSize: 14, fontWeight: 600,
-                  cursor: "pointer", transition: "border-color 0.15s",
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.borderColor = "var(--text-muted)")}
-                onMouseLeave={(e) => (e.currentTarget.style.borderColor = "var(--border-default)")}
-              >
-                {p}
-              </button>
-            ))}
+          <div style={{ marginTop: 28, padding: "16px", borderRadius: 12, backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)" }}>
+            <p style={{ fontSize: 12, fontWeight: 600, color: "var(--text-tertiary)", marginBottom: 10 }}>Demo accounts</p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              {[
+                { label: "Admin", email: "admin@nehlum.com", pw: "Admin@123456", color: "#F59E0B" },
+                { label: "Instructor", email: "instructor@nehlum.com", pw: "Instructor@123456", color: "#8B5CF6" },
+                { label: "Student", email: "student@nehlum.com", pw: "Student@123456", color: "#3B82F6" },
+              ].map((d) => (
+                <button
+                  key={d.label}
+                  type="button"
+                  onClick={() => { setEmail(d.email); setPassword(d.pw) }}
+                  style={{
+                    padding: "8px 12px", borderRadius: 8, border: `1px solid ${d.color}30`,
+                    backgroundColor: `${d.color}10`, color: d.color, fontSize: 12, fontWeight: 600,
+                    cursor: "pointer", textAlign: "left",
+                  }}
+                >
+                  {d.label} — {d.email}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -184,32 +171,6 @@ export default function LoginPage() {
             Sign up free
           </Link>
         </p>
-
-        {/* Quick demo links */}
-        <div style={{ textAlign: "center", marginTop: 16 }}>
-          <p style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 8 }}>Quick demo access:</p>
-          <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
-            <Link
-              href="/student/dashboard"
-              style={{ fontSize: 12, color: "var(--accent)", textDecoration: "none", padding: "5px 12px", borderRadius: 8, border: "1px solid #3b82f630", backgroundColor: "#3b82f610" }}
-            >
-              → Student Dashboard
-            </Link>
-            <Link
-              href="/tutor/dashboard"
-              style={{ fontSize: 12, color: "#8B5CF6", textDecoration: "none", padding: "5px 12px", borderRadius: 8, border: "1px solid #8B5CF630", backgroundColor: "#8B5CF610" }}
-            >
-              → Tutor Dashboard
-            </Link>
-            <Link
-              href="/admin/dashboard"
-              style={{ fontSize: 12, color: "var(--warning)", textDecoration: "none", padding: "5px 12px", borderRadius: 8, border: "1px solid #F59E0B30", backgroundColor: "#F59E0B10" }}
-            >
-              → Admin Dashboard
-            </Link>
-          </div>
-        </div>
-
         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     </div>

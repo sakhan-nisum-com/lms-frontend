@@ -1,7 +1,10 @@
 "use client"
 
 import Link from "next/link"
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { analyticsApi, type InstructorStats } from "@/lib/api/analytics"
+import { coursesApi, type ApiCourse } from "@/lib/api/courses"
+import { authStore } from "@/lib/auth-store"
 import {
   Users,
   BarChart3,
@@ -139,6 +142,25 @@ function StatusBadge({ status }: { status: string }) {
 
 export default function InstructorDashboardPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [liveStats, setLiveStats] = useState<InstructorStats | null>(null)
+  const [liveCourses, setLiveCourses] = useState<ApiCourse[] | null>(null)
+  const user = authStore.getUser()
+
+  useEffect(() => {
+    analyticsApi.instructorDashboard().then(setLiveStats).catch(() => {})
+    if (user) {
+      coursesApi.getByInstructor(user.id).then((res) => setLiveCourses(res.data)).catch(() => {})
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const statsOverride = liveStats ? [
+    { ...stats[0], value: liveStats.totalStudents.toLocaleString() },
+    { ...stats[1], value: String(liveStats.publishedCourses) },
+    { ...stats[2], value: `$${liveStats.totalRevenue.toLocaleString()}` },
+    { ...stats[3], value: liveStats.averageRating.toFixed(1) },
+  ] : stats
+
+  const coursesOverride = liveCourses ?? courses
 
   return (
     <div
@@ -148,7 +170,7 @@ export default function InstructorDashboardPage() {
       <InstructorSidebar
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
-        user={{ name: "Jane Smith", email: "jane@example.com" }}
+        user={{ name: user?.fullName ?? "Instructor", email: user?.email ?? "" }}
       />
 
       {/* Main */}
@@ -225,7 +247,7 @@ export default function InstructorDashboardPage() {
 
           {/* Stats */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {stats.map(({ label, value, change, up, icon: Icon, color, bg }) => (
+            {statsOverride.map(({ label, value, change, up, icon: Icon, color, bg }) => (
               <div
                 key={label}
                 className="rounded-2xl p-4 shadow-sm"
@@ -272,16 +294,21 @@ export default function InstructorDashboardPage() {
               </div>
 
               <div className="divide-y" style={{ borderColor: "var(--border-default)" }}>
-                {courses.map((course) => (
+                {(coursesOverride as (typeof courses[0] & ApiCourse)[]).map((course) => {
+                  const isApi = "studentsCount" in course
+                  const color = isApi ? "#3B82F6" : (course as typeof courses[0]).thumbnail
+                  const studentCount = isApi ? (course as ApiCourse).studentsCount : (course as typeof courses[0]).students
+                  const lessonCount = isApi ? (course as ApiCourse).sections.reduce((a, s) => a + s.lessons.length, 0) : (course as typeof courses[0]).lessons
+                  return (
                   <div
                     key={course.id}
                     className="flex items-center gap-4 px-5 py-3.5 hover:bg-white/[0.02] transition-colors"
                   >
                     <div
                       className="flex items-center justify-center w-9 h-9 rounded-xl shrink-0"
-                      style={{ backgroundColor: course.thumbnail + "20" }}
+                      style={{ backgroundColor: color + "20" }}
                     >
-                      <Play size={14} style={{ color: course.thumbnail }} />
+                      <Play size={14} style={{ color }} />
                     </div>
 
                     <div className="flex-1 min-w-0">
@@ -289,11 +316,11 @@ export default function InstructorDashboardPage() {
                       <div className="flex items-center gap-3 mt-0.5">
                         <span className="text-xs flex items-center gap-1" style={{ color: "var(--text-tertiary)" }}>
                           <Users size={11} />
-                          {course.students.toLocaleString()}
+                          {studentCount.toLocaleString()}
                         </span>
                         <span className="text-xs flex items-center gap-1" style={{ color: "var(--text-tertiary)" }}>
                           <Clock size={11} />
-                          {course.lessons} lessons
+                          {lessonCount} lessons
                         </span>
                         {course.rating > 0 && (
                           <span className="text-xs flex items-center gap-1" style={{ color: "var(--warning)" }}>
@@ -304,11 +331,7 @@ export default function InstructorDashboardPage() {
                       </div>
                     </div>
 
-                    <StatusBadge status={course.status} />
-
-                    <span className="hidden sm:block text-sm font-semibold w-16 text-right" style={{ color: "var(--text-primary)" }}>
-                      {course.revenue}
-                    </span>
+                    <StatusBadge status={isApi ? (course as ApiCourse).status : (course as typeof courses[0]).status} />
 
                     <button
                       className="p-1.5 rounded-lg hover:bg-white/5 transition-colors"
@@ -317,7 +340,7 @@ export default function InstructorDashboardPage() {
                       <MoreHorizontal size={14} />
                     </button>
                   </div>
-                ))}
+                )})}
               </div>
             </div>
 
