@@ -14,10 +14,27 @@ export interface AdminUser {
   role: AdminUserRole
   status: AdminUserStatus
   avatarUrl: string | null
+  bio: string | null
+  bioAr: string | null
+  department: string | null
+  location: string | null
+  phoneNumber: string | null
   preferredLanguage: string | null
   emailVerified: boolean
+  lastLoginAt: string | null
   createdAt: string
-  updatedAt: string
+}
+
+export interface UpdateProfileRequest {
+  fullName?: string
+  fullNameAr?: string
+  bio?: string
+  bioAr?: string
+  department?: string
+  location?: string
+  phoneNumber?: string
+  preferredLanguage?: string
+  avatarUrl?: string
 }
 
 export const usersApi = {
@@ -36,6 +53,12 @@ export const usersApi = {
 
   getMe: () =>
     api.get<AdminUser>("/api/v1/users/me"),
+
+  updateMe: (req: UpdateProfileRequest) =>
+    api.put<AdminUser>("/api/v1/users/me", req),
+
+  changePassword: (req: { currentPassword: string; newPassword: string }) =>
+    api.patch<void>("/api/v1/users/me/password", req),
 
   updateStatus: (id: string, status: AdminUserStatus) =>
     api.patch<AdminUser>(`/api/v1/users/${id}/status?status=${status}`, {}),

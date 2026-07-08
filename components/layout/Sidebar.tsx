@@ -11,6 +11,7 @@ import {
 } from "lucide-react"
 import { useState } from "react"
 import { useLocale, useTranslations } from "next-intl"
+import { stripLocaleFromPath } from "@/lib/locale-utils"
 
 type Role = "student" | "tutor" | "admin"
 
@@ -178,6 +179,8 @@ export function Sidebar({ role }: SidebarProps) {
   const tCommon = useTranslations("common")
   const [collapsed, setCollapsed] = useState(false)
   const groups = role === "student" ? studentGroups : role === "tutor" ? tutorGroups : adminGroups
+  const lp = (path: string) => `/${locale}${path}`
+  const strippedPathname = stripLocaleFromPath(pathname)
 
   const ExpandIcon = isRtl ? ChevronLeft : ChevronRight
   const CollapseIcon = isRtl ? ChevronRight : ChevronLeft
@@ -194,7 +197,7 @@ export function Sidebar({ role }: SidebarProps) {
     >
       {/* Logo */}
       <Link
-        href="/"
+        href={lp("/")}
         className="flex items-center gap-3 px-4 py-5 flex-shrink-0"
         style={{ borderBottom: "1px solid var(--sidebar-border)" }}
       >
@@ -236,12 +239,12 @@ export function Sidebar({ role }: SidebarProps) {
             {collapsed && <div className="pt-2.5" />}
 
             {group.items.map(({ labelKey, href, icon: Icon, badgeKey, badgeColor, liveIndicator }) => {
-              const active = pathname === href || pathname.startsWith(href + "/")
+              const active = strippedPathname === href || strippedPathname.startsWith(href + "/")
               const label = t(`nav.${labelKey}`)
               return (
                 <Link
                   key={href}
-                  href={href}
+                  href={lp(href)}
                   title={collapsed ? label : undefined}
                   className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium transition-all duration-150 relative"
                   style={{
@@ -308,7 +311,7 @@ export function Sidebar({ role }: SidebarProps) {
       {/* Logout */}
       <div className="px-2 py-3 flex-shrink-0" style={{ borderTop: "1px solid var(--sidebar-border)" }}>
         <Link
-          href="/login"
+          href={lp("/login")}
           className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium w-full transition-colors duration-150"
           style={{ color: "var(--sidebar-text)" }}
           onMouseEnter={(e) => {

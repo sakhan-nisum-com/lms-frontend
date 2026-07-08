@@ -12,8 +12,11 @@ import { authStore } from "@/lib/auth-store"
 
 const DEFAULT_FORM: CourseForm = {
   title: "",
+  titleAr: "",
   subtitle: "",
+  subtitleAr: "",
   description: "",
+  descriptionAr: "",
   category: "",
   level: "All Levels",
   language: "English",
@@ -30,15 +33,20 @@ const DEFAULT_FORM: CourseForm = {
   certificate: true,
   sections: [],
   learningObjectives: ["", "", "", ""],
+  learningObjectivesAr: [""],
   targetAudience: [""],
+  targetAudienceAr: [""],
   requirements: [""],
+  requirementsAr: [""],
   testVideoFileName: undefined,
   testVideoUrl: undefined,
   couponCode: "",
   discountPercent: "",
   couponExpiry: "",
   welcomeMessage: "",
+  welcomeMessageAr: "",
   completionMessage: "",
+  completionMessageAr: "",
 }
 
 export default function NewCoursePage() {
@@ -68,8 +76,10 @@ export default function NewCoursePage() {
       }
       const body: CreateCourseRequest = {
         title: form.title.trim(),
+        titleAr: form.titleAr?.trim() || undefined,
         subtitle: form.subtitle?.trim() || undefined,
         description: form.description?.trim() || undefined,
+        descriptionAr: form.descriptionAr?.trim() || undefined,
         category: form.category?.trim() || undefined,
         level: levelMap[form.level.toLowerCase()] ?? "BEGINNER",
         language: form.language || "English",
@@ -97,6 +107,7 @@ export default function NewCoursePage() {
       for (const section of form.sections) {
         const sectionBody: CreateSectionRequest = {
           title: section.title || "Section",
+          titleAr: section.titleAr || undefined,
           sortOrder: form.sections.indexOf(section),
         }
         const createdSection = await coursesApi.createSection(course.id, sectionBody)
@@ -104,6 +115,7 @@ export default function NewCoursePage() {
         for (const lesson of section.lessons) {
           const lessonBody: CreateLessonRequest = {
             title: lesson.title || "Lesson",
+            titleAr: lesson.titleAr || undefined,
             type: lesson.type?.toUpperCase() === "QUIZ" ? "QUIZ"
               : lesson.type?.toUpperCase() === "TEXT" ? "READING"
               : lesson.type?.toUpperCase() === "PDF" ? "PDF"

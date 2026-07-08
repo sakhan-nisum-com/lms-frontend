@@ -188,3 +188,44 @@ body {
   0%   { opacity: 1; transform: translateX(-50%) translateY(0); }
   100% { opacity: 0; transform: translateX(-50%) translateY(-80px); }
 }
+
+/* ── RTL support ─────────────────────────────────────────────────────────────── */
+
+[dir="rtl"] body,
+[dir="rtl"] {
+  font-family: var(--font-arabic), var(--font-geist-sans), system-ui, sans-serif;
+}
+
+/* Flip directional icons (chevrons, arrows) in RTL */
+[dir="rtl"] .rtl-flip {
+  transform: scaleX(-1);
+}
+
+/* Placeholder alignment: default all placeholders to LTR so English text anchors left.
+   Inputs that explicitly opt in to RTL (dir="rtl") get right-aligned placeholders.
+   This covers login/register, student search bars, and bilingual inputs in one rule. */
+input::placeholder,
+textarea::placeholder {
+  direction: ltr;
+  text-align: left;
+}
+
+input[dir="rtl"]::placeholder,
+textarea[dir="rtl"]::placeholder {
+  direction: rtl;
+  text-align: right;
+}
+
+/* Quill RTL */
+[dir="rtl"] .ql-editor {
+  direction: rtl;
+  text-align: right;
+}
+
+/* Badge / pill elements keep proper text direction */
+[dir="rtl"] .badge,
+[dir="rtl"] .tag {
+  direction: rtl;
+}
+
+/* Sidebar border is already handled by borderInlineEnd logic in the component */

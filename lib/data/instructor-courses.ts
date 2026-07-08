@@ -1,7 +1,9 @@
 export interface QuizQuestion {
   id: string
   question: string
+  questionAr?: string
   options: string[]      // exactly 4
+  optionsAr?: string[]
   correctIndex: number   // 0–3
 }
 
@@ -34,6 +36,7 @@ export interface LessonResource {
 export interface Lesson {
   id: string
   title: string
+  titleAr?: string
   type: "video" | "text" | "quiz" | "pdf"
   duration: string
   isPreview: boolean
@@ -44,6 +47,7 @@ export interface Lesson {
   resourceUrl?: string
   resourceFileName?: string
   textContent?: string
+  textContentAr?: string
   quizMode?: "fixed" | "bank"
   randomQuestionCount?: number
   isMandatory?: boolean
@@ -55,6 +59,7 @@ export interface Lesson {
 export interface Section {
   id: string
   title: string
+  titleAr?: string
   expanded: boolean
   lessons: Lesson[]
   sessionKC?: SessionKnowledgeCheck

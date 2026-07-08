@@ -1,8 +1,9 @@
 "use client"
 
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
+import { useLocale } from "next-intl"
 import { GraduationCap, Search, Menu, X, ChevronDown, BookOpen, GraduationCap as TrainingIcon, Clock } from "lucide-react"
 import { COURSES } from "@/lib/data/courses"
 import type { Course, CourseCategory } from "@/lib/data/courses"
@@ -10,6 +11,8 @@ import { CATEGORIES } from "@/lib/data/categories"
 import { TRAINING_TRACKS } from "@/lib/data/trainings"
 import { usePurchases } from "@/lib/hooks/usePurchases"
 import { useTrainingEnrollments } from "@/lib/hooks/useTrainingEnrollments"
+import { LanguageToggle } from "@/components/LanguageToggle"
+import { switchLocalePath } from "@/lib/locale-utils"
 
 const PROMO_HEIGHT = 40
 const MAIN_HEADER_HEIGHT = 64
@@ -28,6 +31,9 @@ interface LearningItem {
 
 export function SiteHeader() {
   const router = useRouter()
+  const pathname = usePathname()
+  const locale = useLocale()
+  const lp = (path: string) => `/${locale}${path}`
   const [search, setSearch] = useState("")
   const [searchOpen, setSearchOpen] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -55,7 +61,7 @@ export function SiteHeader() {
 
   const submitSearch = (e: React.FormEvent) => {
     e.preventDefault()
-    router.push("/student/explore")
+    router.push(lp("/student/explore"))
   }
 
   const query = search.trim().toLowerCase()
@@ -72,7 +78,7 @@ export function SiteHeader() {
     .filter((c) => c.progress !== undefined || isPurchased(c.id))
     .map((c) => ({
       id: c.id,
-      href: `/student/courses/${c.id}`,
+      href: lp(`/student/courses/${c.id}`),
       title: c.title,
       meta: c.instructor,
       progress: c.progress ?? 0,
@@ -84,7 +90,7 @@ export function SiteHeader() {
     .filter((t) => t.enrolled || isEnrolled(t.id))
     .map((t) => ({
       id: t.id,
-      href: `/student/trainings/${t.id}`,
+      href: lp(`/student/trainings/${t.id}`),
       title: t.title,
       meta: `${t.courses} modules`,
       progress: t.progress,
@@ -129,23 +135,23 @@ export function SiteHeader() {
         <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 24px", height: MAIN_HEADER_HEIGHT, display: "flex", alignItems: "center", gap: 24 }}>
 
           {/* Logo */}
-          <Link href="/" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none", flexShrink: 0 }}>
+          <Link href={lp("/")} style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none", flexShrink: 0 }}>
             <div style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: "var(--sidebar-accent)", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <GraduationCap size={18} color="#fff" />
             </div>
-            <span style={{ fontWeight: 800, fontSize: 18, color: "var(--sidebar-text-active)" }}>LearnFlow</span>
+            <span style={{ fontWeight: 800, fontSize: 18, color: "var(--sidebar-text-active)" }}>نحلم LMS</span>
           </Link>
 
           {/* Primary links */}
           <nav className="hidden md:flex" style={{ alignItems: "center", gap: 16, flexShrink: 0 }}>
-            <Link href="/student/explore" style={{ color: "var(--sidebar-text-hover)", fontSize: 13.5, fontWeight: 600, textDecoration: "none" }}>
-              Find Courses
+            <Link href={lp("/student/explore")} style={{ color: "var(--sidebar-text-hover)", fontSize: 13.5, fontWeight: 600, textDecoration: "none" }}>
+              {locale === "ar" ? "استكشف" : "Find Courses"}
             </Link>
-            <Link href="/instructors" style={{ color: "var(--sidebar-text-hover)", fontSize: 13.5, fontWeight: 600, textDecoration: "none" }}>
-              Instructors
+            <Link href={lp("/instructors")} style={{ color: "var(--sidebar-text-hover)", fontSize: 13.5, fontWeight: 600, textDecoration: "none" }}>
+              {locale === "ar" ? "المدربون" : "Instructors"}
             </Link>
-            <Link href="/student/certificates" style={{ color: "var(--sidebar-text-hover)", fontSize: 13.5, fontWeight: 600, textDecoration: "none" }}>
-              Get Certified
+            <Link href={lp("/student/certificates")} style={{ color: "var(--sidebar-text-hover)", fontSize: 13.5, fontWeight: 600, textDecoration: "none" }}>
+              {locale === "ar" ? "احصل على شهادة" : "Get Certified"}
             </Link>
           </nav>
 
@@ -189,13 +195,15 @@ export function SiteHeader() {
                 >
                   {learningPreview.length === 0 ? (
                     <div style={{ padding: "24px 18px", textAlign: "center" }}>
-                      <p style={{ fontSize: 13, color: "var(--sidebar-text)", marginBottom: 10 }}>You haven&apos;t enrolled in anything yet.</p>
+                      <p style={{ fontSize: 13, color: "var(--sidebar-text)", marginBottom: 10 }}>
+                        {locale === "ar" ? "لم تسجل في أي دورة بعد." : "You haven't enrolled in anything yet."}
+                      </p>
                       <Link
-                        href="/student/explore"
+                        href={lp("/student/explore")}
                         onClick={() => setLearningOpen(false)}
                         style={{ fontSize: 13, fontWeight: 700, color: "var(--sidebar-accent)", textDecoration: "none" }}
                       >
-                        Explore courses →
+                        {locale === "ar" ? "استكشف الدورات ←" : "Explore courses →"}
                       </Link>
                     </div>
                   ) : (
@@ -229,33 +237,35 @@ export function SiteHeader() {
                         </Link>
                       ))}
                       <Link
-                        href="/student/my-learning"
+                        href={lp("/student/my-learning")}
                         onClick={() => setLearningOpen(false)}
                         className="flex items-center justify-center gap-1.5"
                         style={{ padding: "12px", fontSize: 12.5, fontWeight: 700, color: "var(--sidebar-accent)", textDecoration: "none" }}
                       >
-                        <Clock size={13} /> View My Learning
+                        <Clock size={13} /> {locale === "ar" ? "عرض تعلمي ←" : "View My Learning"}
                       </Link>
                     </>
                   )}
                 </div>
               )}
             </div>
-            <Link href="/#business" className="hidden lg:inline" style={{ color: "var(--sidebar-text-hover)", fontSize: 13.5, fontWeight: 600, textDecoration: "none" }}>
-              LearnFlow Business
+            <Link href={lp("/#business")} className="hidden lg:inline" style={{ color: "var(--sidebar-text-hover)", fontSize: 13.5, fontWeight: 600, textDecoration: "none" }}>
+              {locale === "ar" ? "للمؤسسات" : "For Business"}
             </Link>
-            <Link href="/instructor/register" className="hidden lg:inline" style={{ color: "var(--sidebar-text-hover)", fontSize: 13.5, fontWeight: 600, textDecoration: "none" }}>
-              Teach on LearnFlow
+            <Link href={lp("/instructor/register")} className="hidden lg:inline" style={{ color: "var(--sidebar-text-hover)", fontSize: 13.5, fontWeight: 600, textDecoration: "none" }}>
+              {locale === "ar" ? "درّس معنا" : "Teach on LearnFlow"}
             </Link>
-            <Link href="/login" className="hidden sm:inline" style={{ color: "var(--sidebar-text-hover)", fontSize: 13.5, fontWeight: 600, textDecoration: "none" }}>
-              Log in
+            <Link href={lp("/login")} className="hidden sm:inline" style={{ color: "var(--sidebar-text-hover)", fontSize: 13.5, fontWeight: 600, textDecoration: "none" }}>
+              {locale === "ar" ? "دخول" : "Log in"}
             </Link>
-            <Link href="/register" style={{
+            <Link href={lp("/register")} style={{
               backgroundColor: "transparent", color: "var(--sidebar-text-active)", fontSize: 13.5, fontWeight: 700,
               padding: "8px 16px", borderRadius: 8, textDecoration: "none", border: "1px solid var(--sidebar-border)",
             }}>
-              Sign up
+              {locale === "ar" ? "تسجيل" : "Sign up"}
             </Link>
+            {/* Language toggle — always visible in header */}
+            <LanguageToggle variant="pill" />
             <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden" style={{ background: "none", border: "none", color: "var(--sidebar-text-hover)", cursor: "pointer" }}>
               {mobileOpen ? <X size={22} /> : <Menu size={22} />}
             </button>
@@ -265,13 +275,14 @@ export function SiteHeader() {
         {/* Mobile menu */}
         {mobileOpen && (
           <div className="md:hidden" style={{ borderTop: "1px solid var(--sidebar-border)", padding: "12px 24px", display: "flex", flexDirection: "column", gap: 14 }}>
-            <Link href="/student/explore" onClick={() => setMobileOpen(false)} style={{ color: "var(--sidebar-text-hover)", fontSize: 14, fontWeight: 600, textDecoration: "none" }}>Find Courses</Link>
-            <Link href="/student/my-learning" onClick={() => setMobileOpen(false)} style={{ color: "var(--sidebar-text-hover)", fontSize: 14, fontWeight: 600, textDecoration: "none" }}>My Learning</Link>
-            <Link href="/instructors" onClick={() => setMobileOpen(false)} style={{ color: "var(--sidebar-text-hover)", fontSize: 14, fontWeight: 600, textDecoration: "none" }}>Instructors</Link>
-            <Link href="/student/certificates" onClick={() => setMobileOpen(false)} style={{ color: "var(--sidebar-text-hover)", fontSize: 14, fontWeight: 600, textDecoration: "none" }}>Get Certified</Link>
-            <Link href="/#business" onClick={() => setMobileOpen(false)} style={{ color: "var(--sidebar-text-hover)", fontSize: 14, fontWeight: 600, textDecoration: "none" }}>LearnFlow Business</Link>
-            <Link href="/instructor/register" onClick={() => setMobileOpen(false)} style={{ color: "var(--sidebar-text-hover)", fontSize: 14, fontWeight: 600, textDecoration: "none" }}>Teach on LearnFlow</Link>
-            <Link href="/login" onClick={() => setMobileOpen(false)} style={{ color: "var(--sidebar-text-hover)", fontSize: 14, fontWeight: 600, textDecoration: "none" }}>Log in</Link>
+            <Link href={lp("/student/explore")} onClick={() => setMobileOpen(false)} style={{ color: "var(--sidebar-text-hover)", fontSize: 14, fontWeight: 600, textDecoration: "none" }}>{locale === "ar" ? "استكشف" : "Find Courses"}</Link>
+            <Link href={lp("/student/my-learning")} onClick={() => setMobileOpen(false)} style={{ color: "var(--sidebar-text-hover)", fontSize: 14, fontWeight: 600, textDecoration: "none" }}>{locale === "ar" ? "تعلمي" : "My Learning"}</Link>
+            <Link href={lp("/instructors")} onClick={() => setMobileOpen(false)} style={{ color: "var(--sidebar-text-hover)", fontSize: 14, fontWeight: 600, textDecoration: "none" }}>{locale === "ar" ? "المدربون" : "Instructors"}</Link>
+            <Link href={lp("/student/certificates")} onClick={() => setMobileOpen(false)} style={{ color: "var(--sidebar-text-hover)", fontSize: 14, fontWeight: 600, textDecoration: "none" }}>{locale === "ar" ? "شهاداتي" : "Get Certified"}</Link>
+            <Link href={lp("/#business")} onClick={() => setMobileOpen(false)} style={{ color: "var(--sidebar-text-hover)", fontSize: 14, fontWeight: 600, textDecoration: "none" }}>{locale === "ar" ? "للمؤسسات" : "For Business"}</Link>
+            <Link href={lp("/instructor/register")} onClick={() => setMobileOpen(false)} style={{ color: "var(--sidebar-text-hover)", fontSize: 14, fontWeight: 600, textDecoration: "none" }}>{locale === "ar" ? "درّس معنا" : "Teach on LearnFlow"}</Link>
+            <Link href={lp("/login")} onClick={() => setMobileOpen(false)} style={{ color: "var(--sidebar-text-hover)", fontSize: 14, fontWeight: 600, textDecoration: "none" }}>{locale === "ar" ? "دخول" : "Log in"}</Link>
+            <div className="pt-2"><LanguageToggle variant="pill" /></div>
           </div>
         )}
       </header>

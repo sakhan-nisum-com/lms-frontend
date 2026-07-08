@@ -1,8 +1,8 @@
 "use client"
 
-import { Suspense, useMemo, useState } from "react"
-import Link from "next/link"
+import { Suspense, useMemo, useState, useEffect, useRef } from "react"
 import { useSearchParams } from "next/navigation"
+import { useLocale } from "next-intl"
 import { DashboardLayout } from "@/components/layout/DashboardLayout"
 import { STUDENT_PROFILE } from "@/lib/data/courses"
 import { usePurchases } from "@/lib/hooks/usePurchases"
@@ -10,10 +10,8 @@ import { useAllProgress } from "@/lib/hooks/useProgress"
 import { useCertificates } from "@/lib/hooks/useCertificates"
 import type { ApiCertificate } from "@/lib/api/certificates"
 import { useMyEnrollments } from "@/lib/hooks/useMyEnrollments"
-import type { ApiCourse } from "@/lib/api/courses"
 import {
-  Award, Download, Share2, CheckCircle2, GraduationCap, Star,
-  Copy, Check, ChevronLeft,
+  Award, GraduationCap, Copy, Check, X, Download, Share2, ExternalLink,
 } from "lucide-react"
 
 interface DisplayCert {
@@ -23,179 +21,127 @@ interface DisplayCert {
   instructorName: string
   issuedDate: string
   credentialId: string
-  skills: string[]
-  category: string
-  thumbnail: string
-  thumbnailColor: string
   verificationUrl: string
   grade: number
 }
 
-function certFromApi(ac: ApiCertificate): DisplayCert {
+function certFromApi(ac: ApiCertificate, locale?: string): DisplayCert {
+  const courseName = locale === "ar" && ac.courseNameAr ? ac.courseNameAr : ac.courseName
   return {
     id: ac.id,
     courseId: ac.courseId,
-    courseName: ac.courseName,
+    courseName,
     instructorName: ac.instructorName,
     issuedDate: ac.issuedAt.slice(0, 10),
     credentialId: ac.credentialId,
-    skills: [],
-    category: "Engineering",
-    thumbnail: "🎓",
-    thumbnailColor: "#3B82F6",
     verificationUrl: ac.verificationUrl,
     grade: ac.grade,
   }
 }
 
-function CertificateDetail({
+function CertificateModal({
   cert,
-  course,
   studentName,
-  studentAvatar,
-  copiedId,
-  onCopy,
+  onClose,
 }: {
   cert: DisplayCert
-  course: ApiCourse
   studentName: string
-  studentAvatar: string
-  copiedId: string | null
-  onCopy: (id: string) => void
+  onClose: () => void
 }) {
-  const totalLessons = course.sections.reduce((s, sec) => s + sec.lessons.length, 0)
-  const totalDuration = course.totalDurationSeconds
-    ? `${Math.round(course.totalDurationSeconds / 3600)}h`
-    : "—"
+  const [copied, setCopied] = useState(false)
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(cert.credentialId).catch(() => {})
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-6">
-      {/* Left: the certificate document */}
-      <div>
-        <div className="rounded-2xl p-8" style={{ backgroundColor: "var(--text-primary)" }}>
-          <div className="flex items-start justify-between mb-10 flex-wrap gap-4">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ backgroundColor: "rgba(0,0,0,0.7)" }}
+      onClick={onClose}
+    >
+      <div
+        className="relative w-full max-w-2xl rounded-2xl overflow-hidden shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Close */}
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 z-10 flex items-center justify-center w-8 h-8 rounded-full"
+          style={{ backgroundColor: "rgba(255,255,255,0.15)", color: "#fff" }}
+        >
+          <X size={16} />
+        </button>
+
+        {/* Certificate document */}
+        <div className="p-10" style={{ backgroundColor: "#0F172A" }}>
+          {/* Header */}
+          <div className="flex items-center justify-between mb-12 flex-wrap gap-3">
             <div className="flex items-center gap-2">
-              <div className="flex items-center justify-center w-8 h-8 rounded-lg flex-shrink-0" style={{ backgroundColor: "#3B82F6" }}>
+              <div className="flex items-center justify-center w-8 h-8 rounded-lg" style={{ backgroundColor: "#3B82F6" }}>
                 <GraduationCap size={16} color="#fff" />
               </div>
-              <span className="font-bold text-base" style={{ color: "var(--bg-surface-muted)" }}>LearnFlow</span>
+              <span className="font-bold text-base text-white">LearnFlow</span>
             </div>
-            <div className="text-right text-xs leading-relaxed" style={{ color: "var(--text-tertiary)" }}>
-              <p className="flex items-center justify-end gap-1.5">
-                Certificate no: <strong style={{ color: "var(--bg-surface-muted)" }}>{cert.credentialId}</strong>
-                <button onClick={() => onCopy(cert.credentialId)} className="inline-flex">
-                  {copiedId === cert.credentialId ? <Check size={11} style={{ color: "#10B981" }} /> : <Copy size={11} style={{ color: "var(--text-secondary)" }} />}
+            <div className="text-right text-xs" style={{ color: "#64748B" }}>
+              <p className="flex items-center justify-end gap-1.5 mb-1">
+                <span style={{ color: "#94A3B8" }}>Certificate no:</span>
+                <strong className="text-white">{cert.credentialId}</strong>
+                <button onClick={handleCopy} className="inline-flex ml-1">
+                  {copied
+                    ? <Check size={11} style={{ color: "#10B981" }} />
+                    : <Copy size={11} style={{ color: "#64748B" }} />}
                 </button>
               </p>
-              <p>Certificate url: {cert.verificationUrl.replace("https://", "")}</p>
+              <p style={{ color: "#64748B" }}>{cert.verificationUrl.replace("https://", "")}</p>
             </div>
           </div>
 
-          <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: "var(--text-tertiary)" }}>
+          {/* Body */}
+          <p className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: "#64748B" }}>
             Certificate of Completion
           </p>
-          <h2 className="text-3xl sm:text-4xl font-black leading-tight mb-6" style={{ color: "var(--bg-surface-muted)" }}>
+          <h2 className="text-3xl font-black leading-tight mb-6 text-white">
             {cert.courseName}
           </h2>
-          <p className="text-sm mb-10" style={{ color: "var(--border-default)" }}>
-            Instructors&nbsp; <strong style={{ color: "var(--bg-surface-muted)" }}>{cert.instructorName}</strong>
+          <p className="text-sm mb-12" style={{ color: "#64748B" }}>
+            Instructor&nbsp;
+            <strong className="text-white">{cert.instructorName}</strong>
           </p>
 
-          <h3 className="text-2xl sm:text-3xl font-black mb-4" style={{ color: "var(--bg-surface-muted)" }}>
-            {studentName}
-          </h3>
-          <div className="flex items-center gap-8 text-sm flex-wrap" style={{ color: "var(--border-default)" }}>
-            <p>Date&nbsp; <strong style={{ color: "var(--bg-surface-muted)" }}>{cert.issuedDate}</strong></p>
-            <p>Length&nbsp; <strong style={{ color: "var(--bg-surface-muted)" }}>{totalDuration}</strong></p>
+          <h3 className="text-2xl font-black mb-4 text-white">{studentName}</h3>
+          <div className="flex items-center gap-8 text-sm flex-wrap" style={{ color: "#64748B" }}>
+            <p>Date&nbsp;<strong className="text-white">{cert.issuedDate}</strong></p>
+            <p>Grade&nbsp;<strong className="text-white">{cert.grade}%</strong></p>
           </div>
         </div>
 
-        <p className="text-xs leading-relaxed mt-4" style={{ color: "var(--text-tertiary)" }}>
-          This certificate above verifies that {studentName} successfully completed the course {cert.courseName} on{" "}
-          {cert.issuedDate} as taught by {cert.instructorName} on LearnFlow. The certificate indicates the entire
-          course was completed as validated by the learner. The course length represents the total hours of video
-          and lecture content across {totalLessons} lessons.
-        </p>
-
-        {/* Skills */}
-        {cert.skills.length > 0 && (
-          <div className="rounded-2xl p-5 mt-4 shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
-            <h3 className="text-sm font-bold mb-3" style={{ color: "var(--text-primary)" }}>Skills Demonstrated</h3>
-            <div className="flex flex-wrap gap-2">
-              {cert.skills.map((skill) => (
-                <span
-                  key={skill}
-                  className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg font-medium"
-                  style={{ backgroundColor: `${cert.thumbnailColor}15`, color: cert.thumbnailColor }}
-                >
-                  <CheckCircle2 size={11} /> {skill}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Right: recipient + course sidebar */}
-      <div className="space-y-5">
-        <div>
-          <p className="text-xs font-semibold mb-2" style={{ color: "var(--text-tertiary)" }}>Certificate Recipient:</p>
-          <div className="flex items-center gap-2">
-            <div className="flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold text-white flex-shrink-0" style={{ backgroundColor: "var(--accent)" }}>
-              {studentAvatar}
-            </div>
-            <span className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>{studentName}</span>
-          </div>
-        </div>
-
-        <div>
-          <p className="text-xs font-semibold mb-2" style={{ color: "var(--text-tertiary)" }}>About the Course:</p>
-          {course.thumbnailUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={course.thumbnailUrl} alt={course.title} className="w-full h-28 object-cover rounded-xl mb-3" style={{ border: "1px solid var(--border-default)" }} />
-          ) : (
-            <div className="w-full h-28 rounded-xl mb-3 flex items-center justify-center text-4xl"
-              style={{ backgroundColor: "#3B82F615", border: "1px solid var(--border-default)" }}>
-              📚
-            </div>
-          )}
-          <p className="text-sm font-bold leading-snug mb-1" style={{ color: "var(--text-primary)" }}>{course.title}</p>
-          <p className="text-xs mb-2" style={{ color: "var(--text-tertiary)" }}>{cert.instructorName}</p>
-          {course.rating > 0 && (
-            <div className="flex items-center gap-1 mb-1.5">
-              <span className="text-xs font-bold" style={{ color: "#F59E0B" }}>{course.rating.toFixed(1)}</span>
-              <Star size={11} fill="#F59E0B" style={{ color: "#F59E0B" }} />
-              <span className="text-xs" style={{ color: "var(--text-tertiary)" }}>({course.reviewCount.toLocaleString()})</span>
-            </div>
-          )}
-          <p className="text-xs mb-3" style={{ color: "var(--text-tertiary)" }}>
-            {totalDuration} total · {totalLessons} lectures
-          </p>
-          {course.price > 0 && (
-            <div className="flex items-center gap-2 mb-1">
-              <span className="text-base font-bold" style={{ color: "var(--text-primary)" }}>${course.price}</span>
-            </div>
-          )}
-        </div>
-
-        <div className="flex items-center gap-2">
+        {/* Footer actions */}
+        <div className="flex items-center gap-3 px-6 py-4" style={{ backgroundColor: "#1E293B", borderTop: "1px solid #334155" }}>
           <button
-            className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-semibold"
-            style={{ backgroundColor: "var(--bg-surface)", color: "#CBD5E1", border: "1px solid var(--border-default)" }}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold"
+            style={{ backgroundColor: "#334155", color: "#CBD5E1" }}
           >
             <Download size={13} /> Download
           </button>
           <button
-            className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-semibold"
-            style={{ backgroundColor: "var(--bg-surface)", color: "#CBD5E1", border: "1px solid var(--border-default)" }}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold"
+            style={{ backgroundColor: "#334155", color: "#CBD5E1" }}
           >
             <Share2 size={13} /> Share
           </button>
+          <a
+            href={cert.verificationUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold ml-auto"
+            style={{ backgroundColor: "#3B82F620", color: "#60A5FA" }}
+          >
+            <ExternalLink size={13} /> Verify
+          </a>
         </div>
-
-        <Link href={`/student/courses/${course.id}`} className="block text-xs font-semibold" style={{ color: "var(--accent)" }}>
-          ← Back to course
-        </Link>
       </div>
     </div>
   )
@@ -216,30 +162,41 @@ function CertificatesContent() {
   const p = STUDENT_PROFILE
   const { purchasedIds } = usePurchases()
   const allProgress = useAllProgress()
-  const [copiedId, setCopiedId] = useState<string | null>(null)
-  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [modalCert, setModalCert] = useState<DisplayCert | null>(null)
   const [earningCourseId, setEarningCourseId] = useState<string | null>(null)
 
+  const locale = useLocale()
   const { certificates: apiCerts, loading: certsLoading, earnCertificate } = useCertificates()
-  const { items: apiEnrollments } = useMyEnrollments(Array.from(purchasedIds))
+  const { items: apiEnrollments, loading: enrollmentsLoading } = useMyEnrollments(Array.from(purchasedIds))
 
+  // Auto-issue cert for any completed enrollment that doesn't have one yet
+  const autoIssued = useRef(false)
+  useEffect(() => {
+    if (certsLoading || enrollmentsLoading || autoIssued.current) return
+    autoIssued.current = true
+    const existingCourseIds = new Set(apiCerts.map((c) => c.courseId))
+    apiEnrollments.forEach(({ enrollment, course }) => {
+      if (course.certificateOffered && enrollment.progressPct >= 100 && !existingCourseIds.has(course.id)) {
+        earnCertificate(course.id)
+      }
+    })
+  }, [certsLoading, enrollmentsLoading, apiCerts, apiEnrollments, earnCertificate])
+
+  // Open modal for ?course= deep-link
   const queryCourseId = useSearchParams().get("course")
+  useEffect(() => {
+    if (!queryCourseId || certsLoading) return
+    const cert = apiCerts.find((c) => c.courseId === queryCourseId)
+    if (cert) setModalCert(certFromApi(cert))
+  }, [queryCourseId, apiCerts, certsLoading])
 
-  // All display certificates come from the API
   const certificates: DisplayCert[] = useMemo(
-    () => (certsLoading ? [] : apiCerts.map(certFromApi)),
-    [apiCerts, certsLoading]
+    () => (certsLoading ? [] : apiCerts.map((c) => certFromApi(c, locale))),
+    [apiCerts, certsLoading, locale]
   )
 
   const certCourseIds = useMemo(() => new Set(certificates.map((c) => c.courseId)), [certificates])
 
-  // Build a courseId → ApiCourse lookup from enrollments
-  const courseMap = useMemo(
-    () => new Map(apiEnrollments.map(({ course }) => [course.id, course])),
-    [apiEnrollments]
-  )
-
-  // Claimable: 100% progress + certificateOffered + no cert yet
   const claimable = useMemo(
     () =>
       apiEnrollments.filter(({ enrollment, course }) => {
@@ -252,7 +209,6 @@ function CertificatesContent() {
     [apiEnrollments, allProgress, certCourseIds]
   )
 
-  // In-progress towards certificate (some progress but not complete)
   const inProgress = useMemo(
     () =>
       apiEnrollments
@@ -267,179 +223,140 @@ function CertificatesContent() {
           const localIds = allProgress[course.id] ?? []
           const totalLessons = course.sections.reduce((n, s) => n + s.lessons.length, 0)
           const localPct = totalLessons > 0 ? Math.round((localIds.length / totalLessons) * 100) : 0
-          return {
-            course,
-            progressPct: enrollment.progressPct > 0 ? enrollment.progressPct : localPct,
-          }
+          return { course, progressPct: enrollment.progressPct > 0 ? enrollment.progressPct : localPct }
         }),
     [apiEnrollments, allProgress]
   )
 
-  async function handleEarnCertificate(courseId: string) {
+  async function handleEarn(courseId: string) {
     setEarningCourseId(courseId)
     await earnCertificate(courseId)
     setEarningCourseId(null)
   }
 
-  const handleCopy = (credId: string) => {
-    navigator.clipboard.writeText(credId).catch(() => {})
-    setCopiedId(credId)
-    setTimeout(() => setCopiedId(null), 2000)
-  }
-
-  // ── Single-course view: came from "Certificate" on a My Courses card ──
-  if (queryCourseId) {
-    const cert = certificates.find((c) => c.courseId === queryCourseId)
-    const course = courseMap.get(queryCourseId)
-
-    return (
-      <div className="space-y-6 max-w-5xl">
-        <Link href="/student/certificates" className="inline-flex items-center gap-1.5 text-xs font-semibold" style={{ color: "var(--accent)" }}>
-          <ChevronLeft size={13} /> All certificates
-        </Link>
-
-        {cert && course ? (
-          <CertificateDetail cert={cert} course={course} studentName={p.name} studentAvatar={p.avatar} copiedId={copiedId} onCopy={handleCopy} />
-        ) : (
-          <div className="rounded-2xl p-10 text-center" style={{ backgroundColor: "var(--bg-surface)", border: "1px dashed var(--border-default)" }}>
-            <Award size={32} className="mx-auto mb-3" style={{ color: "var(--border-default)" }} />
-            <p className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>
-              {course ? `No certificate yet for "${course.title}"` : "Certificate not found"}
-            </p>
-            <p className="text-xs mt-1" style={{ color: "var(--text-tertiary)" }}>
-              Finish every lesson in this course to earn its certificate.
-            </p>
-          </div>
-        )}
-      </div>
-    )
-  }
-
-  // ── Full view: every certificate earned so far ──
-  const selected = certificates.find((c) => c.id === selectedId) ?? certificates[0]
-  const selectedCourse = selected ? courseMap.get(selected.courseId) : undefined
-
   return (
-    <div className="space-y-6 max-w-6xl">
+    <>
+      {modalCert && (
+        <CertificateModal
+          cert={modalCert}
+          studentName={p.name}
+          onClose={() => setModalCert(null)}
+        />
+      )}
 
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold" style={{ color: "var(--text-primary)" }}>My Certificates</h1>
-        <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>
-          {certificates.length} certificates earned · Verifiable credentials on your profile
-        </p>
-      </div>
+      <div className="space-y-6 max-w-4xl">
 
-      {/* Summary */}
-      <div className="grid grid-cols-3 gap-4">
-        {[
-          { label: "Certificates Earned", value: certificates.length, color: "#F59E0B" },
-          { label: "Skills Demonstrated", value: certificates.reduce((s, c) => s + c.skills.length, 0), color: "#3B82F6" },
-          { label: "Avg Grade", value: certificates.length ? `${Math.round(certificates.reduce((s, c) => s + c.grade, 0) / certificates.length)}%` : "—", color: "#10B981" },
-        ].map(({ label, value, color }) => (
-          <div key={label} className="rounded-xl p-4 shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
-            <p className="text-2xl font-bold" style={{ color }}>{value}</p>
-            <p className="text-xs mt-1" style={{ color: "var(--text-secondary)" }}>{label}</p>
-          </div>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-        {/* Certificate list */}
-        <div className="space-y-3">
-          {certificates.length === 0 && claimable.length === 0 && inProgress.length === 0 && (
-            <div className="rounded-2xl p-6 text-center" style={{ backgroundColor: "var(--bg-surface)", border: "1px dashed var(--border-default)" }}>
-              <Award size={28} className="mx-auto mb-2" style={{ color: "var(--border-default)" }} />
-              <p className="text-sm font-medium" style={{ color: "var(--text-primary)" }}>No certificates yet</p>
-              <p className="text-xs mt-1" style={{ color: "var(--text-tertiary)" }}>Finish every lesson in a course to earn its certificate.</p>
-            </div>
-          )}
-
-          {certificates.map((cert) => (
-            <button
-              key={cert.id}
-              className="w-full rounded-2xl p-4 text-left transition-all shadow-sm"
-              style={{
-                backgroundColor: "var(--bg-surface)",
-                border: `1px solid ${selected?.id === cert.id ? cert.thumbnailColor + "60" : "var(--border-default)"}`,
-              }}
-              onClick={() => setSelectedId(cert.id)}
-            >
-              <div className="flex items-center gap-3">
-                <div
-                  className="flex items-center justify-center w-12 h-12 rounded-xl text-2xl flex-shrink-0"
-                  style={{ backgroundColor: `${cert.thumbnailColor}15` }}
-                >
-                  {cert.thumbnail}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold truncate" style={{ color: "var(--text-primary)" }}>{cert.courseName}</p>
-                  <p className="text-xs mt-0.5" style={{ color: "var(--text-tertiary)" }}>Issued {cert.issuedDate}</p>
-                  <div className="flex items-center gap-1.5 mt-1">
-                    <Award size={11} style={{ color: "#F59E0B" }} />
-                    <span className="text-xs font-semibold" style={{ color: "#F59E0B" }}>{cert.grade}% grade</span>
-                  </div>
-                </div>
-                {selected?.id === cert.id && (
-                  <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: cert.thumbnailColor }} />
-                )}
-              </div>
-            </button>
-          ))}
-
-          {/* Claimable certificates */}
-          {claimable.length > 0 && (
-            <div className="rounded-2xl p-4" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid #10B98140" }}>
-              <p className="text-xs font-semibold mb-2" style={{ color: "var(--success)" }}>READY TO CLAIM</p>
-              {claimable.map(({ course }) => (
-                <div key={course.id} className="flex items-center gap-2 mb-2 last:mb-0">
-                  <span>📚</span>
-                  <p className="flex-1 text-xs truncate" style={{ color: "var(--text-primary)" }}>{course.title}</p>
-                  <button
-                    onClick={() => handleEarnCertificate(course.id)}
-                    disabled={earningCourseId === course.id}
-                    className="text-xs px-2.5 py-1 rounded-lg font-semibold disabled:opacity-50"
-                    style={{ backgroundColor: "var(--success)", color: "#fff" }}
-                  >
-                    {earningCourseId === course.id ? "Claiming…" : "Claim"}
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* In-progress towards certificate */}
-          {inProgress.length > 0 && (
-            <div
-              className="rounded-2xl p-4 opacity-60"
-              style={{ backgroundColor: "var(--bg-surface)", border: "1px dashed var(--border-default)" }}
-            >
-              <p className="text-xs font-semibold mb-2" style={{ color: "var(--text-tertiary)" }}>IN PROGRESS</p>
-              {inProgress.map(({ course, progressPct }) => (
-                <div key={course.id} className="flex items-center gap-2 mb-2 last:mb-0">
-                  <span>📚</span>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs truncate" style={{ color: "var(--text-primary)" }}>{course.title}</p>
-                    <div className="h-1 rounded-full mt-1" style={{ backgroundColor: "var(--border-default)" }}>
-                      <div className="h-full rounded-full" style={{ width: `${progressPct}%`, backgroundColor: "#3B82F6" }} />
-                    </div>
-                  </div>
-                  <span className="text-xs flex-shrink-0" style={{ color: "var(--text-tertiary)" }}>{progressPct}%</span>
-                </div>
-              ))}
-            </div>
-          )}
+        {/* Header */}
+        <div>
+          <h1 className="text-2xl font-bold" style={{ color: "var(--text-primary)" }}>My Certificates</h1>
+          <p className="text-sm mt-1" style={{ color: "var(--text-secondary)" }}>
+            {certificates.length} earned · click any certificate to view
+          </p>
         </div>
 
-        {/* Certificate detail */}
-        {selected && selectedCourse && (
-          <div className="lg:col-span-2">
-            <CertificateDetail cert={selected} course={selectedCourse} studentName={p.name} studentAvatar={p.avatar} copiedId={copiedId} onCopy={handleCopy} />
+        {/* Stats */}
+        <div className="grid grid-cols-3 gap-4">
+          {[
+            { label: "Certificates Earned", value: certificates.length, color: "#F59E0B" },
+            { label: "Avg Grade", value: certificates.length ? `${Math.round(certificates.reduce((s, c) => s + c.grade, 0) / certificates.length)}%` : "—", color: "#10B981" },
+            { label: "In Progress", value: inProgress.length, color: "#3B82F6" },
+          ].map(({ label, value, color }) => (
+            <div key={label} className="rounded-xl p-4" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
+              <p className="text-2xl font-bold" style={{ color }}>{value}</p>
+              <p className="text-xs mt-1" style={{ color: "var(--text-secondary)" }}>{label}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Earned certificates grid */}
+        {certificates.length === 0 && claimable.length === 0 && inProgress.length === 0 ? (
+          <div className="rounded-2xl p-12 text-center" style={{ backgroundColor: "var(--bg-surface)", border: "1px dashed var(--border-default)" }}>
+            <Award size={36} className="mx-auto mb-3" style={{ color: "var(--border-default)" }} />
+            <p className="text-sm font-medium" style={{ color: "var(--text-muted)" }}>No certificates yet</p>
+            <p className="text-xs mt-1" style={{ color: "var(--text-tertiary)" }}>Complete all lessons in a course to earn its certificate.</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {certificates.map((cert) => (
+              <button
+                key={cert.id}
+                onClick={() => setModalCert(cert)}
+                className="w-full flex items-center gap-4 p-4 rounded-2xl text-left transition-all"
+                style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
+                onMouseEnter={(e) => (e.currentTarget.style.borderColor = "#3B82F640")}
+                onMouseLeave={(e) => (e.currentTarget.style.borderColor = "var(--border-default)")}
+              >
+                <div className="flex items-center justify-center w-12 h-12 rounded-xl flex-shrink-0 text-xl"
+                  style={{ backgroundColor: "#3B82F615" }}>
+                  🎓
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold truncate" style={{ color: "var(--text-primary)" }}>{cert.courseName}</p>
+                  <p className="text-xs mt-0.5" style={{ color: "var(--text-tertiary)" }}>
+                    {cert.instructorName} · Issued {cert.issuedDate}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <span className="text-xs font-semibold px-2 py-1 rounded-lg"
+                    style={{ backgroundColor: "#10B98120", color: "var(--success)" }}>
+                    {cert.grade}%
+                  </span>
+                  <Award size={15} style={{ color: "#F59E0B" }} />
+                </div>
+              </button>
+            ))}
+
+            {/* Claimable */}
+            {claimable.map(({ course }) => (
+              <div key={course.id}
+                className="flex items-center gap-4 p-4 rounded-2xl"
+                style={{ backgroundColor: "var(--bg-surface)", border: "1px solid #10B98130" }}>
+                <div className="flex items-center justify-center w-12 h-12 rounded-xl flex-shrink-0 text-xl"
+                  style={{ backgroundColor: "#10B98115" }}>
+                  📚
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold truncate" style={{ color: "var(--text-primary)" }}>
+                    {locale === "ar" && course.titleAr ? course.titleAr : course.title}
+                  </p>
+                  <p className="text-xs mt-0.5" style={{ color: "var(--success)" }}>Ready to claim</p>
+                </div>
+                <button
+                  onClick={() => handleEarn(course.id)}
+                  disabled={earningCourseId === course.id}
+                  className="text-xs px-3 py-1.5 rounded-lg font-semibold disabled:opacity-50 flex-shrink-0"
+                  style={{ backgroundColor: "var(--success)", color: "#fff" }}
+                >
+                  {earningCourseId === course.id ? "Claiming…" : "Claim"}
+                </button>
+              </div>
+            ))}
+
+            {/* In progress */}
+            {inProgress.map(({ course, progressPct }) => (
+              <div key={course.id}
+                className="flex items-center gap-4 p-4 rounded-2xl opacity-60"
+                style={{ backgroundColor: "var(--bg-surface)", border: "1px dashed var(--border-default)" }}>
+                <div className="flex items-center justify-center w-12 h-12 rounded-xl flex-shrink-0 text-xl"
+                  style={{ backgroundColor: "#3B82F615" }}>
+                  📚
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold truncate" style={{ color: "var(--text-primary)" }}>
+                    {locale === "ar" && course.titleAr ? course.titleAr : course.title}
+                  </p>
+                  <div className="flex items-center gap-2 mt-1.5">
+                    <div className="flex-1 h-1.5 rounded-full" style={{ backgroundColor: "var(--border-default)" }}>
+                      <div className="h-full rounded-full" style={{ width: `${progressPct}%`, backgroundColor: "#3B82F6" }} />
+                    </div>
+                    <span className="text-xs flex-shrink-0" style={{ color: "var(--text-tertiary)" }}>{progressPct}%</span>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>
-
-    </div>
+    </>
   )
 }

@@ -43,6 +43,11 @@ export const authStore = {
   isLoggedIn(): boolean {
     return !!localStorage.getItem(ACCESS_KEY)
   },
+  updateUser(partial: Partial<AuthUser>) {
+    const current = this.getUser()
+    if (!current) return
+    localStorage.setItem(USER_KEY, JSON.stringify({ ...current, ...partial }))
+  },
   /** Map backend role to frontend route segment */
   dashboardPath(): string {
     const user = this.getUser()

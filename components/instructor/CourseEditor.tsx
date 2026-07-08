@@ -28,14 +28,18 @@ import {
 import type { Section, Lesson, LessonResource, QuizQuestion, LessonKnowledgeCheck, SessionKnowledgeCheck, SessionKCPart } from "@/lib/data/instructor-courses"
 import { settingsApi } from "@/lib/api/admin"
 import { uploadApi } from "@/lib/api/upload"
+import { BilingualInput } from "@/components/BilingualInput"
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 export interface CourseForm {
   // Core
   title: string
+  titleAr: string
   subtitle: string
+  subtitleAr: string
   description: string
+  descriptionAr: string
   category: string
   level: string
   language: string
@@ -55,8 +59,11 @@ export interface CourseForm {
   sections: Section[]
   // Step 1 — Intended Learners
   learningObjectives: string[]
+  learningObjectivesAr: string[]
   targetAudience: string[]
+  targetAudienceAr: string[]
   requirements: string[]
+  requirementsAr: string[]
   // Step 3 — Setup & Test Video
   testVideoFileName?: string
   testVideoUrl?: string
@@ -66,7 +73,9 @@ export interface CourseForm {
   couponExpiry: string
   // Step 11 — Messages
   welcomeMessage: string
+  welcomeMessageAr: string
   completionMessage: string
+  completionMessageAr: string
 }
 
 interface CourseEditorProps {
@@ -266,39 +275,69 @@ function QuizNumberInput({ label, value, onChange, placeholder, caption, max }: 
   )
 }
 
-function BulletListEditor({ label, hint, values, onChange, minItems = 0, addLabel }: {
-  label: string; hint?: string; values: string[]; onChange: (v: string[]) => void
+function BulletListEditor({ label, hint, values, onChange, valuesAr = [], onChangeAr, minItems = 0, addLabel }: {
+  label: string; hint?: string
+  values: string[]; onChange: (v: string[]) => void
+  valuesAr?: string[]; onChangeAr?: (v: string[]) => void
   minItems?: number; addLabel: string
 }) {
+  const [lang, setLang] = useState<"en" | "ar">("en")
+  const isAr = lang === "ar" && !!onChangeAr
+  const activeValues = isAr ? valuesAr : values
+  const activeOnChange = isAr ? onChangeAr! : onChange
   const filled = values.filter((v) => v.trim().length > 0).length
+
+  const inputStyle = isAr ? {
+    fontFamily: "var(--font-arabic), system-ui",
+    direction: "rtl" as const,
+    textAlign: "right" as const,
+  } : {}
+
   return (
     <div>
       <div className="flex items-center justify-between mb-1.5">
         <FieldLabel>{label}</FieldLabel>
-        {minItems > 0 && (
-          <span className="text-xs" style={{ color: filled >= minItems ? "var(--success)" : "var(--text-muted)" }}>
-            {filled}/{minItems} required
-          </span>
-        )}
+        <div className="flex items-center gap-3">
+          {minItems > 0 && (
+            <span className="text-xs" style={{ color: filled >= minItems ? "var(--success)" : "var(--text-muted)" }}>
+              {filled}/{minItems} required
+            </span>
+          )}
+          <div className="flex items-center rounded-lg overflow-hidden" style={{ border: "1px solid var(--border-default)" }}>
+            {(["en", "ar"] as const).map((l) => (
+              <button key={l} type="button" onClick={() => setLang(l)}
+                className="px-2.5 py-1 text-xs font-bold transition-colors"
+                style={{ backgroundColor: lang === l ? "var(--accent)" : "transparent", color: lang === l ? "#fff" : "var(--text-tertiary)" }}>
+                {l === "en" ? "EN" : "ع"}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
       {hint && <p className="text-xs mb-3" style={{ color: "var(--text-muted)" }}>{hint}</p>}
       <div className="space-y-2">
-        {values.map((v, i) => (
+        {activeValues.map((v, i) => (
           <div key={i} className="flex items-center gap-2">
             <span className="flex-shrink-0 w-1.5 h-1.5 rounded-full" style={{ backgroundColor: "var(--border-default)" }} />
             <div className="flex-1">
-              <TextInput
+              <input
+                type="text"
+                dir={isAr ? "rtl" : "ltr"}
                 value={v}
-                onChange={(newVal) => {
-                  const copy = [...values]; copy[i] = newVal; onChange(copy)
+                onChange={(e) => {
+                  const copy = [...activeValues]; copy[i] = e.target.value; activeOnChange(copy)
                 }}
-                placeholder={`Add item ${i + 1}…`}
+                placeholder={isAr ? `أضف عنصراً ${i + 1}…` : `Add item ${i + 1}…`}
+                className="w-full px-3 py-2.5 rounded-xl text-sm outline-none placeholder-slate-600"
+                style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)", color: "var(--text-primary)", ...inputStyle }}
+                onFocus={(e) => (e.currentTarget.style.borderColor = "var(--accent)")}
+                onBlur={(e) => (e.currentTarget.style.borderColor = "var(--border-default)")}
               />
             </div>
             <button
               type="button"
-              onClick={() => onChange(values.filter((_, j) => j !== i))}
-              disabled={values.length <= 1}
+              onClick={() => activeOnChange(activeValues.filter((_, j) => j !== i))}
+              disabled={activeValues.length <= 1}
               className="p-1.5 rounded-lg transition-colors flex-shrink-0 disabled:opacity-20"
               style={{ color: "var(--text-muted)" }}
               onMouseEnter={(e) => (e.currentTarget.style.color = "var(--danger)")}
@@ -311,11 +350,11 @@ function BulletListEditor({ label, hint, values, onChange, minItems = 0, addLabe
       </div>
       <button
         type="button"
-        onClick={() => onChange([...values, ""])}
+        onClick={() => activeOnChange([...activeValues, ""])}
         className="flex items-center gap-1.5 mt-3 text-xs font-medium hover:opacity-80 transition-opacity"
         style={{ color: "var(--accent)" }}
       >
-        <Plus size={12} /> {addLabel}
+        <Plus size={12} /> {isAr ? "إضافة" : addLabel}
       </button>
     </div>
   )
@@ -333,24 +372,24 @@ function IntendedLearnersStep({ form, onChange }: { form: CourseForm; onChange: 
         </p>
       </div>
 
-      <div>
-        <FieldLabel>Course Title <span style={{ color: "var(--danger)" }}>*</span></FieldLabel>
-        <input
-          value={form.title}
-          onChange={(e) => onChange({ ...form, title: e.target.value })}
-          placeholder="e.g. React & TypeScript Masterclass"
-          className="w-full px-3 py-2.5 rounded-xl text-sm outline-none"
-          style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)", color: "var(--text-primary)" }}
-          onFocus={(e) => (e.currentTarget.style.borderColor = "var(--accent)")}
-          onBlur={(e) => (e.currentTarget.style.borderColor = "var(--border-default)")}
-        />
-      </div>
+      <BilingualInput
+        labelEn="Course Title"
+        valueEn={form.title}
+        valueAr={form.titleAr}
+        onChangeEn={(v) => onChange({ ...form, title: v })}
+        onChangeAr={(v) => onChange({ ...form, titleAr: v })}
+        placeholderEn="e.g. React & TypeScript Masterclass"
+        placeholderAr="مثال: ماجستير React وTypeScript"
+        required
+      />
 
       <BulletListEditor
         label="What will students learn in your course?"
         hint="Enter at least 4 learning objectives or outcomes."
         values={form.learningObjectives}
         onChange={(v) => onChange({ ...form, learningObjectives: v })}
+        valuesAr={form.learningObjectivesAr}
+        onChangeAr={(v) => onChange({ ...form, learningObjectivesAr: v })}
         minItems={4}
         addLabel="Add objective"
       />
@@ -360,6 +399,8 @@ function IntendedLearnersStep({ form, onChange }: { form: CourseForm; onChange: 
         hint="Describe the intended learners — their skill level, background, and interests."
         values={form.targetAudience}
         onChange={(v) => onChange({ ...form, targetAudience: v })}
+        valuesAr={form.targetAudienceAr}
+        onChangeAr={(v) => onChange({ ...form, targetAudienceAr: v })}
         addLabel="Add target audience"
       />
 
@@ -368,6 +409,8 @@ function IntendedLearnersStep({ form, onChange }: { form: CourseForm; onChange: 
         hint="List skills, tools, or experience students need. If none, write 'No prerequisites needed.'"
         values={form.requirements}
         onChange={(v) => onChange({ ...form, requirements: v })}
+        valuesAr={form.requirementsAr}
+        onChangeAr={(v) => onChange({ ...form, requirementsAr: v })}
         addLabel="Add requirement"
       />
     </div>
@@ -376,7 +419,7 @@ function IntendedLearnersStep({ form, onChange }: { form: CourseForm; onChange: 
 
 // ── Shared KC question form ───────────────────────────────────────────────────
 
-type KCDraft = { question: string; options: string[]; correctIndex: number }
+type KCDraft = { question: string; questionAr: string; options: string[]; optionsAr: string[]; correctIndex: number }
 
 function KCQuestionForm({ draft, onChange, onAdd, onCancel, editMode }: {
   draft: KCDraft
@@ -385,21 +428,55 @@ function KCQuestionForm({ draft, onChange, onAdd, onCancel, editMode }: {
   onCancel?: () => void
   editMode?: boolean
 }) {
+  const [lang, setLang] = useState<"en" | "ar">("en")
+  const isAr = lang === "ar"
+  const question = isAr ? draft.questionAr : draft.question
+  const options = isAr ? draft.optionsAr : draft.options
+  const setQuestion = (v: string) => isAr ? onChange({ ...draft, questionAr: v }) : onChange({ ...draft, question: v })
+  const setOption = (i: number, v: string) => {
+    if (isAr) {
+      const o = [...draft.optionsAr]; o[i] = v; onChange({ ...draft, optionsAr: o })
+    } else {
+      const o = [...draft.options]; o[i] = v; onChange({ ...draft, options: o })
+    }
+  }
   const canAdd = draft.question.trim().length > 0 && draft.options.every(o => o.trim().length > 0)
+
+  const inputStyle = {
+    backgroundColor: "var(--bg-surface-muted)",
+    border: "1px solid var(--border-default)",
+    color: "var(--text-primary)",
+    fontFamily: isAr ? "var(--font-arabic), system-ui" : "inherit",
+    direction: isAr ? "rtl" as const : "ltr" as const,
+    textAlign: isAr ? "right" as const : "left" as const,
+  }
+
   return (
     <div className="rounded-xl p-3 space-y-2.5" style={{ backgroundColor: "var(--bg-surface)", border: "1px dashed #8B5CF630" }}>
-      <p className="text-xs font-semibold" style={{ color: "#8B5CF6" }}>{editMode ? "Edit Question" : "Add Question"}</p>
+      <div className="flex items-center justify-between">
+        <p className="text-xs font-semibold" style={{ color: "#8B5CF6" }}>{editMode ? "Edit Question" : "Add Question"}</p>
+        <div className="flex items-center rounded-lg overflow-hidden" style={{ border: "1px solid var(--border-default)" }}>
+          {(["en", "ar"] as const).map((l) => (
+            <button key={l} type="button" onClick={() => setLang(l)}
+              className="px-2 py-0.5 text-xs font-bold transition-colors"
+              style={{ backgroundColor: lang === l ? "#8B5CF6" : "transparent", color: lang === l ? "#fff" : "var(--text-tertiary)" }}>
+              {l === "en" ? "EN" : "ع"}
+            </button>
+          ))}
+        </div>
+      </div>
       <input
-        value={draft.question}
-        onChange={e => onChange({ ...draft, question: e.target.value })}
-        placeholder="Question text…"
+        dir={isAr ? "rtl" : "ltr"}
+        value={question}
+        onChange={e => setQuestion(e.target.value)}
+        placeholder={isAr ? "نص السؤال…" : "Question text…"}
         className="w-full px-3 py-2 rounded-xl text-xs outline-none placeholder-slate-600"
-        style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)", color: "var(--text-primary)" }}
+        style={inputStyle}
         onFocus={e => (e.currentTarget.style.borderColor = "#8B5CF6")}
         onBlur={e => (e.currentTarget.style.borderColor = "var(--border-default)")}
       />
       <div className="grid grid-cols-2 gap-2">
-        {draft.options.map((opt, oi) => (
+        {draft.options.map((_, oi) => (
           <div key={oi} className="flex items-center gap-2">
             <button
               type="button"
@@ -412,11 +489,12 @@ function KCQuestionForm({ draft, onChange, onAdd, onCancel, editMode }: {
               }}
             />
             <input
-              value={opt}
-              onChange={e => { const opts = [...draft.options]; opts[oi] = e.target.value; onChange({ ...draft, options: opts }) }}
-              placeholder={`Option ${String.fromCharCode(65 + oi)}`}
+              dir={isAr ? "rtl" : "ltr"}
+              value={options[oi] ?? ""}
+              onChange={e => setOption(oi, e.target.value)}
+              placeholder={isAr ? `الخيار ${String.fromCharCode(0x0041 + oi)}` : `Option ${String.fromCharCode(65 + oi)}`}
               className="flex-1 px-2 py-1.5 rounded-lg text-xs outline-none placeholder-slate-600"
-              style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)", color: "var(--text-primary)" }}
+              style={inputStyle}
               onFocus={e => (e.currentTarget.style.borderColor = "#8B5CF6")}
               onBlur={e => (e.currentTarget.style.borderColor = "var(--border-default)")}
             />
@@ -425,26 +503,70 @@ function KCQuestionForm({ draft, onChange, onAdd, onCancel, editMode }: {
       </div>
       <div className="flex items-center justify-end gap-2">
         {onCancel && (
-          <button
-            type="button"
-            onClick={onCancel}
+          <button type="button" onClick={onCancel}
             className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
-            style={{ backgroundColor: "var(--border-default)", color: "var(--text-secondary)" }}
-          >
+            style={{ backgroundColor: "var(--border-default)", color: "var(--text-secondary)" }}>
             Cancel
           </button>
         )}
-        <button
-          type="button"
-          onClick={onAdd}
-          disabled={!canAdd}
+        <button type="button" onClick={onAdd} disabled={!canAdd}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold disabled:opacity-30 transition-all"
-          style={{ backgroundColor: "#8B5CF620", color: "#A78BFA", border: "1px solid #8B5CF630" }}
-        >
+          style={{ backgroundColor: "#8B5CF620", color: "#A78BFA", border: "1px solid #8B5CF630" }}>
           {editMode ? <Check size={12} /> : <Plus size={12} />}
           {editMode ? "Save" : "Add Question"}
         </button>
       </div>
+    </div>
+  )
+}
+
+// ── Text lesson bilingual editor ─────────────────────────────────────────────
+
+function TextLessonEditor({ lesson, onUpdate }: {
+  lesson: Lesson
+  onUpdate: (patch: Partial<Lesson>) => void
+}) {
+  const [lang, setLang] = useState<"en" | "ar">("en")
+  const isAr = lang === "ar"
+
+  return (
+    <div className="px-4 pb-4" style={{ backgroundColor: "var(--bg-surface-muted)", borderTop: "1px solid var(--border-default)" }}>
+      <div className="flex items-center justify-between pt-3 mb-2">
+        <p className="text-xs font-semibold" style={{ color: "var(--success)" }}>Lesson Content</p>
+        <div className="flex items-center rounded-lg overflow-hidden" style={{ border: "1px solid var(--border-default)" }}>
+          {(["en", "ar"] as const).map((l) => (
+            <button key={l} type="button" onClick={() => setLang(l)}
+              className="px-2.5 py-1 text-xs font-bold transition-colors"
+              style={{ backgroundColor: lang === l ? "var(--success)" : "transparent", color: lang === l ? "#fff" : "var(--text-tertiary)" }}>
+              {l === "en" ? "EN" : "ع"}
+            </button>
+          ))}
+        </div>
+      </div>
+      {isAr ? (
+        <textarea
+          value={lesson.textContentAr ?? ""}
+          onChange={(e) => onUpdate({ textContentAr: e.target.value })}
+          rows={8}
+          placeholder="محتوى الدرس بالعربية…"
+          dir="rtl"
+          className="w-full px-3 py-2.5 rounded-xl text-sm outline-none resize-none placeholder-slate-600"
+          style={{
+            backgroundColor: "var(--bg-surface)",
+            border: "1px solid var(--border-default)",
+            color: "var(--text-primary)",
+            fontFamily: "var(--font-arabic), system-ui",
+            textAlign: "right",
+          }}
+          onFocus={(e) => (e.currentTarget.style.borderColor = "var(--success)")}
+          onBlur={(e) => (e.currentTarget.style.borderColor = "var(--border-default)")}
+        />
+      ) : (
+        <RichTextEditor
+          value={lesson.textContent ?? ""}
+          onChange={(html) => onUpdate({ textContent: html })}
+        />
+      )}
     </div>
   )
 }
@@ -454,6 +576,7 @@ function KCQuestionForm({ draft, onChange, onAdd, onCancel, editMode }: {
 function CurriculumTab({ form, onChange }: { form: CourseForm; onChange: (f: CourseForm) => void }) {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editValue, setEditValue] = useState("")
+  const [editValueAr, setEditValueAr] = useState("")
   const [quizEditorId, setQuizEditorId] = useState<string | null>(null)
   const [textEditorId, setTextEditorId] = useState<string | null>(null)
   const [uploadTarget, setUploadTarget] = useState<{ sectionId: string; lessonId: string; kind: "video" | "pdf" } | null>(null)
@@ -478,7 +601,7 @@ function CurriculumTab({ form, onChange }: { form: CourseForm; onChange: (f: Cou
   const [lessonKCOpenId, setLessonKCOpenId] = useState<string | null>(null)
   const [sectionKCOpenId, setSectionKCOpenId] = useState<string | null>(null)
   const [sessionKCPartFormId, setSessionKCPartFormId] = useState<string | null>(null)
-  const EMPTY_KC_DRAFT: KCDraft = { question: "", options: ["", "", "", ""], correctIndex: 0 }
+  const EMPTY_KC_DRAFT: KCDraft = { question: "", questionAr: "", options: ["", "", "", ""], optionsAr: ["", "", "", ""], correctIndex: 0 }
   const [lessonKCQ, setLessonKCQ] = useState<KCDraft>(EMPTY_KC_DRAFT)
   const [sessionKCQ, setSessionKCQ] = useState<KCDraft>(EMPTY_KC_DRAFT)
   const [editingKCQ, setEditingKCQ] = useState<{
@@ -509,9 +632,16 @@ function CurriculumTab({ form, onChange }: { form: CourseForm; onChange: (f: Cou
   }
 
   function addLessonKCQuestion(sId: string, lId: string) {
-    const { question, options, correctIndex } = lessonKCQ
+    const { question, questionAr, options, optionsAr, correctIndex } = lessonKCQ
     if (!question.trim() || options.some(o => !o.trim())) return
-    const q: QuizQuestion = { id: `lkc-${Date.now()}`, question: question.trim(), options: options.map(o => o.trim()), correctIndex }
+    const q: QuizQuestion = {
+      id: `lkc-${Date.now()}`,
+      question: question.trim(),
+      questionAr: questionAr.trim() || undefined,
+      options: options.map(o => o.trim()),
+      optionsAr: optionsAr.some(o => o.trim()) ? optionsAr.map(o => o.trim()) : undefined,
+      correctIndex,
+    }
     patchLessonKC(sId, lId, { questions: [...(getLessonKC(sId, lId)?.questions ?? []), q] })
     setLessonKCQ(EMPTY_KC_DRAFT)
   }
@@ -556,9 +686,16 @@ function CurriculumTab({ form, onChange }: { form: CourseForm; onChange: (f: Cou
   }
 
   function addSessionKCQuestion(sId: string, lId: string) {
-    const { question, options, correctIndex } = sessionKCQ
+    const { question, questionAr, options, optionsAr, correctIndex } = sessionKCQ
     if (!question.trim() || options.some(o => !o.trim())) return
-    const q: QuizQuestion = { id: `skc-${Date.now()}`, question: question.trim(), options: options.map(o => o.trim()), correctIndex }
+    const q: QuizQuestion = {
+      id: `skc-${Date.now()}`,
+      question: question.trim(),
+      questionAr: questionAr.trim() || undefined,
+      options: options.map(o => o.trim()),
+      optionsAr: optionsAr.some(o => o.trim()) ? optionsAr.map(o => o.trim()) : undefined,
+      correctIndex,
+    }
     const kc = getSessionKC(sId)
     if (!kc) return
     const part = kc.parts.find(p => p.lessonId === lId)
@@ -581,9 +718,16 @@ function CurriculumTab({ form, onChange }: { form: CourseForm; onChange: (f: Cou
   function saveEditKCQuestion() {
     if (!editingKCQ) return
     const { type, sectionId, lessonId, questionId, draft } = editingKCQ
-    const { question, options, correctIndex } = draft
+    const { question, questionAr, options, optionsAr, correctIndex } = draft
     if (!question.trim() || options.some(o => !o.trim())) return
-    const updated: QuizQuestion = { id: questionId, question: question.trim(), options: options.map(o => o.trim()), correctIndex }
+    const updated: QuizQuestion = {
+      id: questionId,
+      question: question.trim(),
+      questionAr: questionAr?.trim() || undefined,
+      options: options.map(o => o.trim()),
+      optionsAr: optionsAr?.some(o => o.trim()) ? optionsAr.map(o => o.trim()) : undefined,
+      correctIndex,
+    }
     if (type === "lesson") {
       const kc = getLessonKC(sectionId, lessonId)
       if (!kc) return
@@ -598,17 +742,20 @@ function CurriculumTab({ form, onChange }: { form: CourseForm; onChange: (f: Cou
     setEditingKCQ(null)
   }
 
-  function startEdit(id: string, title: string) { setEditingId(id); setEditValue(title) }
+  function startEdit(id: string, title: string, titleAr?: string) {
+    setEditingId(id); setEditValue(title); setEditValueAr(titleAr ?? "")
+  }
 
   function commitEdit() {
     if (!editingId) return
     const val = editValue.trim()
     if (!val) { setEditingId(null); return }
+    const arVal = editValueAr.trim()
     onChange({
       ...form,
       sections: form.sections.map((s) => {
-        if (s.id === editingId) return { ...s, title: val }
-        return { ...s, lessons: s.lessons.map((l) => (l.id === editingId ? { ...l, title: val } : l)) }
+        if (s.id === editingId) return { ...s, title: val, titleAr: arVal || undefined }
+        return { ...s, lessons: s.lessons.map((l) => (l.id === editingId ? { ...l, title: val, titleAr: arVal || undefined } : l)) }
       }),
     })
     setEditingId(null)
@@ -901,28 +1048,41 @@ function CurriculumTab({ form, onChange }: { form: CourseForm; onChange: (f: Cou
 
             <div className="flex-1 min-w-0 group flex items-center gap-2">
               {editingId === section.id ? (
-                <input
-                  autoFocus
-                  value={editValue}
-                  onChange={(e) => setEditValue(e.target.value)}
-                  onBlur={commitEdit}
-                  onKeyDown={(e) => { if (e.key === "Enter") commitEdit(); if (e.key === "Escape") setEditingId(null) }}
-                  className="flex-1 bg-transparent outline-none text-sm font-semibold text-[var(--text-primary)] border-b"
-                  style={{ borderColor: "var(--accent)" }}
-                />
+                <div className="flex-1 flex items-center gap-2">
+                  <input
+                    autoFocus
+                    value={editValue}
+                    onChange={(e) => setEditValue(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter") commitEdit(); if (e.key === "Escape") setEditingId(null) }}
+                    placeholder="Section title (EN)"
+                    className="flex-1 bg-transparent outline-none text-sm font-semibold text-[var(--text-primary)] border-b"
+                    style={{ borderColor: "var(--accent)" }}
+                  />
+                  <input
+                    value={editValueAr}
+                    onChange={(e) => setEditValueAr(e.target.value)}
+                    onBlur={commitEdit}
+                    onKeyDown={(e) => { if (e.key === "Enter") commitEdit(); if (e.key === "Escape") setEditingId(null) }}
+                    placeholder="العنوان بالعربية"
+                    dir="rtl"
+                    className="flex-1 bg-transparent outline-none text-sm font-semibold text-[var(--text-primary)] border-b placeholder-slate-600"
+                    style={{ borderColor: "#8B5CF6", fontFamily: "var(--font-arabic), system-ui" }}
+                  />
+                </div>
               ) : (
                 <>
                   <span
                     className="text-sm font-semibold text-[var(--text-primary)] cursor-text truncate"
-                    onClick={() => startEdit(section.id, section.title)}
+                    onClick={() => startEdit(section.id, section.title, section.titleAr)}
                   >
                     {section.title}
+                    {section.titleAr && <span className="ms-1.5 text-xs font-normal opacity-50" style={{ fontFamily: "var(--font-arabic)" }}>{section.titleAr}</span>}
                   </span>
                   <Pencil
                     size={11}
                     className="opacity-0 group-hover:opacity-100 flex-shrink-0 cursor-pointer transition-opacity"
                     style={{ color: "var(--text-muted)" }}
-                    onClick={() => startEdit(section.id, section.title)}
+                    onClick={() => startEdit(section.id, section.title, section.titleAr)}
                   />
                 </>
               )}
@@ -1062,7 +1222,7 @@ function CurriculumTab({ form, onChange }: { form: CourseForm; onChange: (f: Cou
                                   <p className="text-[10px] mt-0.5" style={{ color: "var(--success)" }}>✓ {q.options[q.correctIndex]}</p>
                                 </div>
                                 <button type="button"
-                                  onClick={() => setEditingKCQ({ type: "session", sectionId: section.id, lessonId: lesson.id, questionId: q.id, draft: { question: q.question, options: [...q.options], correctIndex: q.correctIndex } })}
+                                  onClick={() => setEditingKCQ({ type: "session", sectionId: section.id, lessonId: lesson.id, questionId: q.id, draft: { question: q.question, questionAr: q.questionAr ?? "", options: [...q.options], optionsAr: q.optionsAr ? [...q.optionsAr] : ["", "", "", ""], correctIndex: q.correctIndex } })}
                                   className="p-1 rounded flex-shrink-0 transition-colors" style={{ color: "var(--text-muted)" }}
                                   onMouseEnter={e => (e.currentTarget.style.color = "#8B5CF6")}
                                   onMouseLeave={e => (e.currentTarget.style.color = "var(--text-muted)")}>
@@ -1118,21 +1278,34 @@ function CurriculumTab({ form, onChange }: { form: CourseForm; onChange: (f: Cou
 
                       <div className="flex-1 min-w-0 group flex items-center gap-2">
                         {editingId === lesson.id ? (
-                          <input
-                            autoFocus
-                            value={editValue}
-                            onChange={(e) => setEditValue(e.target.value)}
-                            onBlur={commitEdit}
-                            onKeyDown={(e) => { if (e.key === "Enter") commitEdit(); if (e.key === "Escape") setEditingId(null) }}
-                            className="flex-1 bg-transparent outline-none text-sm text-[var(--text-primary)] border-b"
-                            style={{ borderColor: "var(--accent)" }}
-                          />
+                          <div className="flex-1 flex items-center gap-2">
+                            <input
+                              autoFocus
+                              value={editValue}
+                              onChange={(e) => setEditValue(e.target.value)}
+                              onKeyDown={(e) => { if (e.key === "Enter") commitEdit(); if (e.key === "Escape") setEditingId(null) }}
+                              placeholder="Lesson title (EN)"
+                              className="flex-1 bg-transparent outline-none text-sm text-[var(--text-primary)] border-b"
+                              style={{ borderColor: "var(--accent)" }}
+                            />
+                            <input
+                              value={editValueAr}
+                              onChange={(e) => setEditValueAr(e.target.value)}
+                              onBlur={commitEdit}
+                              onKeyDown={(e) => { if (e.key === "Enter") commitEdit(); if (e.key === "Escape") setEditingId(null) }}
+                              placeholder="العنوان بالعربية"
+                              dir="rtl"
+                              className="flex-1 bg-transparent outline-none text-sm text-[var(--text-primary)] border-b placeholder-slate-600"
+                              style={{ borderColor: "#8B5CF6", fontFamily: "var(--font-arabic), system-ui" }}
+                            />
+                          </div>
                         ) : (
                           <>
-                            <span className="text-sm text-[var(--text-primary)] truncate cursor-text" onClick={() => startEdit(lesson.id, lesson.title)}>
+                            <span className="text-sm text-[var(--text-primary)] truncate cursor-text" onClick={() => startEdit(lesson.id, lesson.title, lesson.titleAr)}>
                               {lesson.title}
+                              {lesson.titleAr && <span className="ms-1.5 text-xs opacity-40" style={{ fontFamily: "var(--font-arabic)" }}>{lesson.titleAr}</span>}
                             </span>
-                            <Pencil size={10} className="opacity-0 group-hover:opacity-100 flex-shrink-0 cursor-pointer transition-opacity" style={{ color: "var(--text-muted)" }} onClick={() => startEdit(lesson.id, lesson.title)} />
+                            <Pencil size={10} className="opacity-0 group-hover:opacity-100 flex-shrink-0 cursor-pointer transition-opacity" style={{ color: "var(--text-muted)" }} onClick={() => startEdit(lesson.id, lesson.title, lesson.titleAr)} />
                           </>
                         )}
                       </div>
@@ -1487,7 +1660,7 @@ function CurriculumTab({ form, onChange }: { form: CourseForm; onChange: (f: Cou
                                 <p className="text-[10px] mt-0.5" style={{ color: "var(--success)" }}>✓ {q.options[q.correctIndex]}</p>
                               </div>
                               <button type="button"
-                                onClick={() => setEditingKCQ({ type: "lesson", sectionId: section.id, lessonId: lesson.id, questionId: q.id, draft: { question: q.question, options: [...q.options], correctIndex: q.correctIndex } })}
+                                onClick={() => setEditingKCQ({ type: "lesson", sectionId: section.id, lessonId: lesson.id, questionId: q.id, draft: { question: q.question, questionAr: q.questionAr ?? "", options: [...q.options], optionsAr: q.optionsAr ? [...q.optionsAr] : ["", "", "", ""], correctIndex: q.correctIndex } })}
                                 className="p-1 rounded flex-shrink-0 transition-colors" style={{ color: "var(--text-muted)" }}
                                 onMouseEnter={e => (e.currentTarget.style.color = "#8B5CF6")}
                                 onMouseLeave={e => (e.currentTarget.style.color = "var(--text-muted)")}>
@@ -1512,13 +1685,10 @@ function CurriculumTab({ form, onChange }: { form: CourseForm; onChange: (f: Cou
 
                     {/* Rich Text Editor */}
                     {lesson.type === "text" && (
-                      <div className="px-4 pb-4" style={{ backgroundColor: "var(--bg-surface-muted)", borderTop: "1px solid var(--border-default)" }}>
-                        <p className="text-xs font-semibold mb-2 pt-3" style={{ color: "var(--success)" }}>Lesson Content</p>
-                        <RichTextEditor
-                          value={lesson.textContent ?? ""}
-                          onChange={(html) => updateLesson(section.id, lesson.id, { textContent: html })}
-                        />
-                      </div>
+                      <TextLessonEditor
+                        lesson={lesson}
+                        onUpdate={(patch) => updateLesson(section.id, lesson.id, patch)}
+                      />
                     )}
 
                     {/* Quiz Builder */}
@@ -1822,32 +1992,39 @@ function CourseLandingPageStep({ form, onChange, categories }: { form: CourseFor
         </p>
       </div>
 
-      <div>
-        <FieldLabel>Course Title <span style={{ color: "var(--danger)" }}>*</span></FieldLabel>
-        <TextInput value={form.title} onChange={set("title")} placeholder="e.g. React & TypeScript Masterclass" />
-      </div>
+      <BilingualInput
+        labelEn="Course Title"
+        valueEn={form.title}
+        valueAr={form.titleAr}
+        onChangeEn={set("title")}
+        onChangeAr={set("titleAr")}
+        placeholderEn="e.g. React & TypeScript Masterclass"
+        placeholderAr="مثال: ماجستير React وTypeScript"
+        required
+      />
 
-      <div>
-        <FieldLabel>Subtitle</FieldLabel>
-        <TextInput value={form.subtitle} onChange={set("subtitle")} placeholder="A brief tagline for your course" />
-      </div>
+      <BilingualInput
+        labelEn="Subtitle"
+        valueEn={form.subtitle}
+        valueAr={form.subtitleAr}
+        onChangeEn={set("subtitle")}
+        onChangeAr={set("subtitleAr")}
+        placeholderEn="A brief tagline for your course"
+        placeholderAr="وصف مختصر للدورة"
+      />
 
-      <div>
-        <div className="flex items-center justify-between mb-1.5">
-          <FieldLabel>Description</FieldLabel>
-          <span className="text-xs" style={{ color: "var(--text-muted)" }}>{form.description.length}/2000</span>
-        </div>
-        <textarea
-          value={form.description}
-          onChange={(e) => onChange({ ...form, description: e.target.value.slice(0, 2000) })}
-          rows={5}
-          placeholder="Describe what students will learn, who it's for, and what they'll need..."
-          className="w-full px-3 py-2.5 rounded-xl text-sm outline-none resize-none placeholder-slate-600"
-          style={{ backgroundColor: "var(--bg-surface-muted)", border: "1px solid var(--border-default)", color: "var(--text-primary)" }}
-          onFocus={(e) => (e.currentTarget.style.borderColor = "var(--accent)")}
-          onBlur={(e) => (e.currentTarget.style.borderColor = "var(--border-default)")}
-        />
-      </div>
+      <BilingualInput
+        labelEn="Description"
+        valueEn={form.description}
+        valueAr={form.descriptionAr}
+        onChangeEn={set("description")}
+        onChangeAr={set("descriptionAr")}
+        placeholderEn="Describe what students will learn, who it's for, and what they'll need..."
+        placeholderAr="اشرح ما سيتعلمه الطلاب وما يحتاجون إليه..."
+        multiline
+        rows={5}
+        maxLength={2000}
+      />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
@@ -2037,12 +2214,36 @@ function CourseMessagesStep({ form, onChange }: { form: CourseForm; onChange: (f
         <FieldLabel>Welcome Message</FieldLabel>
         <p className="text-xs mb-2" style={{ color: "var(--text-muted)" }}>Shown to students when they first enroll.</p>
         <RichTextEditor value={form.welcomeMessage} onChange={(html) => onChange({ ...form, welcomeMessage: html })} />
+        <div className="mt-3">
+          <BilingualInput
+            labelEn="Arabic version"
+            valueEn=""
+            valueAr={form.welcomeMessageAr}
+            onChangeEn={() => {}}
+            onChangeAr={(v) => onChange({ ...form, welcomeMessageAr: v })}
+            placeholderAr="رسالة الترحيب بالعربية..."
+            multiline
+            rows={3}
+          />
+        </div>
       </div>
 
       <div>
         <FieldLabel>Congratulations Message</FieldLabel>
         <p className="text-xs mb-2" style={{ color: "var(--text-muted)" }}>Shown when a student completes every lesson.</p>
         <RichTextEditor value={form.completionMessage} onChange={(html) => onChange({ ...form, completionMessage: html })} />
+        <div className="mt-3">
+          <BilingualInput
+            labelEn="Arabic version"
+            valueEn=""
+            valueAr={form.completionMessageAr}
+            onChangeEn={() => {}}
+            onChangeAr={(v) => onChange({ ...form, completionMessageAr: v })}
+            placeholderAr="رسالة التهنئة بالعربية..."
+            multiline
+            rows={3}
+          />
+        </div>
       </div>
 
       <div style={{ borderTop: "1px solid var(--border-default)", paddingTop: 20 }}>

@@ -10,7 +10,7 @@ export function useCertificates() {
   useEffect(() => {
     certificatesApi.list()
       .then(setCertificates)
-      .catch(() => {})
+      .catch((err) => console.error("[useCertificates] failed to load:", err))
       .finally(() => setLoading(false))
   }, [])
 

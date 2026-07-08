@@ -24,7 +24,14 @@ function loadMessages(locale: string) {
 }
 
 export default getRequestConfig(async () => {
-  const locale = await getUserLocale()
+  // Prefer the locale injected by middleware via x-locale header (URL-based routing).
+  // Fall back to the cookie value so cookie-only flows still work.
+  const { headers } = await import("next/headers")
+  const headersList = await headers()
+  const headerLocale = headersList.get("x-locale")
+  const locale = (headerLocale === "ar" || headerLocale === "en")
+    ? headerLocale
+    : await getUserLocale()
   return {
     locale,
     messages: loadMessages(locale),

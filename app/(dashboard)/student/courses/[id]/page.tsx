@@ -2,6 +2,7 @@
 
 import { useState, use, useEffect, Suspense } from "react"
 import Link from "next/link"
+import { useLocale } from "next-intl"
 import { useRouter, useSearchParams } from "next/navigation"
 import { coursesApi, type ApiCourse, type ApiReview, type ApiSection } from "@/lib/api/courses"
 import { enrollmentsApi } from "@/lib/api/enrollments"
@@ -190,6 +191,7 @@ function computeDuration(sections: ApiSection[]): string {
 
 function CourseDetailContent({ id }: { id: string }) {
   const fallbackCourse = COURSES.find((c) => c.id === id) ?? COURSES[0]
+  const locale = useLocale()
   const [loading, setLoading] = useState(true)
   const [apiCourse, setApiCourse] = useState<ApiCourse | null>(null)
   const [enrollment, setEnrollment] = useState<{ id: string; progressPct: number; lastAccessedLessonId?: string | null } | null>(null)
@@ -238,7 +240,7 @@ function CourseDetailContent({ id }: { id: string }) {
     ? {
         ...fallbackCourse,
         id,          // always use the real URL param, not fallbackCourse.id which may be COURSES[0]
-        title: apiCourse.title,
+        title: (locale === "ar" && apiCourse.titleAr) ? apiCourse.titleAr : apiCourse.title,
         shortDesc: apiCourse.shortDesc ?? fallbackCourse.shortDesc,
         description: apiCourse.description ?? fallbackCourse.description,
         level: normLevel(apiCourse.level),
@@ -254,10 +256,10 @@ function CourseDetailContent({ id }: { id: string }) {
         progress: enrollment ? enrollment.progressPct : fallbackCourse.progress,
         sections: apiCourse.sections.map((s) => ({
           id: s.id,
-          title: s.title,
+          title: (locale === "ar" && s.titleAr) ? s.titleAr : s.title,
           lessons: s.lessons.map((l) => ({
             id: l.id,
-            title: l.title,
+            title: (locale === "ar" && l.titleAr) ? l.titleAr : l.title,
             type: l.type.toLowerCase() as "video" | "quiz" | "reading" | "assignment" | "live",
             duration: l.durationSeconds ? `${Math.ceil(l.durationSeconds / 60)} min` : "",
             completed: false,

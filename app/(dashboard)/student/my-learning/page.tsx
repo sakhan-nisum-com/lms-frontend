@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { useLocale } from "next-intl"
 import { DashboardLayout } from "@/components/layout/DashboardLayout"
 import { TrainingCard } from "@/components/TrainingCard"
 import { STUDENT_PROFILE } from "@/lib/data/courses"
@@ -107,6 +108,7 @@ function CourseCard({ course }: { course: DisplayCourse }) {
 
 export default function MyLearningPage() {
   const p = STUDENT_PROFILE
+  const locale = useLocale()
   const { purchasedIds } = usePurchases()
   const allCourseProgress = useAllProgress()
   const { isEnrolled } = useTrainingEnrollments()
@@ -120,7 +122,7 @@ export default function MyLearningPage() {
     const localPct = totalLessons > 0 ? Math.round((localIds.length / totalLessons) * 100) : 0
     return {
       id: course.id,
-      title: course.title,
+      title: locale === "ar" && course.titleAr ? course.titleAr : course.title,
       instructor: "Instructor",
       thumbnail: "📚",
       thumbnailColor: "#3B82F6",

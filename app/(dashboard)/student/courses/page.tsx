@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import { useLocale } from "next-intl"
 import { DashboardLayout } from "@/components/layout/DashboardLayout"
 import { STUDENT_PROFILE } from "@/lib/data/courses"
 import { usePurchases } from "@/lib/hooks/usePurchases"
@@ -37,6 +38,8 @@ export default function MyCoursesPage() {
   const allProgress = useAllProgress()
   const [tab, setTab] = useState<Tab>("all")
   const [view, setView] = useState<"grid" | "list">("grid")
+  const locale = useLocale()
+  const localized = (en: string, ar?: string | null) => (locale === "ar" && ar ? ar : en)
 
   const { items, loading } = useMyEnrollments(Array.from(purchasedIds))
 
@@ -47,7 +50,7 @@ export default function MyCoursesPage() {
     const progress = enrollment.progressPct > 0 ? enrollment.progressPct : localPct
     return {
       id: course.id,
-      title: course.title,
+      title: localized(course.title, course.titleAr),
       thumbnail: "📚",
       thumbnailColor: "#3B82F6",
       thumbnailUrl: course.thumbnailUrl,

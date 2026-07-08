@@ -16,8 +16,11 @@ function apiCourseToForm(c: ApiCourse): CourseForm {
   }
   return {
     title: c.title,
+    titleAr: c.titleAr ?? "",
     subtitle: c.subtitle ?? "",
+    subtitleAr: "",
     description: c.description ?? "",
+    descriptionAr: "",
     category: c.category ?? "",
     level: levelDisplay[c.level] ?? "All Levels",
     language: c.language ?? "English",
@@ -51,15 +54,20 @@ function apiCourseToForm(c: ApiCourse): CourseForm {
       })),
     })),
     learningObjectives: (c.learningObjectives ?? []).length > 0 ? (c.learningObjectives as string[]) : ["", "", "", ""],
+    learningObjectivesAr: [""],
     targetAudience: (c.targetAudience ?? []).length > 0 ? (c.targetAudience as string[]) : [""],
+    targetAudienceAr: [""],
     requirements: (c.requirements ?? []).length > 0 ? (c.requirements as string[]) : [""],
+    requirementsAr: [""],
     testVideoFileName: undefined,
     testVideoUrl: undefined,
     couponCode: c.couponCode ?? "",
     discountPercent: c.discountPercent != null ? String(c.discountPercent) : "",
     couponExpiry: c.couponExpiry ? c.couponExpiry.substring(0, 10) : "",
     welcomeMessage: c.welcomeMessage ?? "",
+    welcomeMessageAr: "",
     completionMessage: c.completionMessage ?? "",
+    completionMessageAr: "",
   }
 }
 
@@ -141,8 +149,10 @@ export default function EditCoursePage({ params }: { params: Promise<{ id: strin
       }
       const body: Partial<CreateCourseRequest> = {
         title: form.title.trim(),
+        titleAr: form.titleAr?.trim() || undefined,
         subtitle: form.subtitle?.trim() || undefined,
         description: form.description?.trim() || undefined,
+        descriptionAr: form.descriptionAr?.trim() || undefined,
         category: form.category?.trim() || undefined,
         level: levelMap[form.level.toLowerCase()] ?? "BEGINNER",
         language: form.language || "English",
@@ -175,6 +185,7 @@ export default function EditCoursePage({ params }: { params: Promise<{ id: strin
         if (!isUUID(sectionId)) {
           const sectionBody: CreateSectionRequest = {
             title: section.title || "Section",
+            titleAr: section.titleAr || undefined,
             sortOrder: form.sections.indexOf(section),
           }
           const created = await coursesApi.createSection(id, sectionBody)
@@ -183,6 +194,7 @@ export default function EditCoursePage({ params }: { params: Promise<{ id: strin
         for (const lesson of section.lessons) {
           const lessonBody: CreateLessonRequest = {
             title: lesson.title || "Lesson",
+            titleAr: lesson.titleAr || undefined,
             type: lesson.type?.toUpperCase() === "QUIZ" ? "QUIZ"
               : lesson.type?.toUpperCase() === "TEXT" ? "READING"
               : lesson.type?.toUpperCase() === "PDF" ? "PDF"

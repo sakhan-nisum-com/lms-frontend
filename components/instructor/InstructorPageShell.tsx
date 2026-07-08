@@ -22,6 +22,7 @@ export function InstructorPageShell({
 
   return (
     <div
+      dir="ltr"
       className="flex overflow-hidden"
       style={{ backgroundColor: "var(--bg-canvas)", color: "var(--text-primary)", height: "calc(100vh - var(--app-header-height, 150px))" }}
     >
