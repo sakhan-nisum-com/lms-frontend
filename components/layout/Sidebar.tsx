@@ -122,6 +122,7 @@ const adminGroups: NavGroup[] = [
     groupKey: "people",
     items: [
       { labelKey: "users", href: "/admin/users", icon: UserCog },
+      { labelKey: "instructors", href: "/admin/instructors", icon: GraduationCap },
     ],
   },
   {

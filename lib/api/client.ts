@@ -32,7 +32,7 @@ async function request<T>(
   const body = await res.json().catch(() => ({ message: res.statusText }))
 
   if (!res.ok) {
-    throw new ApiError(res.status, body?.message ?? "Request failed")
+    throw new ApiError(res.status, body?.message ?? body?.error ?? "Request failed")
   }
 
   // Backend wraps all responses as { status, message, data, timestamp }

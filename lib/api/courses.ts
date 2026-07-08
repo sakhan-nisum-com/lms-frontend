@@ -198,6 +198,12 @@ export const coursesApi = {
   reject: (id: string, reason: string) =>
     api.post<ApiCourse>(`/api/v1/courses/${id}/reject`, { reason }),
 
+  archive: (id: string) =>
+    api.post<ApiCourse>(`/api/v1/courses/${id}/archive`, {}),
+
+  publish: (id: string) =>
+    api.post<ApiCourse>(`/api/v1/courses/${id}/publish`, {}),
+
   // Reviews
   getReviews: (courseId: string) =>
     api.get<ApiReview[]>(`/api/v1/courses/${courseId}/reviews`),

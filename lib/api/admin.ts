@@ -23,6 +23,12 @@ export interface AdminUser {
   emailVerified: boolean
   lastLoginAt: string | null
   createdAt: string
+  headline: string | null
+  yearsOfExperience: number | null
+  specialization: string | null
+  websiteUrl: string | null
+  linkedinUrl: string | null
+  twitterUrl: string | null
 }
 
 export interface UpdateProfileRequest {
@@ -35,6 +41,12 @@ export interface UpdateProfileRequest {
   phoneNumber?: string
   preferredLanguage?: string
   avatarUrl?: string
+  headline?: string
+  yearsOfExperience?: number | null
+  specialization?: string
+  websiteUrl?: string
+  linkedinUrl?: string
+  twitterUrl?: string
 }
 
 export const usersApi = {
@@ -118,6 +130,75 @@ export const settingsApi = {
     if (category) p.set("category", category)
     return api.put<void>(`/api/v1/settings/${key}?${p}`, {})
   },
+}
+
+// ── Admin — Instructors ───────────────────────────────────────────────────────
+
+export interface InstructorSummary {
+  id: string
+  fullName: string
+  fullNameAr: string | null
+  email: string
+  status: AdminUserStatus
+  avatarUrl: string | null
+  bio: string | null
+  department: string | null
+  courseCount: number
+  totalStudents: number
+  lastLoginAt: string | null
+  createdAt: string
+}
+
+export interface InstructorCourse {
+  id: string
+  title: string
+  titleAr: string | null
+  category: string | null
+  level: "BEGINNER" | "INTERMEDIATE" | "ADVANCED" | "ALL_LEVELS"
+  status: "DRAFT" | "PENDING_REVIEW" | "PUBLISHED" | "ARCHIVED" | "REJECTED"
+  price: number
+  isFree: boolean
+  rating: number
+  studentsCount: number
+  enrolledCount: number
+  createdAt: string
+}
+
+export interface EnrolledStudent {
+  enrollmentId: string
+  studentId: string
+  fullName: string
+  fullNameAr: string | null
+  email: string
+  avatarUrl: string | null
+  progressPct: number
+  enrolledAt: string
+  completedAt: string | null
+  totalTimeSpentSeconds: number
+}
+
+export const instructorsAdminApi = {
+  list: (params: { q?: string; page?: number; size?: number } = {}) => {
+    const p = new URLSearchParams()
+    if (params.q) p.set("q", params.q)
+    p.set("page", String(params.page ?? 0))
+    p.set("size", String(params.size ?? 15))
+    return api.get<PageResponse<InstructorSummary>>(`/api/v1/admin/instructors?${p}`)
+  },
+
+  getById: (id: string) =>
+    api.get<InstructorSummary>(`/api/v1/admin/instructors/${id}`),
+
+  updateStatus: (id: string, status: AdminUserStatus) =>
+    api.patch<{ status: AdminUserStatus }>(`/api/v1/admin/instructors/${id}/status?status=${status}`, {}),
+
+  getCourses: (instructorId: string) =>
+    api.get<InstructorCourse[]>(`/api/v1/admin/instructors/${instructorId}/courses`),
+
+  getCourseStudents: (courseId: string, page = 0, size = 20) =>
+    api.get<PageResponse<EnrolledStudent>>(
+      `/api/v1/admin/instructors/courses/${courseId}/students?page=${page}&size=${size}`
+    ),
 }
 
 // ── Audit log ─────────────────────────────────────────────────────────────────

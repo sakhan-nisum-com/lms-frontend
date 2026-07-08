@@ -12,7 +12,7 @@ import { TRAINING_TRACKS } from "@/lib/data/trainings"
 import { usePurchases } from "@/lib/hooks/usePurchases"
 import { useTrainingEnrollments } from "@/lib/hooks/useTrainingEnrollments"
 import { LanguageToggle } from "@/components/LanguageToggle"
-import { switchLocalePath } from "@/lib/locale-utils"
+import { switchLocalePath, stripLocaleFromPath } from "@/lib/locale-utils"
 
 const PROMO_HEIGHT = 40
 const MAIN_HEADER_HEIGHT = 64
@@ -45,10 +45,22 @@ export function SiteHeader() {
   const { isPurchased } = usePurchases()
   const { isEnrolled } = useTrainingEnrollments()
 
+  const strippedPath = stripLocaleFromPath(pathname)
+  const isDashboard =
+    strippedPath.startsWith("/admin") ||
+    strippedPath.startsWith("/student") ||
+    strippedPath.startsWith("/instructor") ||
+    strippedPath === "/login" ||
+    strippedPath === "/register"
+
   useEffect(() => {
+    if (isDashboard) {
+      document.documentElement.style.setProperty("--app-header-height", "0px")
+      return
+    }
     const height = (promoOpen ? PROMO_HEIGHT : 0) + MAIN_HEADER_HEIGHT + CATEGORY_BAR_HEIGHT
     document.documentElement.style.setProperty("--app-header-height", `${height}px`)
-  }, [promoOpen])
+  }, [promoOpen, isDashboard])
 
   useEffect(() => {
     function handler(e: MouseEvent) {
@@ -58,6 +70,8 @@ export function SiteHeader() {
     document.addEventListener("mousedown", handler)
     return () => document.removeEventListener("mousedown", handler)
   }, [])
+
+  if (isDashboard) return null
 
   const submitSearch = (e: React.FormEvent) => {
     e.preventDefault()

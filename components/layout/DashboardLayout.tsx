@@ -17,7 +17,7 @@ export function DashboardLayout({
   return (
     <div
       className="flex overflow-hidden"
-      style={{ backgroundColor: "var(--bg-canvas)", height: "calc(100vh - var(--app-header-height, 150px))" }}
+      style={{ backgroundColor: "var(--bg-canvas)", height: "100vh" }}
     >
       <Sidebar role={role} />
       <div className="flex flex-col flex-1 overflow-hidden">
