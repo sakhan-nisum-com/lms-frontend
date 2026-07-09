@@ -1,5 +1,42 @@
 import { api } from "./client"
-import type { ApiCourse } from "./courses"
+import type { ApiCourse, PageResponse } from "./courses"
+
+export interface InstructorStudent {
+  enrollmentId: string
+  studentId: string
+  fullName: string
+  fullNameAr: string | null
+  email: string
+  avatarUrl: string | null
+  courseId: string
+  courseTitle: string
+  progressPct: number
+  enrolledAt: string
+  completedAt: string | null
+  lastAccessedAt: string | null
+  totalTimeSpentSeconds: number
+}
+
+export interface InstructorStudentStats {
+  totalEnrolled: number
+  activeThisWeek: number
+  avgCompletion: number
+  newThisMonth: number
+  courseBreakdown: { courseId: string; courseTitle: string; count: number }[]
+}
+
+export const instructorStudentsApi = {
+  list: (params: { q?: string; page?: number; size?: number } = {}) => {
+    const p = new URLSearchParams()
+    if (params.q) p.set("q", params.q)
+    p.set("page", String(params.page ?? 0))
+    p.set("size", String(params.size ?? 20))
+    return api.get<PageResponse<InstructorStudent>>(`/api/v1/instructor/students?${p}`)
+  },
+
+  stats: () =>
+    api.get<InstructorStudentStats>("/api/v1/instructor/students/stats"),
+}
 
 export interface EnrollmentResponse {
   id: string
