@@ -7,6 +7,7 @@ import { COURSES, STUDENT_PROFILE } from "@/lib/data/courses"
 import { usePurchases } from "@/lib/hooks/usePurchases"
 import { coursesApi, type ApiCourse } from "@/lib/api/courses"
 import { enrollmentsApi } from "@/lib/api/enrollments"
+import { paymentsApi } from "@/lib/api/payments"
 import { CourseThumbnail } from "@/components/CourseThumbnail"
 import { ChevronLeft, CheckCircle2, CreditCard, ShieldCheck, Lock } from "lucide-react"
 
@@ -96,14 +97,19 @@ export default function CheckoutPage({ params }: { params: Promise<{ id: string 
     return Object.keys(next).length === 0
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!validate()) return
     setStep("processing")
-    setTimeout(() => {
+    try {
+      const txn = await paymentsApi.initiate({ courseId: id, paymentMethod: "CARD" })
+      await paymentsApi.confirm(txn.id, `demo_charge_${Date.now()}`)
       purchase(id)
       setStep("success")
-    }, 1200)
+    } catch {
+      setStep("pay")
+      setErrors({ name: "Payment failed. Please try again." })
+    }
   }
 
   return (

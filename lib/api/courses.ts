@@ -171,6 +171,9 @@ export const coursesApi = {
   submitForReview: (id: string) =>
     api.post<ApiCourse>(`/api/v1/courses/${id}/submit-review`, {}),
 
+  duplicate: (id: string) =>
+    api.post<ApiCourse>(`/api/v1/courses/${id}/duplicate`, {}),
+
   // Sections
   createSection: (courseId: string, req: CreateSectionRequest) =>
     api.post<ApiSection>(`/api/v1/courses/${courseId}/sections`, req),

@@ -4,7 +4,7 @@ import Link from "next/link"
 import { useState, useEffect } from "react"
 import {
   Plus, Play, Users, Star, BookOpen,
-  Edit2, Eye, Trash2, Search, Loader2,
+  Edit2, Eye, Trash2, Search, Loader2, Copy,
 } from "lucide-react"
 import { InstructorPageShell } from "@/components/instructor/InstructorPageShell"
 import { coursesApi, type ApiCourse } from "@/lib/api/courses"
@@ -37,9 +37,14 @@ function StatusBadge({ status }: { status: string }) {
   )
 }
 
-function CourseCard({ course, onDelete }: { course: ApiCourse; onDelete: (id: string) => void }) {
+function CourseCard({ course, onDelete, onDuplicate }: {
+  course: ApiCourse
+  onDelete: (id: string) => void
+  onDuplicate: (id: string) => void
+}) {
   const color = LEVEL_COLORS[course.level] ?? "#3B82F6"
   const lessonCount = course.sections.reduce((acc, s) => acc + s.lessons.length, 0)
+  const [duplicating, setDuplicating] = useState(false)
 
   return (
     <div className="rounded-2xl overflow-hidden flex flex-col transition-colors shadow-sm"
@@ -100,6 +105,18 @@ function CourseCard({ course, onDelete }: { course: ApiCourse; onDelete: (id: st
             <Eye size={12} /> Preview
           </Link>
           <button
+            onClick={async () => {
+              setDuplicating(true)
+              try { await onDuplicate(course.id) } finally { setDuplicating(false) }
+            }}
+            disabled={duplicating}
+            className="p-2 rounded-xl transition-colors"
+            style={{ backgroundColor: "#8B5CF618", color: "#8B5CF6" }}
+            title="Duplicate"
+          >
+            {duplicating ? <Loader2 size={12} className="animate-spin" /> : <Copy size={12} />}
+          </button>
+          <button
             onClick={() => onDelete(course.id)}
             className="p-2 rounded-xl transition-colors"
             style={{ backgroundColor: "#EF444418", color: "#EF4444" }}
@@ -119,6 +136,7 @@ export default function CoursesPage() {
   const [error, setError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState("ALL")
   const [search, setSearch] = useState("")
+  const [toast, setToast] = useState<{ type: "success" | "error"; msg: string } | null>(null)
 
   useEffect(() => {
     const user = authStore.getUser()
@@ -128,6 +146,11 @@ export default function CoursesPage() {
       .catch((err: ApiError) => setError(err.message))
       .finally(() => setLoading(false))
   }, [])
+
+  function showToast(type: "success" | "error", msg: string) {
+    setToast({ type, msg })
+    setTimeout(() => setToast(null), 3500)
+  }
 
   const filtered = courses.filter((c) => {
     const matchTab = activeTab === "ALL" || c.status === activeTab
@@ -149,6 +172,17 @@ export default function CoursesPage() {
         </Link>
       }
     >
+      {toast && (
+        <div className="mb-4 px-4 py-3 rounded-xl text-sm font-medium"
+          style={{
+            backgroundColor: toast.type === "success" ? "#10B98118" : "#EF444418",
+            color: toast.type === "success" ? "var(--success)" : "#EF4444",
+            border: `1px solid ${toast.type === "success" ? "#10B98130" : "#EF444430"}`,
+          }}>
+          {toast.msg}
+        </div>
+      )}
+
       {/* Filters */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-6">
         <div className="flex gap-1 p-1 rounded-xl" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
@@ -211,6 +245,17 @@ export default function CoursesPage() {
               key={course.id}
               course={course}
               onDelete={(id) => setCourses((prev) => prev.filter((c) => c.id !== id))}
+              onDuplicate={async (id) => {
+                try {
+                  const copy = await coursesApi.duplicate(id)
+                  setCourses((prev) => [copy, ...prev])
+                  setActiveTab("DRAFT")
+                  setSearch("")
+                  showToast("success", `"${copy.title}" created as a draft.`)
+                } catch (err) {
+                  showToast("error", err instanceof Error ? err.message : "Failed to duplicate course.")
+                }
+              }}
             />
           ))}
         </div>

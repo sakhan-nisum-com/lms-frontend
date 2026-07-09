@@ -4,7 +4,7 @@ import { useMemo, useState } from "react"
 import { DashboardLayout } from "@/components/layout/DashboardLayout"
 import { useTransactions } from "@/lib/hooks/useTransactions"
 import type { TransactionStatus } from "@/lib/data/transactions"
-import { Search, DollarSign, RotateCcw, AlertTriangle, Clock, Download, TrendingUp, TrendingDown } from "lucide-react"
+import { Search, DollarSign, RotateCcw, AlertTriangle, Clock, Download, TrendingUp, TrendingDown, Loader2 } from "lucide-react"
 
 const statusColors: Record<TransactionStatus, React.CSSProperties> = {
   completed: { backgroundColor: "var(--success-bg)", color: "var(--success)" },
@@ -32,7 +32,7 @@ const HISTORICAL_LOSSES = [
 const CURRENT_MONTH = "Jun"
 
 export default function AdminTransactionsPage() {
-  const { transactions, refund } = useTransactions()
+  const { transactions, refund, loading, error } = useTransactions()
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState<"all" | TransactionStatus>("all")
 
@@ -157,6 +157,17 @@ export default function AdminTransactionsPage() {
           </select>
         </div>
 
+        {loading && (
+          <div className="flex items-center justify-center py-16" style={{ color: "var(--text-secondary)" }}>
+            <Loader2 size={20} className="animate-spin mr-2" /> Loading transactions…
+          </div>
+        )}
+        {error && !loading && (
+          <div className="rounded-xl px-5 py-4 text-sm" style={{ backgroundColor: "var(--danger-bg)", color: "var(--danger)" }}>
+            {error}
+          </div>
+        )}
+        {!loading && !error && (
         <div className="rounded-2xl overflow-hidden shadow-sm" style={{ backgroundColor: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
           <table className="w-full text-sm">
             <thead>
@@ -213,6 +224,7 @@ export default function AdminTransactionsPage() {
             </tbody>
           </table>
         </div>
+        )}
       </div>
     </DashboardLayout>
   )
