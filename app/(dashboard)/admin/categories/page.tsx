@@ -42,15 +42,21 @@ export default function AdminCategoriesPage() {
         setCategories(["Technology", "Business", "Design", "Marketing"])
       }
 
-      // Count courses per category
+      // Count courses per category and surface any category in use that isn't in the list yet
       try {
-        const res = await coursesApi.list(0, 100)
+        const res = await coursesApi.list(0, 500)
         const counts: Record<string, number> = {}
         for (const c of res.data) {
-          const cat = c.category ?? "Uncategorized"
-          counts[cat] = (counts[cat] ?? 0) + 1
+          if (!c.category) continue
+          counts[c.category] = (counts[c.category] ?? 0) + 1
         }
         setCourseCountByCategory(counts)
+
+        // Any category actually used by a course must appear in the list
+        setCategories((prev) => {
+          const missing = Object.keys(counts).filter((cat) => !prev.includes(cat))
+          return missing.length > 0 ? [...prev, ...missing] : prev
+        })
       } catch {}
 
       setLoading(false)
